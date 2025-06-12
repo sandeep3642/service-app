@@ -16,7 +16,7 @@ const Dashboard = () => {
   const [activeItem, setActiveItem] = useState("dashboard");
 
   return (
-    <div className="flex h-screen w-screen  bg-gray-50 border-2 border-gray-600">
+    <div className="flex h-screen w-screen  bg-gray-50">
       <Sidebar activeItem={activeItem} setActiveItem={setActiveItem} />
 
       <div className="flex-1 flex flex-col">
