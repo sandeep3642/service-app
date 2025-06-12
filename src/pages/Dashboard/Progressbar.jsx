@@ -42,7 +42,7 @@ const ProgressBar = ({
         <>
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm text-gray-600">{label}</span>
-            <span className="text-sm font-medium">{safePercentage}%</span>
+            <span className="text-sm font-medium text-[#121212]">{safePercentage}%</span>
           </div>
           <div className={`w-full bg-gray-200 rounded-full ${height}`}>
             <div
