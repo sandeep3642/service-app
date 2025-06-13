@@ -63,7 +63,7 @@ const CustomerManagement = () => {
     );
 
     const ActionDropdown = ({ customerId, onClose }) => (
-        <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-24">
+        <div className="absolute right-0 top-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-24">
             <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 text-red-600">
                 Inactive
             </button>
@@ -81,7 +81,7 @@ const CustomerManagement = () => {
             {/* Main Content Container */}
             <div className="max-w-7xl mx-auto">
                 {/* Customer Table with integrated header */}
-                <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div className="bg-white rounded-lg border border-gray-200">
                     {/* Table Header with Title, Search and Export */}
                     <div className="bg-white px-6 py-2 border-b border-gray-200">
                         <div className="flex items-center justify-between">
@@ -107,8 +107,8 @@ const CustomerManagement = () => {
                     </div>
 
                     {/* Table Content */}
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
+                    <div>
+                        <table className="w-full overflow-scroll">
                             <thead className="bg-gray-50 border-b border-gray-200">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-sm font-light text-[#121212]  tracking-wider">
