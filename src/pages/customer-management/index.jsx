@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Search, MoreVertical, Filter, Download } from "lucide-react";
-
+import KingIcon from "../../assets/king.png"
 import SearchIcon from "../../assets/search.png"
 
 const CustomerManagement = () => {
@@ -16,7 +16,7 @@ const CustomerManagement = () => {
             mobile: "8009396321",
             lastLogin: "Feb 18, 2025",
             joinedOn: "Jan 19, 2021",
-            status: "Active"
+            status: "Active",
         },
         {
             id: 2,
@@ -25,7 +25,8 @@ const CustomerManagement = () => {
             mobile: "8424412578",
             lastLogin: "Feb 24, 2025",
             joinedOn: "Mar 05, 2021",
-            status: "Active"
+            status: "Active",
+            king: 1
         },
         {
             id: 3,
@@ -77,13 +78,13 @@ const CustomerManagement = () => {
     );
 
     return (
-        <div className="min-h-screen bg-gray-50 p-6">
+        <div className="bg-gray-50">
             {/* Main Content Container */}
-            <div className="max-w-7xl mx-auto">
+            <div className="pt-25 px-8">
                 {/* Customer Table with integrated header */}
-                <div className="bg-white rounded-lg border border-gray-200">
+                <div className="bg-white border rounded-lg border-[#DDDDDD]">
                     {/* Table Header with Title, Search and Export */}
-                    <div className="bg-white px-6 py-2 border-b border-gray-200">
+                    <div className=" px-6 py-2  border-gray-200">
                         <div className="flex items-center justify-between">
                             {/* Left side - Customer list title and search */}
                             <div className="flex items-center space-x-6">
@@ -94,13 +95,12 @@ const CustomerManagement = () => {
 
                             {/* Search Bar */}
                             <div className="relative">
-                                <img src={SearchIcon} alt="search" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                                <input
+                                <img src={SearchIcon} alt="search" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />                                <input
                                     type="text"
                                     placeholder="Search"
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="text-[#656565] font-medium pl-12 pr-10 py-1 border border-[#DDDDDD] rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="text-[#656565] font-medium pl-12 pr-10 py-1 border  border-[#DDDDDD] rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
                         </div>
@@ -134,28 +134,31 @@ const CustomerManagement = () => {
                                     </th>
                                 </tr>
                             </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
+                            <tbody className="  divide-y divide-gray-200">
                                 {filteredCustomers.map((customer) => (
                                     <tr key={customer.id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                                            {customer.name}
+                                        <td className="px-6 py-4 text-sm text-[#121212] flex items-center gap-2">
+                                            {customer.king == "1" && (
+                                                <img src={KingIcon} alt="kingicon" className="w-4 h-4" />
+                                            )}
+                                            <span>{customer.name}</span>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-600">
+                                        <td className="px-6 py-4 text-sm text-[#121212]">
                                             {customer.email}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-600">
+                                        <td className="px-6 py-4 text-sm text-[#121212]">
                                             {customer.mobile}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-600">
+                                        <td className="px-6 py-4 text-sm text-[#121212]">
                                             {customer.lastLogin}
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-600">
+                                        <td className="px-6 py-4 text-sm text-[#121212]">
                                             {customer.joinedOn}
                                         </td>
                                         <td className="px-6 py-4">
                                             <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${customer.status === 'Active'
-                                                ? 'bg-green-100 text-green-800'
-                                                : 'bg-red-100 text-red-800'
+                                                ? ' text-[#03A416]'
+                                                : ' text-[#FF0606]'
                                                 }`}>
                                                 {customer.status}
                                             </span>
@@ -180,7 +183,7 @@ const CustomerManagement = () => {
                         </table>
                     </div>
                 </div>
-                <div className="bg-white px-6 py-3 flex items-center justify-end mt-6">
+                <div className=" px-6 py-3 flex items-center justify-end mt-6">
                     <button className="px-6 py-4 bg-[#1D0EC7] text-white rounded-lg hover:bg-blue-700 font-medium">
                         Export
                     </button>
