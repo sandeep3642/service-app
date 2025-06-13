@@ -1,5 +1,5 @@
 import React from "react";
-
+import { useNavigate } from "react-router-dom";
 import DashboardIcon from "../assets/dashboard.png";
 import SubAdminIcon from "../assets/subadmin.png";
 import CustomerIcon from "../assets/customer.png";
@@ -10,21 +10,63 @@ import EarningIcons from "../assets/earning.png";
 import SettingsIcon from "../assets/setting.png";
 
 const Sidebar = ({ activeItem, setActiveItem }) => {
+  const navigate = useNavigate();
+
   const menuItems = [
-    { id: "dashboard", icon: DashboardIcon, label: "Dashboard" },
-    { id: "sub-admin", icon: SubAdminIcon, label: "Sub-Admin" },
-    { id: "customer", icon: CustomerIcon, label: "Customer Management" },
-    { id: "technician", icon: TechIcon, label: "Technician Management" },
+    {
+      id: "dashboard",
+      icon: DashboardIcon,
+      label: "Dashboard",
+      path: "/dashboard",
+    },
+    {
+      id: "sub-admin",
+      icon: SubAdminIcon,
+      label: "Sub-Admin",
+      path: "/sub-admin",
+    },
+    {
+      id: "customer",
+      icon: CustomerIcon,
+      label: "Customer Management",
+      path: "/customer",
+    },
+    {
+      id: "technician",
+      icon: TechIcon,
+      label: "Technician Management",
+      path: "/technician",
+    },
     {
       id: "service",
       icon: ServiceRequestIcon,
       label: "Service Request Manager",
+      path: "/service",
     },
-    { id: "complaint", icon: ComplaintIcon, label: "Complaint & Feedback" },
-    { id: "earnings", icon: EarningIcons, label: "Earnings & Payout" },
-    { id: "account", icon: SettingsIcon, label: "Account Settings" },
+    {
+      id: "complaint",
+      icon: ComplaintIcon,
+      label: "Complaint & Feedback",
+      path: "/complaint",
+    },
+    {
+      id: "earnings",
+      icon: EarningIcons,
+      label: "Earnings & Payout",
+      path: "/earnings",
+    },
+    {
+      id: "account",
+      icon: SettingsIcon,
+      label: "Account Settings",
+      path: "/account",
+    },
   ];
-  
+
+  const handleNavigation = (item) => {
+    setActiveItem(item.id);
+    navigate(item.path);
+  };
 
   return (
     <div className="bg-white w-74 min-h-screen border-r border-gray-200">
@@ -38,8 +80,8 @@ const Sidebar = ({ activeItem, setActiveItem }) => {
         {menuItems.map((item) => (
           <button
             key={item.id}
-            onClick={() => setActiveItem(item.id)}
-            className={`outline-none cursor-pointer focus:outline-none w-full flex items-center space-x-3 px-4 py-3  text-left transition-colors relative ${
+            onClick={() => handleNavigation(item)}
+            className={`outline-none cursor-pointer focus:outline-none w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors relative ${
               activeItem === item.id
                 ? "bg-purple-100 text-[#1D0EC7] border-l-4 border-[#1D0EC7]"
                 : "text-gray-600 hover:bg-gray-50"
@@ -67,4 +109,5 @@ const Sidebar = ({ activeItem, setActiveItem }) => {
     </div>
   );
 };
-export default Sidebar;
+
+export default Sidebar
