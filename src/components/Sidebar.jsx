@@ -81,20 +81,18 @@ const Sidebar = ({ activeItem, setActiveItem }) => {
           <button
             key={item.id}
             onClick={() => handleNavigation(item)}
-            className={`outline-none cursor-pointer focus:outline-none w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors relative ${
-              activeItem === item.id
+            className={`outline-none cursor-pointer focus:outline-none w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors relative ${activeItem === item.id
                 ? "bg-purple-100 text-[#1D0EC7] border-l-4 border-[#1D0EC7]"
                 : "text-gray-600 hover:bg-gray-50"
-            }`}
+              }`}
           >
             <img
               src={item.icon}
               alt={item.label}
-              className={`w-5 h-5 ${
-                activeItem === item.id
+              className={`w-5 h-5 ${activeItem === item.id
                   ? "filter brightness-0 saturate-100"
                   : "opacity-90"
-              }`}
+                }`}
               style={{
                 filter:
                   activeItem === item.id
@@ -102,8 +100,10 @@ const Sidebar = ({ activeItem, setActiveItem }) => {
                     : "opacity(0.6)",
               }}
             />
-            <span className="text-md font-sm text-[#474747]">{item.label}</span>
-          </button>
+            <span className={`text-md font-sm ${activeItem === item.id ? "text-[#1D0EC7]" : "text-[#474747]"
+              }`}>
+              {item.label}
+            </span>          </button>
         ))}
       </nav>
     </div>
