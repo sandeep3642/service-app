@@ -18,37 +18,43 @@ const TechnicianPerformance = () => {
     },
     { name: "Suji A.", type: "AC Repair", jobs: 15, color: "bg-orange-500" },
   ];
+
   const maxJobs = Math.max(...technicians.map((tech) => tech.jobs));
+
   return (
     <div>
-      <h3 className="text-lg font-semibold text-gray-900">
+      <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-2">
         Technician Performance
       </h3>
-      <div className="bg-white rounded-lg border border-gray-200 mt-2">
-        <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-          <h3 className="text-md font-sm text-[#121212]">
+      <div className="bg-white rounded-lg border border-gray-200">
+        <div className="p-4 sm:p-6 border-b border-gray-200 flex justify-between items-center">
+          <h3 className="text-sm sm:text-md font-sm text-[#121212]">
             Top 5 technicians by completed jobs
           </h3>
-          <EllipsisVertical className="w-5 h-5 text-gray-400 cursor-pointer hover:text-gray-600" />
+          <EllipsisVertical className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 cursor-pointer hover:text-gray-600 flex-shrink-0" />
         </div>
-        <div className="p-6 space-y-6">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
           {technicians.map((tech, index) => (
-            <div key={index} className="space-y-3">
+            <div key={index} className="space-y-2 sm:space-y-3">
               <div className="flex items-center justify-between">
-                <div className="flex  items-center space-x-4">
-                  <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                    <img src={UserImage} alt="user" className="w-6 h-6" />
+                <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                    <img
+                      src={UserImage}
+                      alt="user"
+                      className="w-5 h-5 sm:w-6 sm:h-6"
+                    />
                   </div>
-                  <div className="flex w-60 items-center">
-                    <p className="text-base font-medium  text-gray-900 w-32 truncate">
+                  <div className="flex flex-col sm:flex-row sm:items-center flex-1 min-w-0 gap-1 sm:gap-4">
+                    <p className="text-sm sm:text-base font-medium text-gray-900 truncate">
                       {tech.name}
                     </p>
-                    <span className="text-sm text-gray-500 w-28">
+                    <span className="text-xs sm:text-sm text-gray-500 truncate">
                       {tech.type}
                     </span>
                   </div>
                 </div>
-                <span className="text-base font-semibold text-gray-900">
+                <span className="text-sm sm:text-base font-semibold text-gray-900 flex-shrink-0 ml-2">
                   {tech.jobs} jobs
                 </span>
               </div>
@@ -65,4 +71,5 @@ const TechnicianPerformance = () => {
     </div>
   );
 };
+
 export default TechnicianPerformance;

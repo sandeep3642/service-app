@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import { X } from "lucide-react";
 import DashboardIcon from "../assets/dashboard.png";
 import SubAdminIcon from "../assets/subadmin.png";
 import CustomerIcon from "../assets/customer.png";
@@ -9,7 +10,12 @@ import ComplaintIcon from "../assets/complaint.png";
 import EarningIcons from "../assets/earning.png";
 import SettingsIcon from "../assets/setting.png";
 
-const Sidebar = ({ activeItem, setActiveItem }) => {
+const Sidebar = ({
+  activeItem,
+  setActiveItem,
+  sidebarOpen,
+  setSidebarOpen,
+}) => {
   const navigate = useNavigate();
 
   const menuItems = [
@@ -66,22 +72,45 @@ const Sidebar = ({ activeItem, setActiveItem }) => {
   const handleNavigation = (item) => {
     setActiveItem(item.id);
     navigate(item.path);
+    // Close sidebar on mobile after navigation
+    if (window.innerWidth < 1024) {
+      setSidebarOpen(false);
+    }
   };
 
   return (
-    <div className="bg-white w-74 min-h-screen border-r border-gray-200">
-      <div className="p-6">
-        <div className="bg-gray-200 h-12 rounded-lg flex items-center justify-center">
-          <span className="text-gray-600 font-semibold">LOGO</span>
+    <div
+      className={`
+        bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out z-50
+        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+        lg:translate-x-0 lg:static
+        fixed inset-y-0 left-0
+        w-64 lg:w-74
+        min-h-screen
+      `}
+    >
+      {/* Header with close button for mobile */}
+      <div className="p-4 lg:p-6 flex items-center justify-between">
+        <div className="bg-gray-200 h-10 lg:h-12 rounded-lg flex items-center justify-center flex-1 mr-2 lg:mr-0">
+          <span className="text-gray-600 font-semibold text-sm lg:text-base">
+            LOGO
+          </span>
         </div>
+        <button
+          onClick={() => setSidebarOpen(false)}
+          className="lg:hidden p-2 text-gray-500 hover:text-gray-700"
+        >
+          <X className="w-5 h-5" />
+        </button>
       </div>
 
-      <nav className="px-1 space-y-1">
+      {/* Navigation */}
+      <nav className="px-1 space-y-1 pb-4">
         {menuItems.map((item) => (
           <button
             key={item.id}
             onClick={() => handleNavigation(item)}
-            className={`outline-none cursor-pointer focus:outline-none w-full flex items-center space-x-3 px-4 py-3 text-left transition-colors relative ${
+            className={`outline-none cursor-pointer focus:outline-none w-full flex items-center space-x-3 px-3 lg:px-4 py-2 lg:py-3 text-left transition-colors relative ${
               activeItem === item.id
                 ? "bg-purple-100 text-[#1D0EC7] border-l-4 border-[#1D0EC7]"
                 : "text-gray-600 hover:bg-gray-50"
@@ -90,7 +119,7 @@ const Sidebar = ({ activeItem, setActiveItem }) => {
             <img
               src={item.icon}
               alt={item.label}
-              className={`w-5 h-5 ${
+              className={`w-4 h-4 lg:w-5 lg:h-5 flex-shrink-0 ${
                 activeItem === item.id
                   ? "filter brightness-0 saturate-100"
                   : "opacity-90"
@@ -102,7 +131,9 @@ const Sidebar = ({ activeItem, setActiveItem }) => {
                     : "opacity(0.6)",
               }}
             />
-            <span className="text-md font-sm text-[#474747]">{item.label}</span>
+            <span className="text-sm lg:text-md font-sm text-[#474747] truncate">
+              {item.label}
+            </span>
           </button>
         ))}
       </nav>
@@ -110,4 +141,4 @@ const Sidebar = ({ activeItem, setActiveItem }) => {
   );
 };
 
-export default Sidebar
+export default Sidebar;
