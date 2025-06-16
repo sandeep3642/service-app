@@ -1,19 +1,23 @@
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
-import Dashboard from "./pages/Dashboard";
-import CustomerManagement from "./pages/customer-management";
 import "./App.css";
+import Loader from "./pages/utilty/Loader";
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const CustomerManagement = lazy(() => import("./pages/customer-management"));
 
 function App() {
   return (
     <Router>
       <Layout>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/customer" element={<CustomerManagement />} />
-        </Routes>
+        {/* Suspense wraps routes to show fallback during lazy loading */}
+        <Suspense fallback={<Loader/>}>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/customer" element={<CustomerManagement />} />
+          </Routes>
+        </Suspense>
       </Layout>
     </Router>
   );
