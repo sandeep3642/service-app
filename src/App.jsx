@@ -11,8 +11,7 @@ function App() {
   return (
     <Router>
       <Layout>
-        {/* Suspense wraps routes to show fallback during lazy loading */}
-        <Suspense fallback={<Loader/>}>
+        <Suspense fallback={<Loader />}>
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/dashboard" element={<Dashboard />} />
