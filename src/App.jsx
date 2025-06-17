@@ -6,6 +6,7 @@ import Loader from "./pages/utilty/Loader";
 import CustomerView from "./pages/customer-management/customerView";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const CustomerManagement = lazy(() => import("./pages/customer-management"));
+const Technician = lazy(() => import("./pages/Technician"));
 
 function App() {
   return (
@@ -16,7 +17,8 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/customer" element={<CustomerManagement />} />
-             <Route path="/customer-view" element={<CustomerView />} />
+            <Route path="/customer-view" element={<CustomerView />} />
+            <Route path="/technician" element={<Technician />} />
           </Routes>
         </Suspense>
       </Layout>

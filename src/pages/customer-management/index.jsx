@@ -2,10 +2,13 @@ import React, { useState } from "react";
 import { Search, MoreVertical, Filter, Download } from "lucide-react";
 import KingIcon from "../../assets/king.png"
 import SearchIcon from "../../assets/search.png"
+import DeleteCustomerModal from "./DeleteModal";
+
 
 const CustomerManagement = () => {
     const [searchTerm, setSearchTerm] = useState("");
     const [showActionMenu, setShowActionMenu] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     // Sample customer data
     const customers = [
@@ -62,6 +65,19 @@ const CustomerManagement = () => {
         customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         customer.mobile.includes(searchTerm)
     );
+    const handleDelete = () => {
+        setIsModalOpen(true)
+        console.log("Hello")
+    }
+    const handleDeleteConfirm = () => {
+        console.log('Customer deleted!');
+        // Add your delete logic here
+        setIsModalOpen(false);
+    };
+
+    const handleModalClose = () => {
+        setIsModalOpen(false);
+    };
 
     const ActionDropdown = ({ customerId, onClose }) => (
         <div className="absolute right-0 top-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-24">
@@ -71,7 +87,7 @@ const CustomerManagement = () => {
             <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 text-gray-700">
                 Edit
             </button>
-            <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 text-gray-700">
+            <button onClick={handleDelete} className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 text-gray-700">
                 Delete
             </button>
         </div>
@@ -166,7 +182,7 @@ const CustomerManagement = () => {
                                         <td className="px-6 py-4 relative">
                                             <button
                                                 onClick={() => setShowActionMenu(showActionMenu === customer.id ? null : customer.id)}
-                                                className="text-gray-400 hover:text-gray-600 p-1"
+                                                className="text-[#121212] hover:text-gray-600 p-1"
                                             >
                                                 <MoreVertical className="w-4 h-4" />
                                             </button>
@@ -197,6 +213,12 @@ const CustomerManagement = () => {
                     onClick={() => setShowActionMenu(null)}
                 />
             )}
+            <DeleteCustomerModal
+                isOpen={isModalOpen}
+                onClose={handleModalClose}
+                onConfirm={handleDeleteConfirm}
+                customerName="Prashant Kumar Singh"
+            />
         </div>
     );
 };
