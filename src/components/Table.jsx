@@ -126,12 +126,6 @@ const DataTable = ({
 
     return (
         <div className="bg-gray-50">
-            <div className=" px-6 py-3 flex items-center justify-end mt-6">
-                <button className="px-6 py-4 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-700 font-medium">
-                    <span className=''> + </span>
-                    Add Technician
-                </button>
-            </div>
             <div className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}>
                 {/* Search Bar */}
                 <div className=" px-6 py-2  border-gray-200">
@@ -232,7 +226,7 @@ const DataTable = ({
                 )}
             </div>
             <div className=" px-6 py-3 flex items-center justify-end mt-6">
-                <button className="px-6 py-4 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-700 font-medium">
+                <button className="px-6 py-4 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium">
                     Export
                 </button>
             </div>
