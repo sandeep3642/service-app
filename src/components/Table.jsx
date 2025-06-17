@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronUp, ChevronDown, Search, Eye, Edit, Trash2, MoreHorizontal, MoreVertical } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import SearchIcon from ".././assets/search.png"
 
 // Reusable Table Component
@@ -17,6 +18,7 @@ const DataTable = ({
     const [searchTerm, setSearchTerm] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
     const [showActionMenu, setShowActionMenu] = useState(null);
+    const navigate = useNavigate();
 
     // Filter data based on search term
     const filteredData = data.filter(row =>
@@ -49,31 +51,41 @@ const DataTable = ({
         }));
     };
 
-    const ActionDropdown = ({ customerId, onClose }) => (
-        <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-32">
+    const handleViewProfile = (row) => {
+        if (name === 'Technician List') {
+            navigate('/technician-view', { state: { technician: row } });
+        }
+        setShowActionMenu(null);
+    };
+
+    const handleEdit = (row) => {
+        console.log('Edit action for:', row);
+        // Handle edit action
+        setShowActionMenu(null);
+    };
+
+    const handleDelete = (row) => {
+        console.log('Delete action for:', row);
+        // Handle delete action
+        setShowActionMenu(null);
+    };
+
+    const ActionDropdown = ({ row, onClose }) => (
+        <div className="absolute right-0 top-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-32">
             <div
-                onClick={() => {
-                    // Handle view profile action
-                    onClose();
-                }}
+                onClick={() => handleViewProfile(row)}
                 className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 text-[#121212] cursor-pointer"
             >
                 View Profile
             </div>
             <div
-                onClick={() => {
-                    // Handle edit action
-                    onClose();
-                }}
+                onClick={() => handleEdit(row)}
                 className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 text-[#121212] cursor-pointer"
             >
                 Edit
             </div>
             <div
-                onClick={() => {
-                    // Handle delete action
-                    onClose();
-                }}
+                onClick={() => handleDelete(row)}
                 className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 text-[#121212] cursor-pointer"
             >
                 Delete
@@ -200,7 +212,7 @@ const DataTable = ({
                                                 </button>
                                                 {showActionMenu === row.id && (
                                                     <ActionDropdown
-                                                        customerId={row.id}
+                                                        row={row}
                                                         onClose={() => setShowActionMenu(null)}
                                                     />
                                                 )}

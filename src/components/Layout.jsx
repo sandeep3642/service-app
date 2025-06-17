@@ -10,7 +10,40 @@ const Layout = ({ children }) => {
 
   useEffect(() => {
     const path = location.pathname.replace("/", "") || "dashboard";
-    setActiveItem(path);
+    
+    // Method 1: Explicit mapping (more control)
+    const routeMapping = {
+      "customer-view": "customer",
+      "customer-edit": "customer",
+      "technician-view": "technician",
+      "technician-edit": "technician",
+      // Add more mappings as needed
+    };
+
+    // Method 2: Pattern-based mapping (more flexible)
+    const getParentRoute = (currentPath) => {
+      // Check explicit mappings first
+      if (routeMapping[currentPath]) {
+        return routeMapping[currentPath];
+      }
+      
+      // Pattern-based: if path contains a hyphen, take the part before the first hyphen
+      if (currentPath.includes('-')) {
+        const parts = currentPath.split('-');
+        const potentialParent = parts[0];
+        
+        // List of valid parent routes (should match your sidebar items)
+        const validParents = ['customer', 'technician', 'dashboard', 'reports', 'settings'];
+        
+        if (validParents.includes(potentialParent)) {
+          return potentialParent;
+        }
+      }
+      
+      return currentPath;
+    };
+
+    setActiveItem(getParentRoute(path));
   }, [location]);
 
   // Close sidebar when clicking outside on mobile
