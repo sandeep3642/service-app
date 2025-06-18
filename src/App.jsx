@@ -1,7 +1,6 @@
 import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
-import "./App.css";
 import Loader from "./pages/utilty/Loader";
 import CustomerView from "./pages/customer-management/customerView";
 import ServiceDetails from "./pages/Service-Request-Manager/ServiceDetails";
@@ -13,6 +12,8 @@ const TechnicianView = lazy(() => import("./pages/Technician/TechnicianView"));
 const ServiceRequestManager = lazy(() =>
   import("./pages/Service-Request-Manager")
 );
+import "./App.css";
+
 
 function App() {
   return (

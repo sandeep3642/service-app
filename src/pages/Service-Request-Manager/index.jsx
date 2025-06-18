@@ -6,7 +6,7 @@ import TechnicianAllocationDialog from "./TechnicianAllocationDialog";
 export default function Index() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("service");
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   // Service Request List data
   const serviceRequestData = {

@@ -60,7 +60,7 @@ const Layout = ({ children }) => {
   }, []);
 
   return (
-    <div className="flex h-screen w-screen bg-gray-50">
+    <div className="flex h-screen w-screen">
       {/* Overlay for mobile */}
       {sidebarOpen && (
         <div
