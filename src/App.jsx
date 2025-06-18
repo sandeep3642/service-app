@@ -4,7 +4,7 @@ import Layout from "./components/Layout";
 import "./App.css";
 import Loader from "./pages/utilty/Loader";
 import CustomerView from "./pages/customer-management/customerView";
-
+import AddTechnicianForm from "./pages/Technician/AddTechnician";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const CustomerManagement = lazy(() => import("./pages/customer-management"));
 const Technician = lazy(() => import("./pages/Technician"));
@@ -22,6 +22,7 @@ function App() {
             <Route path="/customer-view" element={<CustomerView />} />
             <Route path="/technician" element={<Technician />} />
             <Route path="/technician-view" element={<TechnicianView />} />
+            <Route path="/add-new-technician" element={<AddTechnicianForm/>}/>
           </Routes>
         </Suspense>
       </Layout>
