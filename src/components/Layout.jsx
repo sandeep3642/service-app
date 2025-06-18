@@ -17,6 +17,7 @@ const Layout = ({ children }) => {
       "customer-edit": "customer",
       "technician-view": "technician",
       "technician-edit": "technician",
+      
       // Add more mappings as needed
     };
 
