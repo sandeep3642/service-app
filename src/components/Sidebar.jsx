@@ -9,6 +9,7 @@ import ServiceRequestIcon from "../assets/service-req.png";
 import ComplaintIcon from "../assets/complaint.png";
 import EarningIcons from "../assets/earning.png";
 import SettingsIcon from "../assets/setting.png";
+import LogoIcon from "../assets/logo.png";
 
 const Sidebar = ({
   activeItem,
@@ -90,12 +91,15 @@ const Sidebar = ({
       `}
     >
       {/* Header with close button for mobile */}
-      <div className="p-4 lg:p-6 flex items-center justify-between">
-        <div className="bg-gray-200 h-10 lg:h-12 rounded-lg flex items-center justify-center flex-1 mr-2 lg:mr-0">
-          <span className="text-gray-600 font-semibold text-sm lg:text-base">
-            LOGO
-          </span>
+      <div className="p-2 lg:p-2 flex items-center justify-between">
+        <div className="rounded-lg flex items-center justify-center flex-1 mr-2 lg:mr-0">
+          <img
+            src={LogoIcon}
+            alt=""
+            style={{ width: "221.78px", height: "51px", objectFit: "contain" }}
+          />
         </div>
+
         <button
           onClick={() => setSidebarOpen(false)}
           className="lg:hidden p-2 text-gray-500 hover:text-gray-700"
@@ -112,9 +116,9 @@ const Sidebar = ({
             onClick={() => handleNavigation(item)}
             className={`outline-none cursor-pointer focus:outline-none w-full flex items-center space-x-3 px-3 lg:px-4 py-2 lg:py-3 text-left transition-colors relative ${
               activeItem === item.id
-                ? "bg-purple-100 text-[#1D0EC7] border-l-4 border-[#1D0EC7]"
+                ? "bg-[#0C94D21A] text-[#0C94D2] border-l-4 border-[#1D0EC7]"
                 : "text-gray-600 hover:bg-gray-50"
-              }`}
+            }`}
           >
             <img
               src={item.icon}
@@ -123,7 +127,7 @@ const Sidebar = ({
                 activeItem === item.id
                   ? "filter brightness-0 saturate-100"
                   : "opacity-90"
-                }`}
+              }`}
               style={{
                 filter:
                   activeItem === item.id
@@ -131,7 +135,7 @@ const Sidebar = ({
                     : "opacity(0.6)",
               }}
             />
-            <span className="text-sm lg:text-md font-sm text-[#474747] truncate">
+            <span className="text-sm lg:text-md font-sm truncate">
               {item.label}
             </span>
           </button>

@@ -190,10 +190,10 @@ const ServiceDetails = () => {
               { label: "Current Status", value: "In Progress" },
             ].map((item, idx) => (
               <div key={idx} className="flex  rounded-md gap-x-4 items-start">
-                <p className="text-[16px] font-[400] text-[#121212] w-[200px]">
+                <p className="text-md font-[400] text-[#121212] w-[200px]">
                   {item.label}
                 </p>
-                <p className="text-[16px] font-[400] text-[#121212]">
+                <p className="text-md font-[400] text-[#121212]">
                   {item.value}
                 </p>
               </div>
@@ -207,34 +207,34 @@ const ServiceDetails = () => {
             </h3>
             <div className="grid grid-cols-2  gap-y-6">
               <div className="flex  rounded-md gap-x-4 items-start">
-                <p className="text-[16px] font-[400] text-[#121212] w-[200px]">
+                <p className="text-md font-[400] text-[#121212] w-[200px]">
                   Name
                 </p>
-                <p className="text-[16px] font-[400] text-[#121212]">
+                <p className="text-md font-[400] text-[#121212]">
                   Prashant K.
                 </p>
               </div>
               <div className="flex  rounded-md gap-x-4 items-start">
-                <p className="text-[16px] font-[400] text-[#121212] w-[200px]">
+                <p className="text-md font-[400] text-[#121212] w-[200px]">
                   Phone Number
                 </p>
-                <p className="text-[16px] font-[400] text-[#121212]">
+                <p className="text-md font-[400] text-[#121212]">
                   +91 75422 85214
                 </p>
               </div>
               <div className="flex  rounded-md gap-x-4 items-start">
-                <p className="text-[16px] font-[400] text-[#121212] w-[200px]">
+                <p className="text-md font-[400] text-[#121212] w-[200px]">
                   Email
                 </p>
-                <p className="text-[16px] font-[400] text-[#121212]">
+                <p className="text-md font-[400] text-[#121212]">
                   raj@hotmail.com
                 </p>
               </div>
               <div className="flex  rounded-md gap-x-4 items-start">
-                <p className="text-[16px] font-[400] text-[#121212] w-[200px]">
+                <p className="text-md font-[400] text-[#121212] w-[200px]">
                   Address
                 </p>
-                <p className="text-[16px] font-[400] text-[#121212] leading-relaxed">
+                <p className="text-md font-[400] text-[#121212] leading-relaxed">
                   123, Green Street, Bangalore,
                   <br />
                   Karnataka - 560001
@@ -250,32 +250,32 @@ const ServiceDetails = () => {
             </h3>
             <div className="grid grid-cols-2  gap-y-6">
               <div className="flex  rounded-md gap-x-4 items-start">
-                <p className="text-[16px] font-[400] text-[#121212] w-[200px]">
+                <p className="text-md font-[400] text-[#121212] w-[200px]">
                   Brand
                 </p>
-                <p className="text-[16px] font-[400] text-[#121212]">
+                <p className="text-md font-[400] text-[#121212]">
                   Notebook
                 </p>
               </div>
               <div className="flex  rounded-md gap-x-4 items-start">
-                <p className="text-[16px] font-[400] text-[#121212] w-[200px]">
+                <p className="text-md font-[400] text-[#121212] w-[200px]">
                   Model
                 </p>
-                <p className="text-[16px] font-[400] text-[#121212]">HP </p>
+                <p className="text-md font-[400] text-[#121212]">HP </p>
               </div>
               <div className="flex  rounded-md gap-x-4 items-start">
-                <p className="text-[16px] font-[400] text-[#121212] w-[200px]">
+                <p className="text-md font-[400] text-[#121212] w-[200px]">
                   Serial Number
                 </p>
-                <p className="text-[16px] font-[400] text-[#121212]">
+                <p className="text-md font-[400] text-[#121212]">
                   HP-098765
                 </p>
               </div>
               <div className="flex  rounded-md gap-x-4 items-start">
-                <p className="text-[16px] font-[400] text-[#121212] w-[200px]">
+                <p className="text-md font-[400] text-[#121212] w-[200px]">
                   Warranty Status
                 </p>
-                <p className="text-[16px] font-[400] text-[#121212] leading-relaxed">
+                <p className="text-md font-[400] text-[#121212] leading-relaxed">
                   In-Warranty
                 </p>
               </div>
