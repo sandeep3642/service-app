@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Download, Eye, Check, X, File } from 'lucide-react';
+import { ArrowLeft, Download, Eye, Check, X, File, ChevronDown, Calendar, Plus } from 'lucide-react';
 import blockIcon from '../../assets/block.png';
 import ProfileImage from '../../assets/profile.png';
 import DocumentIcon from '../../assets/Document.png'
 const TechnicianView = () => {
     const [activeTab, setActiveTab] = useState('Profile Info');
-
+    const [activeWorkTab, setActiveWorkTab] = useState('This Month');
+    const [title, setTitle] = useState("Technician Details")
     const tabs = ['Profile Info', 'Service History', 'Performance Metrics'];
-
+    const workTabs = ['This Week', 'This Month', 'Custom Range'];
     const getStatusColor = (status) => {
         switch (status) {
             case 'Active':
@@ -97,7 +98,6 @@ const TechnicianView = () => {
                 {/* Certificate Section */}
                 <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 max-w-xl">
                     <h4 className="font-medium border-b border-gray-200 text-[#121212] mb-3">Certificate</h4>
-
                     {/* Certificate 1 - Pending */}
                     <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-3">
                         <div className="flex items-center space-x-3">
@@ -191,10 +191,229 @@ const TechnicianView = () => {
             </div>
         </div>
     );
+    const renderServiceHistory = () => (
+        <div className="space-y-6">
+            {/* Work History Section */}
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                {/* Header with Title and Search */}
+                <div className="flex justify-between items-center ">
+                    <h3 className="text-lg font-semibold text-black">Work History</h3>
+                    <div className="relative">
+                        <input
+                            type="text"
+                            placeholder="Search"
+                            className="w-64 px-4 py-2 border border-gray-300 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        />
+                        <div className="absolute right-3 top-2.5">
+                            <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                {/* Service Table */}
+                <div className="mt-3">
+                    <div className="flex justify-between ">
+
+                        <div className="flex border-t border-r border-l border-gray-200 rounded-lg ">
+                            <button className="p-4 text-sm text-gray-600 hover:bg-white  transition-colors">
+                                This Week
+                            </button>
+                            <button className="p-4 text-sm text-white bg-[#0C94D2] ">
+                                This Month
+                            </button>
+                            <button className="p-4 text-sm text-gray-600 hover:bg-white transition-colors">
+                                Custom Range
+                            </button>
+                            {/* Earnings Summary Link */}
+
+                        </div>
+                        <div >
+                            <button className="justify-end text-sm text-blue-600 underline hover:text-blue-800">
+                                Earnings Summary
+                            </button>
+                        </div>
+                    </div>
+                    <table className="w-full">
+
+                        <thead>
+                            <tr className="border-b bg-[#F8F8F8] border-gray-100">
+                                <th className="text-left py-3 px-4 text-sm font-medium text-black">Date</th>
+                                <th className="text-left py-3 px-4 text-sm font-medium text-black">Service ID</th>
+                                <th className="text-left py-3 px-4 text-sm font-medium text-black">Service Type</th>
+                                <th className="text-left py-3 px-4 text-sm font-medium text-black">Customer Name</th>
+                                <th className="text-left py-3 px-4 text-sm font-medium text-black">Status</th>
+                                <th className="text-left py-3 px-4 text-sm font-medium text-black">Ratings</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr className="border-b border-gray-100 hover:bg-gray-50">
+                                <td className="py-3 px-4 text-sm text-black">2025-05-01</td>
+                                <td className="py-3 px-4 text-sm text-black">#SR-1234</td>
+                                <td className="py-3 px-4 text-sm text-black">Laptop Repair</td>
+                                <td className="py-3 px-4 text-sm text-black">Ankit S.</td>
+                                <td className="py-3 px-4">
+                                    <span className="text-sm text-blue-600 font-medium">Completed</span>
+                                </td>
+                                <td className="py-3 px-4">
+                                    <div className="flex items-center space-x-1">
+                                        <span className="text-yellow-400 text-base">★</span>
+                                        <span className="text-sm text-yellow-400">4.2</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr className="border-b border-gray-100 hover:bg-gray-50">
+                                <td className="py-3 px-4 text-sm text-black">2025-04-27</td>
+                                <td className="py-3 px-4 text-sm text-black">#SR-1239</td>
+                                <td className="py-3 px-4 text-sm text-black">Laptop Repair</td>
+                                <td className="py-3 px-4 text-sm text-black">Rahul T.</td>
+                                <td className="py-3 px-4">
+                                    <span className="text-sm text-blue-600 font-medium">Completed</span>
+                                </td>
+                                <td className="py-3 px-4">
+                                    <div className="flex items-center space-x-1">
+                                        <span className="text-yellow-400 text-base">★</span>
+                                        <span className="text-sm text-yellow-400">4.7</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr className="border-b border-gray-100 hover:bg-gray-50">
+                                <td className="py-3 px-4 text-sm text-black">2025-04-24</td>
+                                <td className="py-3 px-4 text-sm text-black">#SR-1244</td>
+                                <td className="py-3 px-4 text-sm text-black">Screen Replacement</td>
+                                <td className="py-3 px-4 text-sm text-black">Neha R.</td>
+                                <td className="py-3 px-4">
+                                    <span className="text-sm text-red-600 font-medium">Cancelled</span>
+                                </td>
+                                <td className="py-3 px-4">
+                                    <div className="flex items-center space-x-1">
+                                        <span className="text-yellow-400 text-base">★</span>
+                                        <span className="text-sm text-yellow-400">4.2</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            {/* Communication History Section */}
+           
+                {/* Communication Table */}
+                <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                    <table className="w-full">
+                        {/* Header Row */}
+                        <thead>
+                            <tr className="bg-white  border-gray-200">
+                                <td colSpan="4" className="p-6">
+                                    <div className="flex justify-between items-center">
+                                        <h3 className="text-lg font-semibold text-black">Communication History</h3>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                placeholder="Search"
+                                                className="w-64 px-4 py-2 border border-gray-300 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                            />
+                                            <div className="absolute right-3 top-2.5">
+                                                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                                </svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            {/* Filter Row */}
+                            <tr className="bg-white  border-gray-200">
+                                <td colSpan="4" className="px-6 pb-6">
+                                    <div className="flex items-center space-x-4">
+                                        <div className="flex items-center space-x-2">
+                                            <span className="text-sm font-medium text-black">Filter :</span>
+                                            <div className="relative">
+                                                <button className="flex items-center space-x-2 px-3 py-2  border-r border-black text-sm text-black bg-white hover:bg-gray-50">
+                                                    <span>Sender</span>
+                                                    <ChevronDown className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center space-x-2">
+                                            <span className="text-sm font-medium text-black">Date Range:</span>
+                                            <div className="relative">
+                                                <button className="flex items-center space-x-2 px-3 py-2 border-r border-black  text-sm text-black bg-white hover:bg-gray-50">
+                                                    <Calendar className="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <button className="flex items-center space-x-2  text-sm">
+                                            <Plus  className="w-4 h-4 text-black" />
+                                            <span className='text-black'>Add Note</span>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            {/* Table Headers */}
+                            <tr className="bg-gray-100">
+                                <th className="text-left py-3 px-6 text-sm font-medium text-black border-b border-gray-200">Date</th>
+                                <th className="text-left py-3 px-6 text-sm font-medium text-black border-b border-gray-200">Sender</th>
+                                <th className="text-left py-3 px-6 text-sm font-medium text-black border-b border-gray-200">Message Summary</th>
+                                <th className="text-left py-3 px-6 text-sm font-medium text-black border-b border-gray-200">View Details</th>
+                            </tr>
+                        </thead>
+
+                        {/* Table Body */}
+                        <tbody>
+                            <tr className="border-b border-gray-100 hover:bg-gray-50">
+                                <td className="py-3 px-6 text-sm text-black">2025-05-09</td>
+                                <td className="py-3 px-6 text-sm text-black">Admin</td>
+                                <td className="py-3 px-6 text-sm text-black">Confirmed service route issue resolution.</td>
+                                <td className="py-3 px-6">
+                                    <button className="flex items-center space-x-2 text-sm text-black hover:text-blue-600">
+                                        <Eye className="w-4 h-4" />
+                                        <span>View</span>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr className="border-b border-gray-100 hover:bg-gray-50">
+                                <td className="py-3 px-6 text-sm text-black">2025-05-08</td>
+                                <td className="py-3 px-6 text-sm text-black">Technician</td>
+                                <td className="py-3 px-6 text-sm text-black">Raised a concern about schedule conflict.</td>
+                                <td className="py-3 px-6">
+                                    <button className="flex items-center space-x-2 text-sm text-black hover:text-blue-600">
+                                        <Eye className="w-4 h-4" />
+                                        <span>View</span>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr className="border-b border-gray-100 hover:bg-gray-50">
+                                <td className="py-3 px-6 text-sm text-black">2025-05-08</td>
+                                <td className="py-3 px-6 text-sm text-black">Admin</td>
+                                <td className="py-3 px-6 text-sm text-black">Shared performance update.</td>
+                                <td className="py-3 px-6">
+                                    <button className="flex items-center space-x-2 text-sm text-black hover:text-blue-600">
+                                        <Eye className="w-4 h-4" />
+                                        <span>View</span>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+      
+    );
+
+
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <div className="max-w-7xl mx-auto px-6 py-6">
+            <div className="mx-auto py-6">
                 <h1 className="text-xl font-semibold text-[#121212]">Technician Details</h1>
                 {/* Tabs */}
                 <div className="flex border-b border-gray-200 mb-6 mt-5">
@@ -213,18 +432,13 @@ const TechnicianView = () => {
                                 </button>
                             ))}
                         </div>
-                        <img src={blockIcon} className="mt-1 w-20 h-6 mr-25" alt="block" />
+                        <img src={blockIcon} className="mt-1 w-20 h-6 mr-55" alt="block" />
                     </nav>
                 </div>
 
                 {/* Tab Content */}
                 {activeTab === 'Profile Info' && renderProfileInfo()}
-                {activeTab === 'Service History' && (
-                    <div className="bg-white rounded-lg border p-6">
-                        <h3 className="text-lg font-semibold text-[#121212] mb-4">Service History</h3>
-                        <p className="text-gray-500">Service history content will be displayed here.</p>
-                    </div>
-                )}
+                {activeTab === 'Service History' && renderServiceHistory()}
                 {activeTab === 'Performance Metrics' && (
                     <div className="bg-white rounded-lg border p-6">
                         <h3 className="text-lg font-semibold text-[#121212] mb-4">Performance Metrics</h3>

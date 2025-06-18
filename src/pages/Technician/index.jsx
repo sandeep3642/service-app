@@ -52,6 +52,12 @@ const Technician = () => {
   };
   return (
     <div>
+      <div className=" px-6 py-3 flex items-center justify-end mt-2">
+        <button className="px-6 py-4 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium">
+          <span className='font-bold'> + </span>
+          Add Technician
+        </button>
+      </div>
       <DataTable
         headers={technicianHeaders}
         data={technicianData}
