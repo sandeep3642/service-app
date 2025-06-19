@@ -1,6 +1,32 @@
 import DataTable from "../../components/Table"
+import DeleteCustomerModal from "../../components/DeleteModal";
+import { useState } from "react";
+import { useNavigate } from 'react-router-dom';
+import DeleteModal from "../../components/DeleteModal";
+import EditTechnician from "./EditTechnician";
 
 const Technician = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const navigate = useNavigate();
+  const actionMenu = ["View Detail", "Edit", "Delete"]
+
+
+  const handleDeleteConfirm = () => {
+    console.log('Customer deleted!');
+    // Add your delete logic here
+    setIsModalOpen(false);
+
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setIsEditModalOpen(false);
+  };
+
+  const handleAddNewTechnician = () => {
+  navigate('/add-new-technician')
+  };
 
   const technicianHeaders = [
     { key: 'id', label: 'ID' },
@@ -46,14 +72,24 @@ const Technician = () => {
     }
   ];
 
-  const handleRowAction = (action, row) => {
-    console.log(`${action} action for:`, row);
+  const handleRowAction = (row, mode) => {
+    console.log(mode)
+    if (mode === 'View Detail') {
+      navigate('/technician-view', { state: { technician: row } });
+
+    }
+    if (mode === 'Delete') {
+      setIsModalOpen(true)
+    }
+    if (mode === 'Edit') {
+      setIsEditModalOpen(true)
+    }
     // Handle your actions here
   };
   return (
     <div>
-      <div className=" px-6 py-3 flex items-center justify-end mt-2">
-        <button className="px-6 py-4 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium">
+      <div className=" px-6 py-3 flex items-center justify-end ">
+        <button onClick={handleAddNewTechnician} className="px-6 py-4 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium">
           <span className='font-bold'> + </span>
           Add Technician
         </button>
@@ -66,7 +102,24 @@ const Technician = () => {
         actionColumn={true}
         onRowAction={handleRowAction}
         name="Technician List"
+        actionMenu={actionMenu}
       />
+      {isModalOpen && (
+        <DeleteModal
+          isOpen={true}
+          onClose={handleModalClose}
+          onConfirm={handleDeleteConfirm}
+          name="Technician"
+        />
+
+      )};
+      {isEditModalOpen && (
+        <EditTechnician
+          isOpen={true}
+          onClose={handleModalClose}
+        />
+
+      )};
     </div>
   );
 };

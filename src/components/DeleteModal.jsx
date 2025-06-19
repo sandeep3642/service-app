@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { X } from 'lucide-react';
-import WrongIcon from "../../assets/wrong.png";
+import WrongIcon from "../assets/wrong.png";
 
 
 
-const DeleteCustomerModal = ({
+const DeleteModal = ({
     isOpen = true,
     onClose,
     onConfirm,
-    customerName = "this customer"
+    name
 }) => {
     const [isUnderstood, setIsUnderstood] = useState(false);
 
@@ -20,6 +20,7 @@ const DeleteCustomerModal = ({
 
     const handleCancel = () => {
         if (onClose) {
+            console.log("hello Cancel ")
             onClose();
         }
     };
@@ -59,7 +60,7 @@ const DeleteCustomerModal = ({
                 {/* Modal content */}
                 <div className="text-center mb-6">
                     <h2 className="text-xl font-semibold text-[#121212]">
-                        Are you sure you want to permanently delete {customerName}?
+                        Are you sure you want to permanently delete {name}?
                     </h2>
                     <p className="text-[#121212] text-md pl-10 pr-10 mt-8">
                         This action cannot be undone and will remove all details for this customer.
@@ -68,12 +69,12 @@ const DeleteCustomerModal = ({
 
                 {/* Checkbox */}
                 <div className="mb-6">
-                    <label className="flex items-center  pl-10 text-sm text-[#121212] cursor-pointer">
+                    <label className="flex items-center  pl-16 pr-10 text-sm text-[#121212] cursor-pointer">
                         <input
                             type="checkbox"
                             checked={isUnderstood}
                             onChange={(e) => setIsUnderstood(e.target.checked)}
-                            className="mr-2 h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded"
+                            className="mr-2 h-4 w-4 text-[#FF0606] focus:ring-red-500 border-gray-300 rounded"
                         />
                         I understand this action is irreversible
                     </label>
@@ -103,4 +104,4 @@ const DeleteCustomerModal = ({
     );
 };
 
-export default DeleteCustomerModal;
+export default DeleteModal;
