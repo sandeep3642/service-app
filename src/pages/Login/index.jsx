@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import HeroImage from "../../assets/hero.png";
-import LogoImage from "../../assets/Logo.png";
+import LogoImage from "../../assets/logo.png";
 const Login = () => {
   const [mobile, setMobile] = useState("");
   const [otp, setOtp] = useState("");
@@ -16,10 +16,10 @@ const Login = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#009CDE] items-center justify-center p-4">
-      <div className="flex flex-col md:flex-row bg-white rounded-xl shadow-lg w-full max-w-5xl overflow-hidden">
+    <div className="flex min-h-screen  items-center justify-center p-4">
+      <div className="flex flex-col md:flex-row bg-white rounded-2xl border border-gray-300 w-full max-w-5xl overflow-hidden">
         {/* Left Side - Form */}
-        <div className="w-full md:w-1/2 p-8 bg-[#0C94D21A]">
+        <div className="w-full md:w-1/2 p-8 bg-[#e9f2f5]">
           <h2 className="text-2xl font-semibold text-gray-800 mb-2">Login</h2>
           <p className="text-sm text-gray-600 mb-6">
             Enter the email and OTP to sign in
@@ -75,9 +75,9 @@ const Login = () => {
         {/* Right Side - Image + Text */}
         <div className="w-full md:w-1/2 bg-white p-4 flex flex-col justify-center items-center">
           <div className="w-full">
-            <img src={LogoImage} alt="logo" className="h-30 w-30" />
+            <img src={LogoImage} alt="logo" className="h-25 w-100" />
           </div>
-          <h3 className="text-[#40A8C4] font-semibold text-2xl text-center">
+          <h3 className="text-[#40A8C4] font-semibold text-2xl text-center my-4">
             Fast. Trusted. Hassle-Free Repairs.
           </h3>
 
