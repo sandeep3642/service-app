@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { ChevronUp, ChevronDown, Search, Eye, Edit, Trash2, MoreHorizontal, MoreVertical } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import SearchIcon from ".././assets/search.png"
 
 // Reusable Table Component
@@ -13,12 +12,12 @@ const DataTable = ({
     onRowAction = null,
     emptyMessage = "No data available",
     className,
-    name
+    name,
+    actionMenu
 }) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
     const [showActionMenu, setShowActionMenu] = useState(null);
-    const navigate = useNavigate();
 
     // Filter data based on search term
     const filteredData = data.filter(row =>
@@ -51,12 +50,7 @@ const DataTable = ({
         }));
     };
 
-    const handleViewProfile = (row) => {
-        if (name === 'Technician List') {
-            navigate('/technician-view', { state: { technician: row } });
-        }
-        setShowActionMenu(null);
-    };
+
 
     const handleEdit = (row) => {
         console.log('Edit action for:', row);
@@ -70,26 +64,19 @@ const DataTable = ({
         setShowActionMenu(null);
     };
 
-    const ActionDropdown = ({ row, onClose }) => (
+    const ActionDropdown = ({ row, onClose, handleClick }) => (
         <div className="absolute right-0 top-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-32">
-            <div
-                onClick={() => handleViewProfile(row)}
-                className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 text-[#121212] cursor-pointer"
-            >
-                View Profile
-            </div>
-            <div
-                onClick={() => handleEdit(row)}
-                className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 text-[#121212] cursor-pointer"
-            >
-                Edit
-            </div>
-            <div
-                onClick={() => handleDelete(row)}
-                className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 text-[#121212] cursor-pointer"
-            >
-                Delete
-            </div>
+            {
+                actionMenu && actionMenu.length > 0 && actionMenu.map(val =>
+                    <div
+                        key={val}
+                        onClick={() => handleClick(row, val)}
+                        className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 text-[#121212] cursor-pointer"
+                    >
+                        {val}
+                    </div>
+                )
+            }
         </div>
     );
 
@@ -208,6 +195,7 @@ const DataTable = ({
                                                     <ActionDropdown
                                                         row={row}
                                                         onClose={() => setShowActionMenu(null)}
+                                                        handleClick={onRowAction}
                                                     />
                                                 )}
                                             </td>

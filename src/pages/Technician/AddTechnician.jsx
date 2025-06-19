@@ -96,7 +96,7 @@ export default function AddTechnicianForm() {
             emailAddress: '',
             phoneNumber: '',
             mobileNumber: '',
-            skills: '',
+            skills: [],
             serviceCategory: {
                 it: false,
                 nonIt: false
@@ -162,7 +162,7 @@ export default function AddTechnicianForm() {
                             {/* Profile Photo */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Profile Photo*
+                                    Profile Photo<span className='pl-1 text-red-600 font-bold '>*</span>
                                 </label>
                                 <div className="w-30 h-30 bg-gray-200 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
                                     <button
@@ -177,7 +177,7 @@ export default function AddTechnicianForm() {
                             {/* Availability Status */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Availability Status*
+                                    Availability Status<span className='pl-1 text-red-600 font-bold '>*</span>
                                 </label>
                                 <div className="flex items-center space-x-6">
                                     <label className="flex items-center">
@@ -207,7 +207,7 @@ export default function AddTechnicianForm() {
                         {/* Full Name - Second Row (Full Width) */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Full Name*
+                                Full Name<span className='pl-1 text-red-600 font-bold '>*</span>
                             </label>
                             <input
                                 type="text"
@@ -225,7 +225,7 @@ export default function AddTechnicianForm() {
                             {/* Email Address */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Email address*
+                                    Email address<span className='pl-1 text-red-600 font-bold '>*</span>
                                 </label>
                                 <input
                                     type="email"
@@ -241,7 +241,7 @@ export default function AddTechnicianForm() {
                             {/* Mobile Number */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Mobile Number*
+                                    Mobile Number<span className='pl-1 text-red-600 font-bold '>*</span>
                                 </label>
                                 <input
                                     type="tel"
@@ -267,7 +267,7 @@ export default function AddTechnicianForm() {
                             {/* Skills */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Skills*
+                                    Skills<span className='pl-1 text-red-600 font-bold '>*</span>
                                 </label>
                                 <div className="flex flex-wrap items-center gap-2 border border-gray-300 rounded-md px-3 py-2">
                                     {formData.skills.map((skill, index) => (
@@ -300,7 +300,7 @@ export default function AddTechnicianForm() {
                             {/* Service Categories */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Service Categories*
+                                    Service Categories<span className='pl-1 text-red-600 font-bold '>*</span>
                                 </label>
                                 <div className="flex items-center space-x-6">
                                     <label className="flex items-center">
@@ -332,7 +332,7 @@ export default function AddTechnicianForm() {
                             {/* Year of Experience */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Year of Experience*
+                                    Year of Experience<span className='pl-1 text-red-600 font-bold '>*</span>
                                 </label>
                                 <select
                                     name="yearOfExperience"
@@ -353,7 +353,7 @@ export default function AddTechnicianForm() {
                             {/* Region */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Region / Pin code*
+                                    Region / Pin code<span className='pl-1 text-red-600 font-bold '>*</span>
                                 </label>
                                 <input
                                     type="text"
@@ -377,7 +377,7 @@ export default function AddTechnicianForm() {
                         {/* Account Number */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Account Number*
+                                Account Number<span className='pl-1 text-red-600 font-bold '>*</span>
                             </label>
                             <input
                                 type="text"
@@ -393,7 +393,7 @@ export default function AddTechnicianForm() {
                         {/* Account Name */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Account Name*
+                                Account Name<span className='pl-1 text-red-600 font-bold '>*</span>
                             </label>
                             <input
                                 type="text"
@@ -409,7 +409,7 @@ export default function AddTechnicianForm() {
                         {/* IFSC Code */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                IFSC Code*
+                                IFSC Code<span className='pl-1 text-red-600 font-bold '>*</span>
                             </label>
                             <input
                                 type="text"
@@ -425,7 +425,7 @@ export default function AddTechnicianForm() {
                         {/* Account Type */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Account Type*
+                                Account Type<span className='pl-1 text-red-600 font-bold '>*</span>
                             </label>
                             <select
                                 name="accountType"
