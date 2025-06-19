@@ -74,6 +74,7 @@ export default function Index() {
       "Product",
       "Part Requested",
       "Request Date",
+      "Action",
     ],
     rows: [
       {
@@ -137,6 +138,7 @@ export default function Index() {
     if (header === "Status") {
       return (
         <span
+          onClick={() => setIsOpen(true)}
           className={`px-2 py-1  text-sm font-medium ${getStatusColor(value)}`}
         >
           {value}
@@ -148,7 +150,10 @@ export default function Index() {
       return (
         <button
           className="text-gray-600 hover:text-gray-800 p-1 cursor-pointer"
-          onClick={() => navigate("/service-detail")}
+          onClick={() => {
+            if (activeTab == "service") navigate("/service-detail");
+            else navigate("/spare-part-detail");
+          }}
         >
           <Eye size={16} />
         </button>

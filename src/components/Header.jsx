@@ -4,7 +4,7 @@ import UserIcon from "../assets/user.png";
 
 const Header = ({ sidebarOpen, setSidebarOpen }) => {
   return (
-    <div className="bg-white border-b border-gray-200 px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between">
+    <div className="bg-white  px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between">
       {/* Left section with hamburger and search */}
       <div className="flex items-center space-x-3 lg:space-x-4 flex-1">
         {/* Hamburger menu for mobile */}
@@ -20,8 +20,8 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <input
             type="text"
-            placeholder="Search..."
-            className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm lg:text-base"
+            placeholder="Search something here..."
+            className="text-black pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm lg:text-base"
           />
         </div>
       </div>
