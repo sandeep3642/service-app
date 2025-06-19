@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import HeroImage from "../../assets/hero.png";
 import LogoImage from "../../assets/Logo.png";
+import { loginUser } from "./loginService";
 const Login = () => {
   const [mobile, setMobile] = useState("");
   const [otp, setOtp] = useState("");
@@ -11,8 +12,7 @@ const Login = () => {
   };
 
   const handleLogin = () => {
-    // trigger login API here
-    alert("Logging in...");
+    loginUser("diwakar@qicapp.com", "Diwakar@1991");
   };
 
   return (
