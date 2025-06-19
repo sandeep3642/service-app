@@ -1,7 +1,7 @@
 import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
-import Loader from "./pages/utilty/Loader";
+import Loader from "./utilty/Loader";
 import CustomerView from "./pages/customer-management/customerView";
 import ServiceDetails from "./pages/Service-Request-Manager/ServiceDetails";
 import AddTechnicianForm from "./pages/Technician/AddTechnician";
@@ -16,11 +16,12 @@ const Login = lazy(() => import("./pages/Login"));
 import "./App.css";
 import SparePartDetails from "./pages/Service-Request-Manager/SparePartDetails";
 import ActivityLog from "./pages/Service-Request-Manager/ActivityLog";
+import NotFoundPage from "./utilty/NotFoundPage";
 
 function App() {
   return (
     <Router>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<Loader />}>
         <Routes>
           {/* Login route (no Layout) */}
           <Route path="/" element={<Login />} />
@@ -37,6 +38,7 @@ function App() {
             <Route path="spare-part-detail" element={<SparePartDetails />} />
             <Route path="add-new-technician" element={<AddTechnicianForm />} />
             <Route path="activityLog" element={<ActivityLog />} />
+            <Route path="*" element={<NotFoundPage />} />
           </Route>
         </Routes>
       </Suspense>
