@@ -1,7 +1,8 @@
 import axios from "axios";
+import { toast } from "react-toastify";
 
 const api = axios.create({
-  baseURL: "https://your-api-url.com/api",
+  baseURL: "http://13.203.50.113:8000",
   headers: {
     "Content-Type": "application/json",
   },
@@ -18,13 +19,21 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Optional: global error handling
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      // logout, redirect, etc.
+    const status = error.response?.data?.status?.success;
+    const message =
+      error.response?.data?.status?.message || "Something went wrong";
+
+    if (!status) {
+      toast.error(message);
+    } else if (status === 500) {
+      toast.error("Server error! Try again later.");
+    } else {
+      toast.error(message);
     }
+
     return Promise.reject(error);
   }
 );
