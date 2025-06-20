@@ -8,8 +8,8 @@ import Loader from "../../utilty/Loader";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("diwakar@qicapp.com");
+  const [password, setPassword] = useState("Diwakar@1991");
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async () => {
