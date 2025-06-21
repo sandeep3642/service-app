@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { ChevronUp, ChevronDown, Search, Eye, Edit, Trash2, MoreHorizontal, MoreVertical } from 'lucide-react';
 import SearchIcon from ".././assets/search.png"
 import { getStatusBadge } from '../utilty/globalStatus';
+import { formatDate } from '../utilty/common';
 
 // Reusable Table Component
 const DataTable = ({
@@ -72,21 +73,7 @@ const DataTable = ({
 
 
 
-    // Format date to "Feb 18, 2025" format
-    const formatDate = (dateValue) => {
-        try {
-            const date = new Date(dateValue);
-            if (isNaN(date.getTime())) return dateValue; // Return original if invalid date
-            
-            return date.toLocaleDateString('en-US', {
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric'
-            });
-        } catch (error) {
-            return dateValue; // Return original value if formatting fails
-        }
-    };
+
 
     // Check if a value is a date
     const isDateValue = (value, key) => {
