@@ -6,6 +6,7 @@ import { fetchServiceRequestList } from "./serviceRequestService";
 import { toast } from "react-toastify";
 import Loader from "../../utilty/Loader";
 import GlobalPagination from "../../components/GlobalPagination";
+import { formatDate } from "../../utilty/common";
 
 export default function Index() {
   const navigate = useNavigate();
@@ -85,7 +86,7 @@ export default function Index() {
     return apiData.map((item) => ({
       _id: item._id,
       caseId: item.caseId,
-      createdAt: new Date(item.createdAt).toLocaleString(),
+      createdAt: formatDate(item.createdAt,true), 
       "customer.name": item.customer?.name || "",
       "product.name": item.product?.name || "",
       brand: item.brand,

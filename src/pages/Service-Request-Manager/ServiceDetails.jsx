@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import Loader from "../../utilty/Loader";
 import { fetchServiceRequestById } from "./serviceRequestService";
 import { toast } from "react-toastify";
+import { formatDate } from "../../utilty/common";
 
 const ServiceDetails = () => {
   const location = useLocation();
@@ -214,7 +215,7 @@ const ServiceDetails = () => {
               { label: "Request ID", value: servieRequestDto?.caseId },
               {
                 label: "Request Date",
-                value: new Date(servieRequestDto?.createdAt).toLocaleString(),
+                value: formatDate(servieRequestDto?.createdAt, true),
               },
               { label: "Product", value: servieRequestDto?.product?.name },
               {
