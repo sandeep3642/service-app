@@ -148,7 +148,7 @@ export default function Index() {
           </button>
 
           {openMenuIndex === rowIndex && (
-            <div className="absolute right-0 z-20 mt-2 w-40 origin-bottom-right rounded-md bg-white shadow-2xl ring-1">
+            <div className="absolute right-0 z-20 mt-2 w-40 origin-bottom-right rounded-md bg-white shadow-2xl border border-gray-300">
               <div className="py-1 text-sm text-gray-700">
                 <button
                   onClick={() => {
@@ -236,7 +236,7 @@ export default function Index() {
                 <MoreVertical size={16} />
               </button>
               {openMenuIndex === rowIndex && (
-                <div className="absolute right-0 z-20 mt-2 w-28 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+                <div className="absolute right-0 z-20 mt-2 w-28 origin-top-right rounded-md bg-white shadow-lg border border-gray-700">
                   <div className="py-1 text-sm text-gray-700">
                     <button
                       onClick={() => {
