@@ -195,7 +195,7 @@ export default function Index() {
       );
     }
 
-    return <span className="text-xs md:text-sm text-gray-900">{value}</span>;
+    return <span className="text-xs md:text-sm text-gray-900">{value ? value:"NA"} </span>;
   };
 
   // Mobile Card Component
