@@ -1,326 +1,329 @@
-import React, { useState } from 'react';
-import { ChevronUp, ChevronDown, Search, Eye, Edit, Trash2, MoreHorizontal, MoreVertical } from 'lucide-react';
-import SearchIcon from ".././assets/search.png"
-import { getStatusBadge } from '../utilty/globalStatus';
-import { formatDate } from '../utilty/common';
+import React, { useState } from "react";
+import {
+  ChevronUp,
+  ChevronDown,
+  Search,
+  Eye,
+  Edit,
+  Trash2,
+  MoreHorizontal,
+  MoreVertical,
+} from "lucide-react";
+import SearchIcon from ".././assets/search.png";
+import { getStatusBadge } from "../utilty/globalStatus";
+import { formatDate } from "../utilty/common";
 
 // Reusable Table Component
 const DataTable = ({
-    headers = [],
-    data = [],
-    searchable = true,
-    sortable = true,
-    actionColumn = false,
-    onRowAction = null,
-    emptyMessage = "No data available",
-    className,
-    name,
-    actionMenu
+  headers = [],
+  data = [],
+  searchable = true,
+  sortable = true,
+  actionColumn = false,
+  onRowAction = null,
+  emptyMessage = "No data available",
+  className,
+  name,
+  actionMenu,
 }) => {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-    const [showActionMenu, setShowActionMenu] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+  const [showActionMenu, setShowActionMenu] = useState(null);
 
-    // Filter data based on search term
-    const filteredData = data.filter(row =>
-        Object.values(row).some(value =>
-            value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-        )
+  // Filter data based on search term
+  const filteredData = data.filter((row) =>
+    Object.values(row).some((value) =>
+      value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  );
+
+  // Sort data
+  const sortedData = React.useMemo(() => {
+    if (!sortConfig.key) return filteredData;
+
+    return [...filteredData].sort((a, b) => {
+      const aValue = a[sortConfig.key];
+      const bValue = b[sortConfig.key];
+
+      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [filteredData, sortConfig]);
+
+  // Handle sorting
+  const handleSort = (key) => {
+    if (!sortable) return;
+
+    setSortConfig((prevConfig) => ({
+      key,
+      direction:
+        prevConfig.key === key && prevConfig.direction === "asc"
+          ? "desc"
+          : "asc",
+    }));
+  };
+
+  const ActionDropdown = ({ row, onClose, handleClick }) => (
+    <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-32">
+      {actionMenu &&
+        actionMenu.length > 0 &&
+        actionMenu.map((val) => (
+          <div
+            key={val}
+            onClick={() => {
+              handleClick(row, val);
+              onClose(); // Close menu after action
+            }}
+            className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 text-[#121212] cursor-pointer"
+          >
+            {val}
+          </div>
+        ))}
+    </div>
+  );
+
+  // Check if a value is a date
+  const isDateValue = (value, key) => {
+    if (!value) return false;
+
+    // Check if key suggests it's a date field
+    const dateKeywords = [
+      "date",
+      "created",
+      "updated",
+      "modified",
+      "time",
+      "start",
+      "end",
+      "due",
+    ];
+    const isDateKey = dateKeywords.some((keyword) =>
+      key.toLowerCase().includes(keyword)
     );
 
-    // Sort data
-    const sortedData = React.useMemo(() => {
-        if (!sortConfig.key) return filteredData;
+    // Check if value looks like a date
+    const dateRegex =
+      /^\d{4}-\d{2}-\d{2}|^\d{2}\/\d{2}\/\d{4}|^\d{4}\/\d{2}\/\d{2}|\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
+    const looksLikeDate = dateRegex.test(value.toString());
 
-        return [...filteredData].sort((a, b) => {
-            const aValue = a[sortConfig.key];
-            const bValue = b[sortConfig.key];
+    // Try to parse as date
+    const parsedDate = new Date(value);
+    const isValidDate =
+      parsedDate instanceof Date && !isNaN(parsedDate.getTime());
 
-            if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
-            if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
-            return 0;
-        });
-    }, [filteredData, sortConfig]);
+    return (isDateKey || looksLikeDate) && isValidDate;
+  };
 
-    // Handle sorting
-    const handleSort = (key) => {
-        if (!sortable) return;
+  // Render cell content with special handling for status, dates, and actions
+  const renderCell = (value, key, row, index) => {
+    if (key.includes("isActive")) {
+      let displayValue = value;
+      // Handle boolean values
+      if (typeof value === "boolean") {
+        displayValue = value ? "Active" : "Inactive";
+      }
 
-        setSortConfig(prevConfig => ({
-            key,
-            direction: prevConfig.key === key && prevConfig.direction === 'asc' ? 'desc' : 'asc'
-        }));
-    };
+      return (
+        <span
+          className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(
+            displayValue
+          )}`}
+        >
+          {displayValue}
+        </span>
+      );
+    }
 
-    const ActionDropdown = ({ row, onClose, handleClick }) => (
-        <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-32">
-            {
-                actionMenu && actionMenu.length > 0 && actionMenu.map(val =>
-                    <div
-                        key={val}
-                        onClick={() => {
-                            handleClick(row, val);
-                            onClose(); // Close menu after action
-                        }}
-                        className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 text-[#121212] cursor-pointer"
-                    >
-                        {val}
-                    </div>
-                )
-            }
+    if (isDateValue(value, key)) {
+      return formatDate(value);
+    }
+
+    return value;
+  };
+
+  // Mobile Card Component
+  const MobileCard = ({ row, index }) => (
+    <div
+      key={row.id || index}
+      className="bg-white border border-gray-200 rounded-lg p-4 mb-3 shadow-sm"
+    >
+      <div className="space-y-2">
+        {headers.map((header) => (
+          <div key={header.key} className="flex justify-between items-start">
+            <span className="text-xs font-medium text-gray-600 uppercase tracking-wider">
+              {header.label}
+            </span>
+            <span className="text-sm text-[#121212] text-right ml-2 flex-1 max-w-[60%]">
+              {renderCell(row[header.key], header.key, row, index)}
+            </span>
+          </div>
+        ))}
+        {actionColumn && (
+          <div className="flex justify-between items-center pt-2 border-t border-gray-100">
+            <span className="text-xs font-medium text-gray-600 uppercase tracking-wider">
+              Action
+            </span>
+            <div className="relative">
+              <button
+                onClick={() =>
+                  setShowActionMenu(showActionMenu === row.id ? null : row.id)
+                }
+                className="text-[#121212] hover:text-gray-600 p-1"
+              >
+                <MoreVertical className="w-4 h-4" />
+              </button>
+              {showActionMenu === row.id && (
+                <ActionDropdown
+                  row={row}
+                  onClose={() => setShowActionMenu(null)}
+                  handleClick={onRowAction}
+                />
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="bg-gray-50">
+      <div
+        className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}
+      >
+        {/* Header Section */}
+        <div className="px-4 sm:px-6 py-2 border-gray-200">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+            {/* Left side - Title */}
+            <div className="flex items-center space-x-6">
+              <h1 className="text-lg font-medium text-gray-600">{name}</h1>
+            </div>
+
+            {/* Right side - Search Bar */}
+            <div className="relative">
+              <img
+                src={SearchIcon}
+                alt="search"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"
+              />
+              <input
+                type="text"
+                placeholder="Search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="text-[#656565] font-medium pl-12 pr-4 py-1 border border-[#DDDDDD] rounded-lg w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
         </div>
-    );
 
-
-
-
-
-    // Check if a value is a date
-    const isDateValue = (value, key) => {
-        if (!value) return false;
-
-        // Check if key suggests it's a date field
-        const dateKeywords = ['date', 'created', 'updated', 'modified', 'time', 'start', 'end', 'due'];
-        const isDateKey = dateKeywords.some(keyword =>
-            key.toLowerCase().includes(keyword)
-        );
-
-        // Check if value looks like a date
-        const dateRegex = /^\d{4}-\d{2}-\d{2}|^\d{2}\/\d{2}\/\d{4}|^\d{4}\/\d{2}\/\d{2}|\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
-        const looksLikeDate = dateRegex.test(value.toString());
-
-        // Try to parse as date
-        const parsedDate = new Date(value);
-        const isValidDate = parsedDate instanceof Date && !isNaN(parsedDate.getTime());
-
-        return (isDateKey || looksLikeDate) && isValidDate;
-    };
-
-    // Render cell content with special handling for status, dates, and actions
-    const renderCell = (value, key, row,index) => {
-        if (key.includes('isActive')) {
-            let displayValue = value;
-            // Handle boolean values
-            if (typeof value === 'boolean') {
-
-                displayValue = value ? 'Active' : 'Inactive';
-            }
-
-            return (
-                <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(displayValue)}`}>
-                    {displayValue}
-                </span>
-            );
-        }
-
-        if (isDateValue(value, key)) {
-            return formatDate(value);
-        }
-
-        return value;
-    };
-
-
-    // Mobile Card Component
-    const MobileCard = ({ row, index }) => (
-        <div key={row.id || index} className="bg-white border border-gray-200 rounded-lg p-4 mb-3 shadow-sm">
-            <div className="space-y-2">
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-100 border-b border-gray-200">
+              <tr>
                 {headers.map((header) => (
-                    <div key={header.key} className="flex justify-between items-start">
-                        <span className="text-xs font-medium text-gray-600 uppercase tracking-wider">
-                            {header.label}
-                        </span>
-                        <span className="text-sm text-[#121212] text-right ml-2 flex-1 max-w-[60%]">
-                            {renderCell(row[header.key], header.key, row,index)}
-                        </span>
-                    </div>
+                  <th
+                    key={header.key}
+                    className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    <span>{header.label}</span>
+                  </th>
                 ))}
                 {actionColumn && (
-                    <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-                        <span className="text-xs font-medium text-gray-600 uppercase tracking-wider">
-                            Action
-                        </span>
-                        <div className="relative">
-                            <button
-                                onClick={() => setShowActionMenu(showActionMenu === row.id ? null : row.id)}
-                                className="text-[#121212] hover:text-gray-600 p-1"
-                            >
-                                <MoreVertical className="w-4 h-4" />
-                            </button>
-                            {showActionMenu === row.id && (
-                                <ActionDropdown
-                                    row={row}
-                                    onClose={() => setShowActionMenu(null)}
-                                    handleClick={onRowAction}
-                                />
-                            )}
-                        </div>
-                    </div>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-[#121212] tracking-wider">
+                    Action
+                  </th>
                 )}
-            </div>
-        </div>
-    );
-
-    return (
-        <div className="bg-gray-50">
-            <div className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}>
-                {/* Header Section */}
-                <div className="px-4 sm:px-6 py-2 border-gray-200">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-                        {/* Left side - Title */}
-                        <div className="flex items-center space-x-6">
-                            <h1 className="text-lg font-medium text-gray-600">{name}</h1>
-                        </div>
-
-                        {/* Right side - Search Bar */}
-                        <div className="relative">
-                            <img
-                                src={SearchIcon}
-                                alt="search"
-                                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"
-                            />
-                            <input
-                                type="text"
-                                placeholder="Search"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="text-[#656565] font-medium pl-12 pr-4 py-1 border border-[#DDDDDD] rounded-lg w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Desktop Table View */}
-                <div className="hidden md:block overflow-x-auto">
-                    <table className="w-full">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                {headers.map((header) => (
-                                    <th
-                                        key={header.key}
-                                        className={`px-6 py-3 text-left text-xs font-medium text-[#121212] tracking-wider ${sortable ? 'cursor-pointer hover:bg-gray-100' : ''
-                                            }`}
-                                        onClick={() => handleSort(header.key)}
-                                    >
-                                        <div className="flex items-center space-x-1">
-                                            <span>{header.label}</span>
-                                            {sortable && sortConfig.key === header.key && (
-                                                sortConfig.direction === 'asc' ?
-                                                    <ChevronUp className="w-4 h-4" /> :
-                                                    <ChevronDown className="w-4 h-4" />
-                                            )}
-                                        </div>
-                                    </th>
-                                ))}
-                                {actionColumn && (
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-[#121212] tracking-wider">
-                                        Action
-                                    </th>
-                                )}
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {sortedData.length === 0 ? (
-                                <tr>
-                                    <td colSpan={headers.length + (actionColumn ? 1 : 0)} className="px-6 py-12 text-center text-[#121212]">
-                                        {emptyMessage}
-                                    </td>
-                                </tr>
-                            ) : (
-                                sortedData.map((row, index) => (
-                                    <tr key={row.id || index} className="hover:bg-gray-50">
-                                        {headers.map((header) => (
-                                            <td key={header.key} className="px-6 py-4 whitespace-nowrap text-sm text-[#121212]">
-                                                {renderCell(row[header.key], header.key, row)}
-                                            </td>
-                                        ))}
-                                        {actionColumn && (
-                                            <td className="px-6 py-4 relative">
-                                                <button
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        setShowActionMenu(showActionMenu === row.id ? null : row.id);
-                                                    }}
-                                                    className="text-[#121212] hover:text-gray-600 p-1"
-                                                >
-                                                    <MoreVertical className="w-4 h-4" />
-                                                </button>
-                                                {showActionMenu === row.id && (
-                                                    <ActionDropdown
-                                                        row={row}
-                                                        onClose={() => setShowActionMenu(null)}
-                                                        handleClick={(selectedRow, action) => {
-                                                            onRowAction(selectedRow, action);
-                                                            setShowActionMenu(null);
-                                                        }}
-                                                    />
-                                                )}
-                                            </td>
-                                        )}
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* Mobile Card View */}
-                <div className="md:hidden p-4">
-                    {/* Mobile Sort Controls */}
-                    {sortable && headers.length > 0 && (
-                        <div className="mb-4">
-                            <label className="block text-xs font-medium text-gray-600 mb-2">Sort by:</label>
-                            <select
-                                value={sortConfig.key || ''}
-                                onChange={(e) => {
-                                    if (e.target.value) {
-                                        handleSort(e.target.value);
-                                    }
-                                }}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                <option value="">No sorting</option>
-                                {headers.map((header) => (
-                                    <option key={header.key} value={header.key}>
-                                        {header.label} {sortConfig.key === header.key ?
-                                            (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {sortedData.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={headers.length + (actionColumn ? 1 : 0)}
+                    className="px-6 py-12 text-center text-[#121212]"
+                  >
+                    {emptyMessage}
+                  </td>
+                </tr>
+              ) : (
+                sortedData.map((row, index) => (
+                  <tr key={row.id || index} className="hover:bg-gray-50">
+                    {headers.map((header) => (
+                      <td
+                        key={header.key}
+                        className="px-6 py-4 whitespace-nowrap text-sm text-[#121212]"
+                      >
+                        {renderCell(row[header.key], header.key, row)}
+                      </td>
+                    ))}
+                    {actionColumn && (
+                      <td className="px-6 py-4 relative">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowActionMenu(
+                              showActionMenu === row.id ? null : row.id
+                            );
+                          }}
+                          className="text-[#121212] hover:text-gray-600 p-1"
+                        >
+                          <MoreVertical className="w-4 h-4" />
+                        </button>
+                        {showActionMenu === row.id && (
+                          <ActionDropdown
+                            row={row}
+                            onClose={() => setShowActionMenu(null)}
+                            handleClick={(selectedRow, action) => {
+                              onRowAction(selectedRow, action);
+                              setShowActionMenu(null);
+                            }}
+                          />
+                        )}
+                      </td>
                     )}
-
-                    {/* Mobile Cards */}
-                    {sortedData.length === 0 ? (
-                        <div className="text-center py-12 text-[#121212]">
-                            {emptyMessage}
-                        </div>
-                    ) : (
-                        <div className="space-y-3">
-                            {sortedData.map((row, index) => (
-                                <MobileCard key={row.id || index} row={row} index={index} />
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                {/* Overlay for closing action menu */}
-                {showActionMenu && (
-                    <div
-                        className="fixed inset-0 z-40"
-                        onClick={() => setShowActionMenu(null)}
-                    />
-                )}
-            </div>
-
-            {/* Export Button */}
-            <div className="px-4 sm:px-6 py-3 flex items-center justify-end mt-6">
-                <button className="w-full sm:w-auto px-6 py-4 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium">
-                    Export
-                </button>
-            </div>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
-    );
+
+        {/* Mobile Card View */}
+        <div className="md:hidden p-4">
+          {/* Mobile Cards */}
+          {sortedData.length === 0 ? (
+            <div className="text-center py-12 text-[#121212]">
+              {emptyMessage}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {sortedData.map((row, index) => (
+                <MobileCard key={row.id || index} row={row} index={index} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Overlay for closing action menu */}
+        {showActionMenu && (
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setShowActionMenu(null)}
+          />
+        )}
+      </div>
+
+      {/* Export Button */}
+      <div className="px-4 sm:px-6 py-3 flex items-center justify-end mt-6">
+        <button className="w-full sm:w-auto px-6 py-4 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium">
+          Export
+        </button>
+      </div>
+    </div>
+  );
 };
 
 export default DataTable;

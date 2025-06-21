@@ -13,7 +13,7 @@ import { getMessageName } from "../../utilty/messageConstant";
 
 export default function Index() {
   const navigate = useNavigate();
-  const menuRef = useRef(null);
+  const menuRefs = useRef({});
   const [activeTab, setActiveTab] = useState("service");
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -36,6 +36,7 @@ export default function Index() {
   const [search, setSearch] = useState(null);
   const debouncedSearchTerm = useDebounce(search, 500);
   const [currentRequestId, setCurrentRequestId] = useState(null);
+  const [currentRequestStatus, setCurrentRequestStatus] = useState(null);
 
   const sparePartData = {
     headers: [
@@ -127,7 +128,10 @@ export default function Index() {
 
       if (activeTab === "service") {
         return (
-          <div ref={menuRef} className="relative inline-block text-left">
+          <div
+            className="relative inline-block text-left"
+            ref={(el) => (menuRefs.current[rowIndex] = el)}
+          >
             <button
               onClick={() =>
                 setOpenMenuIndex(openMenuIndex === rowIndex ? null : rowIndex)
@@ -166,10 +170,17 @@ export default function Index() {
                       setCurrentRequestId(
                         serviceRequestData?.rows[rowIndex]?._id
                       );
+                      setCurrentRequestStatus(
+                        serviceRequestData?.rows[rowIndex]?.status
+                      );
                       setOpenMenuIndex(null);
                     }}
                     style={{
                       display:
+                        serviceRequestData?.rows[rowIndex]?.status ===
+                          "ACCEPTED_BY_TECHNICIAN" ||
+                        serviceRequestData?.rows[rowIndex]?.status ===
+                          "ASSIGNED_TO_TECHNICIAN" ||
                         serviceRequestData?.rows[rowIndex]?.status ===
                           "CONFIRMED" ||
                         serviceRequestData?.rows[rowIndex]?.status ===
@@ -197,7 +208,11 @@ export default function Index() {
       }
     }
 
-    return <span className="text-xs md:text-sm text-gray-900">{value ? value:"NA"} </span>;
+    return (
+      <span className="text-xs md:text-sm text-gray-900">
+        {value ? value : "NA"}{" "}
+      </span>
+    );
   };
 
   // Mobile Card Component
@@ -228,7 +243,7 @@ export default function Index() {
                 {getMessageName(row.status)}
               </span>
             )}
-            <div ref={menuRef} className="relative">
+            <div className="relative">
               <button
                 onClick={() =>
                   setOpenMenuIndex(openMenuIndex === rowIndex ? null : rowIndex)
@@ -355,6 +370,22 @@ export default function Index() {
   useEffect(() => {
     getServiceRequestList(currentPage, rowsPerPage, debouncedSearchTerm);
   }, [currentPage, rowsPerPage, debouncedSearchTerm]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      const isClickInsideAnyMenu = Object.values(menuRefs.current).some(
+        (ref) => ref && ref.contains(event.target)
+      );
+      if (!isClickInsideAnyMenu) {
+        setOpenMenuIndex(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   if (isLoading) return <Loader />;
 
@@ -491,6 +522,7 @@ export default function Index() {
         isOpen={isOpen}
         setIsOpen={setIsOpen}
         id={currentRequestId}
+        status={currentRequestStatus}
       />
     </div>
   );

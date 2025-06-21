@@ -6,6 +6,9 @@ export const getMessageName = (status) => {
     TIME_SLOT_SELECTED: 'Time Slot Selected',
     PAYMENT_COMPLETED: 'Payment Completed',
     CONFIRMED: 'Service Confirmed',
+    REJECTED:'Rejected',
+    PENDING:'Pending',
+    ACCEPTED:'Accepted',
 
     // Assignment States
     WAITING_FOR_ASSIGNMENT: 'Waiting for Technician Assignment',

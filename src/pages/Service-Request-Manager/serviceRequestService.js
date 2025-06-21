@@ -35,3 +35,10 @@ export const sendAssignmentRequests = async (payload, id) => {
   );
   return res.data;
 };
+
+export const fetchTechniciansResponseList = async (id) => {
+  const res = await api.get(
+    `/api/v1/user/serviceRequests/${id}/technicianResponses`
+  );
+  return res.data;
+};

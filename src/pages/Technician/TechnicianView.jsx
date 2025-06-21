@@ -472,7 +472,7 @@ const TechnicianView = () => {
                     <table className="w-full">
 
                         <thead>
-                            <tr className="border-b bg-[#F8F8F8] border-gray-100">
+                            <tr className="border-b bg-gray-800 border-gray-100">
                                 <th className="text-left py-3 px-4 text-sm font-medium text-black">Date</th>
                                 <th className="text-left py-3 px-4 text-sm font-medium text-black">Service ID</th>
                                 <th className="text-left py-3 px-4 text-sm font-medium text-black">Service Type</th>

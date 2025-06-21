@@ -2,35 +2,22 @@ import React, { useEffect, useState } from "react";
 import { Star } from "lucide-react";
 import {
   fetchTechniciansList,
+  fetchTechniciansResponseList,
   sendAssignmentRequests,
 } from "./serviceRequestService";
 import { getMessageName } from "../../utilty/messageConstant";
+import { getTimeToResponse } from "../../utilty/common";
+import { getStatusBadge } from "../../utilty/globalStatus";
 
-export default function TechnicianAllocationDialog({ isOpen, setIsOpen, id }) {
-  console.log("isOpen", isOpen);
+export default function TechnicianAllocationDialog({
+  isOpen,
+  setIsOpen,
+  id,
+  status,
+}) {
   const [technicians, setTechnicians] = useState([]);
   const [selectedTechnicians, setSelectedTechnicians] = useState([]);
-
-  const responseTracking = [
-    {
-      name: "Prashant L.",
-      status: "Accepted",
-      time: "02m 01s",
-      statusColor: "text-green-600",
-    },
-    {
-      name: "Sajit A.",
-      status: "Declined",
-      time: "04m 30s",
-      statusColor: "text-red-600",
-    },
-    {
-      name: "Santosh S.",
-      status: "No Reply",
-      time: "10m 00s",
-      statusColor: "text-gray-500",
-    },
-  ];
+  const [responseTracking, setResponseTracking] = useState([]);
 
   const handleCheckboxChange = (id) => {
     setSelectedTechnicians((prev) =>
@@ -50,6 +37,19 @@ export default function TechnicianAllocationDialog({ isOpen, setIsOpen, id }) {
     }
   }
 
+  async function getTechniciansResponseList(id) {
+    try {
+      const response = await fetchTechniciansResponseList(id);
+      const { status, details } = response;
+      console.log("response", response);
+      if (status.success && details.responses) {
+        setResponseTracking(details.responses);
+      }
+    } catch (error) {
+      setIsOpen(false);
+    }
+  }
+
   async function handleAssignTechs() {
     try {
       const payload = {
@@ -63,7 +63,18 @@ export default function TechnicianAllocationDialog({ isOpen, setIsOpen, id }) {
 
   useEffect(() => {
     setTechnicians([]);
-    if (id) getTechniciansList(id);
+    if (
+      id &&
+      status !== "ASSIGNED_TO_TECHNICIAN" &&
+      status !== "ACCEPTED_BY_TECHNICIAN"
+    )
+      getTechniciansList(id);
+    else if (
+      id &&
+      (status === "ASSIGNED_TO_TECHNICIAN" ||
+        status === "ACCEPTED_BY_TECHNICIAN")
+    )
+      getTechniciansResponseList(id);
   }, [id]);
 
   const renderStars = (rating) => {
@@ -94,80 +105,85 @@ export default function TechnicianAllocationDialog({ isOpen, setIsOpen, id }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6 rounded-lg border-[#DDDDDD]">
-          <div className="rounded-lg border-2 border-[#DDDDDD] overflow-auto">
-            <h2 className="text-lg font-medium text-[#393939] p-4">
-              Select Technicians for Allocation
-            </h2>
+          {status !== "ASSIGNED_TO_TECHNICIAN" &&
+            status !== "ACCEPTED_BY_TECHNICIAN" && (
+              <>
+                <div className="rounded-lg border-2 border-[#DDDDDD] overflow-auto">
+                  <h2 className="text-lg font-medium text-[#393939] p-4">
+                    Select Technicians for Allocation
+                  </h2>
 
-            {/* Technician Table */}
-            <table className="min-w-full text-md  text-left text-[#121212]">
-              <thead className="bg-[#F8F8F8] border-b border-[#DDDDDD] ">
-                <tr>
-                  <th className="px-4 py-3 font-[400]">Allocate</th>
-                  <th className="px-4 py-3 font-[400]">Name</th>
-                  <th className="px-4 py-3 font-[400]">Email</th>
-                  <th className="px-4 py-3 font-[400]">Availability</th>
-                  <th className="px-4 py-3 font-[400]">Experience</th>
-                  <th className="px-4 py-3 font-[400]">Ratings</th>
-                </tr>
-              </thead>
-              <tbody>
-                {technicians.map((tech, index) => (
-                  <tr
-                    key={index}
-                    className="border-b border-[#DDDDDD] hover:bg-gray-50 transition-colors"
+                  {/* Technician Table */}
+                  <table className="min-w-full text-md  text-left text-[#121212]">
+                    <thead className="bg-[#F8F8F8] border-b border-[#DDDDDD] ">
+                      <tr>
+                        <th className="px-4 py-3 font-[400]">Allocate</th>
+                        <th className="px-4 py-3 font-[400]">Name</th>
+                        <th className="px-4 py-3 font-[400]">Email</th>
+                        <th className="px-4 py-3 font-[400]">Availability</th>
+                        <th className="px-4 py-3 font-[400]">Experience</th>
+                        <th className="px-4 py-3 font-[400]">Ratings</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {technicians.map((tech, index) => (
+                        <tr
+                          key={index}
+                          className="border-b border-[#DDDDDD] hover:bg-gray-50 transition-colors"
+                        >
+                          <td className="px-4 py-3">
+                            <input
+                              type="checkbox"
+                              checked={
+                                selectedTechnicians &&
+                                selectedTechnicians.includes(tech._id)
+                              }
+                              onChange={() => handleCheckboxChange(tech._id)}
+                              className="w-5 h-5 text-gray-600 border-gray-300 rounded focus:ring-gray-500"
+                            />
+                          </td>
+                          <td className="px-4 py-3 text-gray-600">
+                            {tech?.name}
+                          </td>
+                          <td className="px-4 py-3 font-medium text-gray-900">
+                            {tech?.email}
+                          </td>
+                          <td className="px-4 py-3">
+                            <span
+                              className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                tech?.currentStatus === "AVAILABLE"
+                                  ? "bg-green-100 text-green-800"
+                                  : "bg-red-100 text-red-800"
+                              }`}
+                            >
+                              {getMessageName(tech.currentStatus)}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3">
+                            {tech?.yearsOfExperience} Years
+                          </td>
+                          <td className="px-4 py-3 flex items-center space-x-1">
+                            {renderStars(tech?.rating)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                <div className="mt-6 flex justify-end">
+                  <button
+                    className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors"
+                    onClick={handleAssignTechs}
                   >
-                    <td className="px-4 py-3">
-                      <input
-                        type="checkbox"
-                        checked={
-                          selectedTechnicians &&
-                          selectedTechnicians.includes(tech._id)
-                        }
-                        onChange={() => handleCheckboxChange(tech._id)}
-                        className="w-5 h-5 text-gray-600 border-gray-300 rounded focus:ring-gray-500"
-                      />
-                    </td>
-                    <td className="px-4 py-3 text-gray-600">{tech?.name}</td>
-                    <td className="px-4 py-3 font-medium text-gray-900">
-                      {tech?.email}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          tech?.currentStatus === "AVAILABLE"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {getMessageName(tech.currentStatus)}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      {tech?.yearsOfExperience} Years
-                    </td>
-                    <td className="px-4 py-3 flex items-center space-x-1">
-                      {renderStars(tech?.rating)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
+                    Send a notification
+                  </button>
+                </div>
+              </>
+            )}
           {/* Send Notification Button */}
-          <div className="mt-6 flex justify-end">
-            <button
-              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-medium transition-colors"
-              onClick={handleAssignTechs}
-            >
-              Send a notification
-            </button>
-          </div>
 
           {/* Response Tracking Table */}
-
-          {/* <div className="bg-white rounded-lg border-2 border-[#DDDDDD] overflow-auto my-5">
+          <div className="bg-white rounded-lg border-2 border-[#DDDDDD] overflow-auto my-5">
             <div className="bg-gray-50 rounded-lg overflow-auto">
               <h2 className="text-lg font-medium text-[#393939] p-4">
                 Response Tracking Panel
@@ -188,22 +204,30 @@ export default function TechnicianAllocationDialog({ isOpen, setIsOpen, id }) {
                       className="border-b border-[#DDDDDD] hover:bg-gray-50 transition-colors"
                     >
                       <td className="px-4 py-3 font-medium text-gray-900">
-                        {response.name}
+                        {response?.technician?.name}
                       </td>
-                      <td
-                        className={`px-4 py-3 font-medium ${response.statusColor}`}
-                      >
-                        {response.status}
+                      <td className={`px-4 py-3 font-medium `}>
+                        <span
+                          className={`${getStatusBadge(
+                            getMessageName(response.status)
+                          )}`}
+                        >
+                          {getMessageName(response.status)}
+                        </span>
                       </td>
                       <td className="px-4 py-3 text-gray-600">
                         {response.time}
+                        {getTimeToResponse(
+                          response?.viewedAt,
+                          response?.respondedAt
+                        )}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          </div> */}
+          </div>
         </div>
       </div>
     </div>
