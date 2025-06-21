@@ -15,6 +15,8 @@ export const getMessageName = (status) => {
     // Service Progress States
     TECHNICIAN_IN_ROUTE: 'Technician on the Way',
     SERVICE_IN_PROGRESS: 'Service in Progress',
+    SERVICE_CREATED:'Service Created',
+    TECHNICIAN_ASSIGNED:"Technician Assigned",
 
     // Hardware Related States
     HARDWARE_REQUESTED: 'Hardware Requested',
@@ -83,6 +85,9 @@ export const getMessageName = (status) => {
     LOCATION_UPDATED: 'Location Updated',
     CONTACT_INFO_UPDATED: 'Contact Info Updated',
     STATUS_UPDATED: 'Status Updated',
+
+    //==================Technicians==============
+    AVAILABLE:"Available"
   };
 
   return messageName[status] || status;

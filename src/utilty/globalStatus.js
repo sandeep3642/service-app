@@ -10,7 +10,11 @@ export const getStatusBadge = (status) => {
             'Received': ' text-blue-800',
             'On Leave': 'text-[#FFC300]',
             'In Active': ' text-gray-800',
+            'Pending':'text-orange-400',
+            'Completed':'text-[#0C94D2]',
+            'Cancelled':'text-[#FF0606]',
+            'Received':'text-[#267596]'
         };
 
-        return statusColors[status] || 'bg-gray-100 text-gray-800';
+        return statusColors[status] || 'text-gray-800';
     };

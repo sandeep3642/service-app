@@ -2,9 +2,13 @@ import React, { useEffect, useState } from "react";
 import { Check, Clock } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import Loader from "../../utilty/Loader";
-import { fetchServiceRequestById } from "./serviceRequestService";
+import {
+  fetchServiceActivities,
+  fetchServiceRequestById,
+} from "./serviceRequestService";
 import { toast } from "react-toastify";
 import { formatDate } from "../../utilty/common";
+import { getMessageName } from "../../utilty/messageConstant";
 
 const ServiceDetails = () => {
   const location = useLocation();
@@ -13,8 +17,11 @@ const ServiceDetails = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [status, setStatus] = useState("In Progress");
   const [comment, setComment] = useState("");
+  const [timelineSteps, setTimelineSteps] = useState([]);
 
-  const timelineSteps = [
+  console.log(timelineSteps, "timelineSteps");
+
+  const timelineStepss = [
     {
       status: "Received",
       date: "Apr 09, 2025, 11:00 AM",
@@ -63,8 +70,26 @@ const ServiceDetails = () => {
     }
   }
 
+  async function getServiceRequestActivities(id) {
+    try {
+      setIsLoading(true);
+      const response = await fetchServiceActivities(id);
+      const { status, details } = response;
+      if (status.success && details) {
+        toast.success(status.message);
+        setTimelineSteps(details?.activities);
+      }
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   useEffect(() => {
-    if (location && location.state) getServiceRequestDataById(location.state);
+    if (location && location.state) {
+      getServiceRequestDataById(location.state);
+      getServiceRequestActivities(location.state);
+    }
   }, [location]);
 
   if (isLoading) return <Loader />;
@@ -95,6 +120,16 @@ const ServiceDetails = () => {
             }`}
           >
             Status Update
+          </button>
+          <button
+            onClick={() => setActiveTab("activity")}
+            className={`px-4 py-2 font-medium text-sm border-b-2 cursor-pointer  ${
+              activeTab === "activity"
+                ? "border-[#267596] text-[#267596] bg-[#F6F6F6]"
+                : "border-transparent text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Service Activity
           </button>
         </nav>
       </div>
@@ -141,78 +176,16 @@ const ServiceDetails = () => {
           </div>
 
           {/* Service Timeline */}
-          <div>
-            <h2 className="text-lg font-medium text-[#606060] mb-2">
-              Service Timeline
-            </h2>
-            <div className="relative border-t-1 border-[#DDDDDD] pt-4">
-              <div className="flex items-center w-full relative">
-                {timelineSteps.map((step, index) => (
-                  <div
-                    key={index}
-                    className="flex flex-col items-center w-70 relative  h-25"
-                  >
-                    {/* Connecting line */}
-                    {index < timelineSteps.length - 1 && (
-                      <div className="absolute top-4 left-1/2 w-full h-0 z-0">
-                        <div
-                          className={`border-t-2 ${
-                            step.completed
-                              ? "border-dashed border-[#267596]"
-                              : "border-dashed border-gray-400"
-                          }`}
-                        ></div>
-                      </div>
-                    )}
-
-                    {/* Icon */}
-                    <div
-                      className={`z-10 w-8 h-8 rounded-full flex items-center justify-center border-2 ${
-                        step.completed
-                          ? "bg-[#267596] text-white border-[#267596]"
-                          : "text-[#267596] bg-white border-[#267596]"
-                      }`}
-                    >
-                      {step.icon === "check" && <Check className="w-4 h-4" />}
-                      {step.icon === "dots" && (
-                        <div className="flex items-center justify-center gap-1">
-                          <div className="w-1 h-1 bg-[#267596] rounded-full" />
-                          <div className="w-1 h-1 bg-[#267596] rounded-full" />
-                          <div className="w-1 h-1 bg-[#267596] rounded-full" />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Label */}
-                    <div className="text-center mt-2">
-                      <p
-                        className={`text-sm font-medium ${
-                          step.completed ? "text-[#267596]" : "text-gray-800"
-                        }`}
-                      >
-                        {step.status}
-                      </p>
-                      {step.date && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          {step.date}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
         </div>
       )}
 
       {/* Request Overview Tab */}
       {activeTab === "overview" && (
-        <div className="p-0 ">
+        <div className="p-0">
           {/* Request Basic Info */}
           <div className="grid grid-cols-2  gap-y-6">
             {[
-              { label: "Request ID", value: servieRequestDto?.caseId },
+              { label: "Case ID", value: servieRequestDto?.caseId },
               {
                 label: "Request Date",
                 value: formatDate(servieRequestDto?.createdAt, true),
@@ -227,6 +200,10 @@ const ServiceDetails = () => {
               {
                 label: "Current Status",
                 value: servieRequestDto?.status,
+              },
+              {
+                label: "Issue Description",
+                value: servieRequestDto?.issueDescription,
               },
             ].map((item, idx) => (
               <div key={idx} className="flex  rounded-md gap-x-4 items-start">
@@ -338,6 +315,54 @@ const ServiceDetails = () => {
               rows="4"
               placeholder="Add internal note for admin"
             />
+          </div>
+        </div>
+      )}
+
+      {activeTab === "activity" && (
+        <div>
+       
+          <div className="relative pt-4">
+            <div className="flex items-center w-full relative">
+              {timelineSteps &&
+                timelineSteps.map((step, index) => (
+                  <div
+                    key={index}
+                    className="flex flex-col items-center w-70 relative  h-25"
+                  >
+                    {/* Connecting line */}
+                    {index < timelineSteps.length - 1 && (
+                      <div className="absolute top-4 left-1/2 w-full h-0 z-0">
+                        <div
+                          className={`border-t-2 ${
+                            step.completed
+                              ? "border-dashed border-[#267596]"
+                              : "border-dashed border-gray-400"
+                          }`}
+                        ></div>
+                      </div>
+                    )}
+
+                    {/* Icon */}
+                    <div
+                      className={`z-10 w-8 h-8 rounded-full flex items-center justify-center border-2 ${"bg-[#267596] text-white border-[#267596]"}`}
+                    >
+                      <Check className="w-4 h-4" />
+                    </div>
+
+                    <div className="text-center mt-2">
+                      <p className={`text-sm font-medium ${"text-[#267596]"}`}>
+                        {getMessageName(step.activityType)}
+                      </p>
+                      {step.createdAt && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          {formatDate(step.createdAt, true)}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+            </div>
           </div>
         </div>
       )}
