@@ -1,17 +1,33 @@
 import DataTable from "../../components/Table"
 import DeleteCustomerModal from "../../components/DeleteModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import DeleteModal from "../../components/DeleteModal";
 import EditTechnician from "./EditTechnician";
-
+import { fetchTechniciansList } from "./technician";
+import GlobalPagination from "../../components/GlobalPagination";
+import Loader from "../../utilty/Loader";
+const technicianHeaders = [
+  { key: 'id', label: 'ID' },
+  { key: 'name', label: 'Name' },
+  { key: 'email', label: 'Email' },
+  { key: 'phoneNumber', label: 'Mobile No.' },
+  { key: 'serviceCategories', label: 'Service' },
+  { key: 'jobCompleted', label: 'Total...' },
+  { key: 'joinedAt', label: 'Joined On' },
+  { key: 'isActive', label: 'Status' }
+];
 const Technician = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const navigate = useNavigate();
   const actionMenu = ["View Detail", "Edit", "Delete"]
-
-
+  const [technicianData, setTechnicians] = useState([])
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
   const handleDeleteConfirm = () => {
     console.log('Customer deleted!');
     // Add your delete logic here
@@ -25,52 +41,35 @@ const Technician = () => {
   };
 
   const handleAddNewTechnician = () => {
-  navigate('/add-new-technician')
+    navigate('/add-new-technician')
   };
 
-  const technicianHeaders = [
-    { key: 'id', label: 'ID' },
-    { key: 'name', label: 'Name' },
-    { key: 'email', label: 'Email' },
-    { key: 'mobile', label: 'Mobile No.' },
-    { key: 'service', label: 'Service' },
-    { key: 'total', label: 'Total...' },
-    { key: 'lastLogin', label: 'Last Login' },
-    { key: 'status', label: 'Status' }
-  ];
 
-  const technicianData = [
-    {
-      id: 'TF001',
-      name: 'Technician Name',
-      email: 'rohan@gmail.com',
-      mobile: '9003737851',
-      service: 'AC',
-      total: 13,
-      lastLogin: 'Jan 15 2021',
-      status: 'Active'
-    },
-    {
-      id: 'TF002',
-      name: 'Mike T',
-      email: 'mike@gmail.com',
-      mobile: '9003737851',
-      service: 'AC',
-      total: 8,
-      lastLogin: 'Mar 25 2021',
-      status: 'Active'
-    },
-    {
-      id: 'TF003',
-      name: 'David R',
-      email: 'david@gmail.com',
-      mobile: '8097609341',
-      service: 'Desktop',
-      total: 6,
-      lastLogin: 'Aug 25 2021',
-      status: 'In Active'
+
+
+  async function fetchTechnician(page = 1, limit = 10) {
+    try {
+      setLoading(true);
+      const response = await fetchTechniciansList(page, limit);
+      const { details, status } = response;
+
+      if (status.success && Array.isArray(details.technicians)) {
+      
+        setTechnicians(details.technicians);
+
+        setTotalItems(details.pagination?.total || 0);
+      }
+    } catch (error) {
+      toast.error("Failed to fetch service requests");
+    } finally {
+      setLoading(false);
     }
-  ];
+  }
+
+  useEffect(() => {
+    fetchTechnician();
+  }, []);
+
 
   const handleRowAction = (row, mode) => {
     console.log(mode)
@@ -86,6 +85,7 @@ const Technician = () => {
     }
     // Handle your actions here
   };
+  if(loading) return <Loader/>
   return (
     <div>
       <div className=" px-6 py-3 flex items-center justify-end ">
@@ -120,6 +120,20 @@ const Technician = () => {
         />
 
       )};
+
+      {/* Pagination */}
+      <div className="px-3 md:px-0">
+        <GlobalPagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(totalItems / rowsPerPage)}
+          onPageChange={(page) => setCurrentPage(page)}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={(value) => {
+            setRowsPerPage(value);
+            setCurrentPage(1);
+          }}
+        />
+      </div>
     </div>
   );
 };

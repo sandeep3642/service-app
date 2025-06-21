@@ -1,0 +1,9 @@
+// src/features/auth/authService.js
+import api from "../../services/apiService";
+
+export const fetchTechniciansList = async (page = 1, limit = 10) => {
+  const res = await api.get(`/api/v1/user/technicians?page=${page}&limit=${limit}`);
+  return res.data;
+};
+
+

@@ -78,41 +78,48 @@ const DataTable = ({
     // Check if a value is a date
     const isDateValue = (value, key) => {
         if (!value) return false;
-        
+
         // Check if key suggests it's a date field
         const dateKeywords = ['date', 'created', 'updated', 'modified', 'time', 'start', 'end', 'due'];
-        const isDateKey = dateKeywords.some(keyword => 
+        const isDateKey = dateKeywords.some(keyword =>
             key.toLowerCase().includes(keyword)
         );
-        
+
         // Check if value looks like a date
         const dateRegex = /^\d{4}-\d{2}-\d{2}|^\d{2}\/\d{2}\/\d{4}|^\d{4}\/\d{2}\/\d{2}|\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
         const looksLikeDate = dateRegex.test(value.toString());
-        
+
         // Try to parse as date
         const parsedDate = new Date(value);
         const isValidDate = parsedDate instanceof Date && !isNaN(parsedDate.getTime());
-        
+
         return (isDateKey || looksLikeDate) && isValidDate;
     };
 
     // Render cell content with special handling for status, dates, and actions
-    const renderCell = (value, key, row) => {
-        if (key.toLowerCase().includes('status')) {
+    const renderCell = (value, key, row,index) => {
+        if (key.includes('isActive')) {
+            let displayValue = value;
+            // Handle boolean values
+            if (typeof value === 'boolean') {
+
+                displayValue = value ? 'Active' : 'Inactive';
+            }
+
             return (
-                <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(value)}`}>
-                    {value}
+                <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(displayValue)}`}>
+                    {displayValue}
                 </span>
             );
         }
 
-        // Handle date formatting
         if (isDateValue(value, key)) {
             return formatDate(value);
         }
 
         return value;
     };
+
 
     // Mobile Card Component
     const MobileCard = ({ row, index }) => (
@@ -124,7 +131,7 @@ const DataTable = ({
                             {header.label}
                         </span>
                         <span className="text-sm text-[#121212] text-right ml-2 flex-1 max-w-[60%]">
-                            {renderCell(row[header.key], header.key, row)}
+                            {renderCell(row[header.key], header.key, row,index)}
                         </span>
                     </div>
                 ))}
@@ -167,10 +174,10 @@ const DataTable = ({
 
                         {/* Right side - Search Bar */}
                         <div className="relative">
-                            <img 
-                                src={SearchIcon} 
-                                alt="search" 
-                                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" 
+                            <img
+                                src={SearchIcon}
+                                alt="search"
+                                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"
                             />
                             <input
                                 type="text"
@@ -191,9 +198,8 @@ const DataTable = ({
                                 {headers.map((header) => (
                                     <th
                                         key={header.key}
-                                        className={`px-6 py-3 text-left text-xs font-medium text-[#121212] tracking-wider ${
-                                            sortable ? 'cursor-pointer hover:bg-gray-100' : ''
-                                        }`}
+                                        className={`px-6 py-3 text-left text-xs font-medium text-[#121212] tracking-wider ${sortable ? 'cursor-pointer hover:bg-gray-100' : ''
+                                            }`}
                                         onClick={() => handleSort(header.key)}
                                     >
                                         <div className="flex items-center space-x-1">
@@ -276,7 +282,7 @@ const DataTable = ({
                                 <option value="">No sorting</option>
                                 {headers.map((header) => (
                                     <option key={header.key} value={header.key}>
-                                        {header.label} {sortConfig.key === header.key ? 
+                                        {header.label} {sortConfig.key === header.key ?
                                             (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
                                     </option>
                                 ))}
@@ -313,7 +319,7 @@ const DataTable = ({
                     Export
                 </button>
             </div>
-        </div>  
+        </div>
     );
 };
 
