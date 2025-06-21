@@ -1,68 +1,31 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Search, Eye } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import TechnicianAllocationDialog from "./TechnicianAllocationDialog";
+import { fetchServiceRequestList } from "./serviceRequestService";
+import { toast } from "react-toastify";
 
 export default function Index() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("service");
   const [isOpen, setIsOpen] = useState(false);
-
-  // Service Request List data
-  const serviceRequestData = {
+  const [isLoading, setIsLoading] = useState(false);
+  const [serviceRequestData, setServiceRequestData] = useState({
     headers: [
-      "Request ID",
-      "Date and Time",
-      "Customer Name",
-      "Product Type",
-      "Product Type",
-      "Area",
-      "Status",
-      "Action",
+      { key: "_id", label: "Request ID" },
+      { key: "createdAt", label: "Date and Time" },
+      { key: "customer.name", label: "Customer Name" },
+      { key: "product.name", label: "Product Type" },
+      // { key: "brand", label: "Brand" },
+      // { key: "modelNumber", label: "Model Number" },
+      // { key: "serialNumber", label: "Serial Number" },
+      // { key: "issueDescription", label: "Issue Description" },
+      { key: "status", label: "Status" },
+      // { key: "isPriority", label: "Priority" },
+      { key: "Action", label: "Action" },
     ],
-    rows: [
-      {
-        "Request ID": "#SR-1232",
-        "Date and Time": "Apr 09, 2025 10:00",
-        "Customer Name": "Prashant K.",
-        "Product Type": "Notebook",
-        "Product Type2": "Screen Flicker",
-        Area: "Alipore",
-        Status: "In Progress",
-        Action: "view",
-      },
-      {
-        "Request ID": "#SR-1233",
-        "Date and Time": "Apr 22, 2025 08:00",
-        "Customer Name": "Sangeeta M.",
-        "Product Type": "Printer",
-        "Product Type2": "Paper Jam",
-        Area: "Alipore",
-        Status: "Cancelled",
-        Action: "view",
-      },
-      {
-        "Request ID": "#SR-1234",
-        "Date and Time": "Apr 19, 2025 04:00",
-        "Customer Name": "Raj Y.",
-        "Product Type": "AC",
-        "Product Type2": "No Cooling",
-        Area: "Bhowanipore",
-        Status: "Completed",
-        Action: "view",
-      },
-      {
-        "Request ID": "#SR-1235",
-        "Date and Time": "Apr 09, 2025 12:00",
-        "Customer Name": "Sujata M.",
-        "Product Type": "Desktop",
-        "Product Type2": "Screen Flicker",
-        Area: "Alipore",
-        Status: "Received",
-        Action: "view",
-      },
-    ],
-  };
+    rows: [],
+  });
 
   // Spare Part request data
   const sparePartData = {
@@ -116,6 +79,22 @@ export default function Index() {
     ],
   };
 
+  const formatServiceData = (apiData) => {
+    return apiData.map((item) => ({
+      _id: item._id,
+      createdAt: new Date(item.createdAt).toLocaleString(),
+      "customer.name": item.customer?.name || "",
+      "product.name": item.product?.name || "",
+      brand: item.brand,
+      modelNumber: item.modelNumber,
+      serialNumber: item.serialNumber,
+      issueDescription: item.issueDescription,
+      status: item.status,
+      isPriority: item.isPriority ? "Yes" : "No",
+      Action: "View", // placeholder or a button later
+    }));
+  };
+
   const currentData =
     activeTab === "service" ? serviceRequestData : sparePartData;
 
@@ -162,6 +141,29 @@ export default function Index() {
 
     return value;
   };
+
+  async function getServiceRequestList() {
+    try {
+      setIsLoading(true);
+      const response = await fetchServiceRequestList();
+      const { details, status } = response;
+      if (status.success && details.serviceRequests) {
+        toast.success(status?.message);
+        setServiceRequestData((prev) => ({
+          ...prev,
+          rows: formatServiceData(details.serviceRequests),
+        }));
+      }
+      console.log("response", response);
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    getServiceRequestList();
+  }, []);
 
   return (
     <div className="w-full  mx-auto  bg-white rounded-lg border border-[#DDDDDD]">
@@ -215,7 +217,7 @@ export default function Index() {
                   key={index}
                   className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
-                  {header}
+                  {header.label}
                 </th>
               ))}
             </tr>
@@ -224,24 +226,15 @@ export default function Index() {
             {currentData.rows.map((row, rowIndex) => (
               <tr key={rowIndex} className="hover:bg-gray-50">
                 {currentData.headers.map((header, colIndex) => {
-                  // Handle the duplicate "Product Type" columns for service requests
-                  let cellValue;
-                  if (
-                    activeTab === "service" &&
-                    header === "Product Type" &&
-                    colIndex === 4
-                  ) {
-                    cellValue = row["Product Type2"];
-                  } else {
-                    cellValue = row[header];
-                  }
-
+                  const value = row[header.key];
                   return (
                     <td
                       key={colIndex}
                       className="px-6 py-4 whitespace-nowrap text-sm text-gray-900"
                     >
-                      {renderCellContent(header, cellValue, rowIndex)}
+                      {renderCellContent
+                        ? renderCellContent(header.label, value, rowIndex)
+                        : value}
                     </td>
                   );
                 })}
