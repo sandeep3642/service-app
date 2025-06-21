@@ -197,7 +197,7 @@ export default function Index() {
       }
     }
 
-    return <span className="text-xs md:text-sm text-gray-900">{value || "NA"}</span>;
+    return <span className="text-xs md:text-sm text-gray-900">{value ? value:"NA"} </span>;
   };
 
   // Mobile Card Component
@@ -238,7 +238,7 @@ export default function Index() {
                 <MoreVertical size={16} />
               </button>
               {openMenuIndex === rowIndex && (
-                <div className="absolute right-0 z-20 mt-2 w-28 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+                <div className="absolute right-0 z-20 mt-2 w-28 origin-top-right rounded-md bg-white shadow-lg border border-gray-700">
                   <div className="py-1 text-sm text-gray-700">
                     <button
                       onClick={() => {
