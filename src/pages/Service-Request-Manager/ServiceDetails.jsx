@@ -1,7 +1,14 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Check, Clock } from "lucide-react";
+import { useLocation } from "react-router-dom";
+import Loader from "../../utilty/Loader";
+import { fetchServiceRequestById } from "./serviceRequestService";
+import { toast } from "react-toastify";
 
 const ServiceDetails = () => {
+  const location = useLocation();
+  const [isLoading, setIsLoading] = useState(false);
+  const [servieRequestDto, setServiceRequestDto] = useState(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [status, setStatus] = useState("In Progress");
   const [comment, setComment] = useState("");
@@ -39,6 +46,27 @@ const ServiceDetails = () => {
       icon: "empty",
     },
   ];
+
+  async function getServiceRequestDataById(id) {
+    try {
+      setIsLoading(true);
+      const response = await fetchServiceRequestById(id);
+      const { status, details } = response;
+      if (status.success && details) {
+        toast.success(status.message);
+        setServiceRequestDto(details);
+      }
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (location && location.state) getServiceRequestDataById(location.state);
+  }, [location]);
+
+  if (isLoading) return <Loader />;
 
   return (
     <div className="mx-auto p-8">
@@ -183,11 +211,22 @@ const ServiceDetails = () => {
           {/* Request Basic Info */}
           <div className="grid grid-cols-2  gap-y-6">
             {[
-              { label: "Request ID", value: "#SR-1232" },
-              { label: "Request Date", value: "Apr 09, 2025" },
-              { label: "Product", value: "Notebook" },
-              { label: "Issue Type", value: "Screen Flicker" },
-              { label: "Current Status", value: "In Progress" },
+              { label: "Request ID", value: servieRequestDto?.caseId },
+              {
+                label: "Request Date",
+                value: new Date(servieRequestDto?.createdAt).toLocaleString(),
+              },
+              { label: "Product", value: servieRequestDto?.product?.name },
+              {
+                label: "Issue Type",
+                value: servieRequestDto?.serviceOptions
+                  .map((val) => val.name)
+                  .join(","),
+              },
+              {
+                label: "Current Status",
+                value: servieRequestDto?.status,
+              },
             ].map((item, idx) => (
               <div key={idx} className="flex  rounded-md gap-x-4 items-start">
                 <p className="text-md font-[400] text-[#121212] w-[200px]">
@@ -211,7 +250,7 @@ const ServiceDetails = () => {
                   Name
                 </p>
                 <p className="text-md font-[400] text-[#121212]">
-                  Prashant K.
+                  {servieRequestDto?.customer?.name}
                 </p>
               </div>
               <div className="flex  rounded-md gap-x-4 items-start">
@@ -219,7 +258,9 @@ const ServiceDetails = () => {
                   Phone Number
                 </p>
                 <p className="text-md font-[400] text-[#121212]">
-                  +91 75422 85214
+                  <span>{servieRequestDto?.customer?.countryCode}</span>
+                  &nbsp;
+                  {servieRequestDto?.customer?.phoneNumber}
                 </p>
               </div>
               <div className="flex  rounded-md gap-x-4 items-start">
@@ -227,7 +268,7 @@ const ServiceDetails = () => {
                   Email
                 </p>
                 <p className="text-md font-[400] text-[#121212]">
-                  raj@hotmail.com
+                  {servieRequestDto?.customer?.email || "-"}
                 </p>
               </div>
               <div className="flex  rounded-md gap-x-4 items-start">
@@ -254,21 +295,23 @@ const ServiceDetails = () => {
                   Brand
                 </p>
                 <p className="text-md font-[400] text-[#121212]">
-                  Notebook
+                  {servieRequestDto?.brand}
                 </p>
               </div>
               <div className="flex  rounded-md gap-x-4 items-start">
                 <p className="text-md font-[400] text-[#121212] w-[200px]">
                   Model
                 </p>
-                <p className="text-md font-[400] text-[#121212]">HP </p>
+                <p className="text-md font-[400] text-[#121212]">
+                  {servieRequestDto?.modelNumber}
+                </p>
               </div>
               <div className="flex  rounded-md gap-x-4 items-start">
                 <p className="text-md font-[400] text-[#121212] w-[200px]">
                   Serial Number
                 </p>
                 <p className="text-md font-[400] text-[#121212]">
-                  HP-098765
+                  {servieRequestDto?.serialNumber}
                 </p>
               </div>
               <div className="flex  rounded-md gap-x-4 items-start">
@@ -276,7 +319,9 @@ const ServiceDetails = () => {
                   Warranty Status
                 </p>
                 <p className="text-md font-[400] text-[#121212] leading-relaxed">
-                  In-Warranty
+                  {servieRequestDto?.isInWarranty
+                    ? "  In-Warranty"
+                    : "Not   In-Warranty"}
                 </p>
               </div>
             </div>
