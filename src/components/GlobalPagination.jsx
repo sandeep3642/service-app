@@ -5,9 +5,6 @@ export default function GlobalPagination({
   rowsPerPage,
   onRowsPerPageChange,
 }) {
-  console.log("totalPages", totalPages);
-//   if (totalPages <= 1) return null;
-
   const rowsPerPageOptions = [10, 20, 50];
 
   return (

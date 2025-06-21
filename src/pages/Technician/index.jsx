@@ -54,7 +54,7 @@ const Technician = () => {
       const { details, status } = response;
 
       if (status.success && Array.isArray(details.technicians)) {
-      
+
         setTechnicians(details.technicians);
 
         setTotalItems(details.pagination?.total || 0);
@@ -85,7 +85,7 @@ const Technician = () => {
     }
     // Handle your actions here
   };
-  if(loading) return <Loader/>
+  if (loading) return <Loader />
   return (
     <div>
       <div className=" px-6 py-3 flex items-center justify-end ">
@@ -133,6 +133,11 @@ const Technician = () => {
             setCurrentPage(1);
           }}
         />
+      </div>
+      <div className="px-4 sm:px-6 py-3 flex items-center justify-end mt-6">
+        <button className="w-full sm:w-auto px-6 py-4 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium">
+          Export
+        </button>
       </div>
     </div>
   );

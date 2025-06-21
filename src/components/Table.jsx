@@ -97,7 +97,7 @@ const DataTable = ({
     };
 
     // Render cell content with special handling for status, dates, and actions
-    const renderCell = (value, key, row,index) => {
+    const renderCell = (value, key, row, index) => {
         if (key.includes('isActive')) {
             let displayValue = value;
             // Handle boolean values
@@ -117,7 +117,7 @@ const DataTable = ({
             return formatDate(value);
         }
 
-        return value;
+        return value ?? "NA";
     };
 
 
@@ -131,7 +131,7 @@ const DataTable = ({
                             {header.label}
                         </span>
                         <span className="text-sm text-[#121212] text-right ml-2 flex-1 max-w-[60%]">
-                            {renderCell(row[header.key], header.key, row,index)}
+                            {renderCell(row[header.key], header.key, row, index)}
                         </span>
                     </div>
                 ))}
@@ -142,12 +142,12 @@ const DataTable = ({
                         </span>
                         <div className="relative">
                             <button
-                                onClick={() => setShowActionMenu(showActionMenu === row.id ? null : row.id)}
+                                onClick={() => setShowActionMenu(showActionMenu === (row.id ?? index) ? null : row.id)}
                                 className="text-[#121212] hover:text-gray-600 p-1"
                             >
                                 <MoreVertical className="w-4 h-4" />
                             </button>
-                            {showActionMenu === row.id && (
+                            {showActionMenu === (row.id ?? index) && (
                                 <ActionDropdown
                                     row={row}
                                     onClose={() => setShowActionMenu(null)}
@@ -239,13 +239,14 @@ const DataTable = ({
                                                 <button
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        setShowActionMenu(showActionMenu === row.id ? null : row.id);
+                                                        const menuKey = row.id ?? index;
+                                                        setShowActionMenu(showActionMenu === menuKey ? null : menuKey);
                                                     }}
                                                     className="text-[#121212] hover:text-gray-600 p-1"
                                                 >
                                                     <MoreVertical className="w-4 h-4" />
                                                 </button>
-                                                {showActionMenu === row.id && (
+                                                {(showActionMenu === (row.id ?? index)) && (
                                                     <ActionDropdown
                                                         row={row}
                                                         onClose={() => setShowActionMenu(null)}
@@ -256,6 +257,7 @@ const DataTable = ({
                                                     />
                                                 )}
                                             </td>
+
                                         )}
                                     </tr>
                                 ))
@@ -311,13 +313,6 @@ const DataTable = ({
                         onClick={() => setShowActionMenu(null)}
                     />
                 )}
-            </div>
-
-            {/* Export Button */}
-            <div className="px-4 sm:px-6 py-3 flex items-center justify-end mt-6">
-                <button className="w-full sm:w-auto px-6 py-4 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium">
-                    Export
-                </button>
             </div>
         </div>
     );
