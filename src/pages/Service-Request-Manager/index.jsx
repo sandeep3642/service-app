@@ -117,6 +117,7 @@ export default function Index() {
   };
 
   const renderCellContent = (header, value, rowIndex) => {
+    console.log(value);
     if (header === "Status") {
       return (
         <span
@@ -125,7 +126,7 @@ export default function Index() {
             value
           )}`}
         >
-          {value}
+          {value ? value:"NA"}
         </span>
       );
     }

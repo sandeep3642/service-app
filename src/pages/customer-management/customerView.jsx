@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { List, Hand, MessageCircle, Plus, Square, RotateCcw, Type, Circle, Code, MoreVertical } from 'lucide-react';
+import { MoreVertical } from 'lucide-react';
 
 const CustomerView = () => {
     const [activeTab, setActiveTab] = useState('Active Request');

@@ -1,117 +1,104 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Search, MoreVertical, Filter, Download } from "lucide-react";
 import KingIcon from "../../assets/king.png"
 import SearchIcon from "../../assets/search.png"
 import DataTable from "../../components/Table";
 import DeleteModal from "../../components/DeleteModal";
+import { getAllCustomerList } from "./customerService";
 
+const customerHeaders = [
+    { key: '_id', label: 'ID' },
+    { key: 'name', label: 'Name' },
+    { key: 'email', label: 'Email' },
+    { key: 'phoneNumber', label: 'Mobile No.' },
+    { key: 'createdAt', label: 'Joined On' },
+    { key: 'updatedAt', label: 'Last Login' },
+    { key: 'status', label: 'Status' }
+];
 
 const CustomerManagement = () => {
     const [searchTerm, setSearchTerm] = useState("");
-    const [showActionMenu, setShowActionMenu] = useState(null);
+    // Remove showActionMenu state - let DataTable handle it
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const actionMenu = ["Inactive","Edit","Delete"]
+    const [selectedCustomer, setSelectedCustomer] = useState(null); // Track which customer to delete
+    const actionMenu = ["Inactive", "Edit", "Delete"]
+    const [customers, setCustomers] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
 
-    const customerHeaders = [
-        { key: 'id', label: 'ID' },
-        { key: 'name', label: 'Name' },
-        { key: 'email', label: 'Email' },
-        { key: 'mobile', label: 'Mobile No.' },
-        { key: 'joinedOn', label: 'joined on' },
-        { key: 'lastLogin', label: 'Last Login' },
-        { key: 'status', label: 'Status' }
-    ];
-    // Sample customer data
-    const customers = [
-        {
-            id: 1,
-            name: "Prashant Kumar Singh",
-            email: "prashantt@gmail.com",
-            mobile: "8009396321",
-            lastLogin: "Feb 18, 2025",
-            joinedOn: "Jan 19, 2021",
-            status: "Active",
-        },
-        {
-            id: 2,
-            name: "Raj Y.",
-            email: "raj@hotmail.com",
-            mobile: "8424412578",
-            lastLogin: "Feb 24, 2025",
-            joinedOn: "Mar 05, 2021",
-            status: "Active",
-            king: 1
-        },
-        {
-            id: 3,
-            name: "Sangeeta M.",
-            email: "sangeeta@hotmail.com",
-            mobile: "8424412576",
-            lastLogin: "Feb 27, 2025",
-            joinedOn: "May 19, 2021",
-            status: "Inactive"
-        },
-        {
-            id: 4,
-            name: "Rajeev G.",
-            email: "rajeev@hotmail.com",
-            mobile: "8424412571",
-            lastLogin: "Mar 01, 2025",
-            joinedOn: "Jul 28, 2021",
-            status: "Active"
-        },
-        {
-            id: 5,
-            name: "Suyash T.",
-            email: "suyash@hotmail.com",
-            mobile: "8424412568",
-            lastLogin: "Mar 06, 2025",
-            joinedOn: "Aug 19, 2022",
-            status: "Inactive"
+    const fetchCustomers = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const response = await getAllCustomerList();
+            const { details, status } = response;
+            setCustomers(details?.customers)
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
         }
-    ];
+    };
 
-    const filteredCustomers = customers.filter(customer =>
-        customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customer.mobile.includes(searchTerm)
-    );
-    const handleDelete = () => {
-        setIsModalOpen(true)
-        console.log("Hello")
-    }
+    useEffect(() => {
+        fetchCustomers();
+    }, []);
+
     const handleDeleteConfirm = () => {
-        console.log('Customer deleted!');
-        // Add your delete logic here
+        if (selectedCustomer) {
+            console.log('Deleting customer:', selectedCustomer);
+            // Add your delete logic here
+            // You can access the customer data via selectedCustomer
+        }
         setIsModalOpen(false);
+        setSelectedCustomer(null);
     };
 
     const handleModalClose = () => {
         setIsModalOpen(false);
+        setSelectedCustomer(null);
     };
-    const handleRowAction = (row, mode) => {
-        if (mode === 'view') {
-            navigate('/technician-view', { state: { technician: row } });
 
+    const handleRowAction = (row, action) => {
+        console.log('Action:', action, 'Row:', row);
+        
+        switch(action) {
+            case 'Edit':
+                // Handle edit action
+                console.log('Editing customer:', row);
+                // navigate('/customer-edit', { state: { customer: row } });
+                break;
+                
+            case 'Delete':
+                setSelectedCustomer(row);
+                setIsModalOpen(true);
+                break;
+                
+            case 'Inactive':
+                // Handle inactive action
+                console.log('Setting customer inactive:', row);
+                break;
+                
+            default:
+                console.log('Unknown action:', action);
         }
-        if (mode === 'delete') {
-            setIsModalOpen(true)
-        }
-        // Handle your actions here
     };
-    const ActionDropdown = ({ customerId, onClose }) => (
-        <div className="absolute right-0 top-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-24">
-            <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 text-red-600">
-                Inactive
-            </button>
-            <button className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 text-gray-700">
-                Edit
-            </button>
-            <button onClick={handleDelete} className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 text-gray-700">
-                Delete
-            </button>
-        </div>
-    );
+
+    if (loading) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <div className="text-lg">Loading customers...</div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <div className="text-lg text-red-600">Error: {error}</div>
+            </div>
+        );
+    }
 
     return (
         <div className="">
@@ -122,17 +109,22 @@ const CustomerManagement = () => {
                 sortable={true}
                 actionColumn={true}
                 onRowAction={handleRowAction}
-                name="Technician List"
+                name="Customer List"
                 actionMenu={actionMenu}
+                emptyMessage={customers.length === 0 ? "No customers found" : "No data available"}
             />
+            
             {isModalOpen && (
                 <DeleteModal
                     isOpen={true}
                     onclose={handleModalClose}
                     onConfirm={handleDeleteConfirm}
+                    title="Delete Customer"
+                    message={`Are you sure you want to delete ${selectedCustomer?.name || 'this customer'}?`}
                 />
-            )};
+            )}
         </div>
     );
 };
+
 export default CustomerManagement;

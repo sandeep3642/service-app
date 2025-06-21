@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronUp, ChevronDown, Search, Eye, Edit, Trash2, MoreHorizontal, MoreVertical } from 'lucide-react';
 import SearchIcon from ".././assets/search.png"
+import { getStatusBadge } from '../utilty/globalStatus';
 
 // Reusable Table Component
 const DataTable = ({
@@ -50,27 +51,16 @@ const DataTable = ({
         }));
     };
 
-
-
-    const handleEdit = (row) => {
-        console.log('Edit action for:', row);
-        // Handle edit action
-        setShowActionMenu(null);
-    };
-
-    const handleDelete = (row) => {
-        console.log('Delete action for:', row);
-        // Handle delete action
-        setShowActionMenu(null);
-    };
-
     const ActionDropdown = ({ row, onClose, handleClick }) => (
-        <div className="absolute right-0 top-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 min-w-32">
+        <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-32">
             {
                 actionMenu && actionMenu.length > 0 && actionMenu.map(val =>
                     <div
                         key={val}
-                        onClick={() => handleClick(row, val)}
+                        onClick={() => {
+                            handleClick(row, val);
+                            onClose(); // Close menu after action
+                        }}
                         className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 text-[#121212] cursor-pointer"
                     >
                         {val}
@@ -80,25 +70,46 @@ const DataTable = ({
         </div>
     );
 
-    // Get status badge styling
-    const getStatusBadge = (status) => {
-        const statusColors = {
-            'Active': ' text-[#03A416]',
-            'Inactive': ' text-gray-800',
-            'In Progress': 'text-blue-800',
-            'Completed': ' text-green-800',
-            'Cancelled': 'text-red-800',
-            'Resolved': ' text-green-800',
-            'In Review': 'bg-yellow-100 text-yellow-800',
-            'Received': ' text-blue-800',
-            'On Leave': 'text-[#FFC300]',
-            'In Active': ' text-gray-800',
-        };
 
-        return statusColors[status] || 'bg-gray-100 text-gray-800';
+
+    // Format date to "Feb 18, 2025" format
+    const formatDate = (dateValue) => {
+        try {
+            const date = new Date(dateValue);
+            if (isNaN(date.getTime())) return dateValue; // Return original if invalid date
+            
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        } catch (error) {
+            return dateValue; // Return original value if formatting fails
+        }
     };
 
-    // Render cell content with special handling for status and actions
+    // Check if a value is a date
+    const isDateValue = (value, key) => {
+        if (!value) return false;
+        
+        // Check if key suggests it's a date field
+        const dateKeywords = ['date', 'created', 'updated', 'modified', 'time', 'start', 'end', 'due'];
+        const isDateKey = dateKeywords.some(keyword => 
+            key.toLowerCase().includes(keyword)
+        );
+        
+        // Check if value looks like a date
+        const dateRegex = /^\d{4}-\d{2}-\d{2}|^\d{2}\/\d{2}\/\d{4}|^\d{4}\/\d{2}\/\d{2}|\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
+        const looksLikeDate = dateRegex.test(value.toString());
+        
+        // Try to parse as date
+        const parsedDate = new Date(value);
+        const isValidDate = parsedDate instanceof Date && !isNaN(parsedDate.getTime());
+        
+        return (isDateKey || looksLikeDate) && isValidDate;
+    };
+
+    // Render cell content with special handling for status, dates, and actions
     const renderCell = (value, key, row) => {
         if (key.toLowerCase().includes('status')) {
             return (
@@ -108,47 +119,94 @@ const DataTable = ({
             );
         }
 
+        // Handle date formatting
+        if (isDateValue(value, key)) {
+            return formatDate(value);
+        }
+
         return value;
     };
+
+    // Mobile Card Component
+    const MobileCard = ({ row, index }) => (
+        <div key={row.id || index} className="bg-white border border-gray-200 rounded-lg p-4 mb-3 shadow-sm">
+            <div className="space-y-2">
+                {headers.map((header) => (
+                    <div key={header.key} className="flex justify-between items-start">
+                        <span className="text-xs font-medium text-gray-600 uppercase tracking-wider">
+                            {header.label}
+                        </span>
+                        <span className="text-sm text-[#121212] text-right ml-2 flex-1 max-w-[60%]">
+                            {renderCell(row[header.key], header.key, row)}
+                        </span>
+                    </div>
+                ))}
+                {actionColumn && (
+                    <div className="flex justify-between items-center pt-2 border-t border-gray-100">
+                        <span className="text-xs font-medium text-gray-600 uppercase tracking-wider">
+                            Action
+                        </span>
+                        <div className="relative">
+                            <button
+                                onClick={() => setShowActionMenu(showActionMenu === row.id ? null : row.id)}
+                                className="text-[#121212] hover:text-gray-600 p-1"
+                            >
+                                <MoreVertical className="w-4 h-4" />
+                            </button>
+                            {showActionMenu === row.id && (
+                                <ActionDropdown
+                                    row={row}
+                                    onClose={() => setShowActionMenu(null)}
+                                    handleClick={onRowAction}
+                                />
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
 
     return (
         <div className="bg-gray-50">
             <div className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}>
-                {/* Search Bar */}
-                <div className=" px-6 py-2  border-gray-200">
-                    <div className="flex items-center justify-between">
-                        {/* Left side - Customer list title and search */}
+                {/* Header Section */}
+                <div className="px-4 sm:px-6 py-2 border-gray-200">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+                        {/* Left side - Title */}
                         <div className="flex items-center space-x-6">
                             <h1 className="text-lg font-medium text-gray-600">{name}</h1>
                         </div>
 
-                        {/* Right side - Export button */}
-
-                        {/* Search Bar */}
+                        {/* Right side - Search Bar */}
                         <div className="relative">
-                            <img src={SearchIcon} alt="search" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                            <img 
+                                src={SearchIcon} 
+                                alt="search" 
+                                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" 
+                            />
                             <input
                                 type="text"
                                 placeholder="Search"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="text-[#656565] font-medium pl-12 pr-10 py-1 border  border-[#DDDDDD] rounded-lg w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="text-[#656565] font-medium pl-12 pr-4 py-1 border border-[#DDDDDD] rounded-lg w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
                             />
                         </div>
                     </div>
-
                 </div>
 
-                {/* Table */}
-                <div className="overflow-x-auto">
+                {/* Desktop Table View */}
+                <div className="hidden md:block overflow-x-auto">
                     <table className="w-full">
                         <thead className="bg-gray-50">
                             <tr>
                                 {headers.map((header) => (
                                     <th
                                         key={header.key}
-                                        className={`px-6 py-3 text-left text-xs font-medium text-[#121212]  tracking-wider ${sortable ? 'cursor-pointer hover:bg-gray-100' : ''
-                                            }`}
+                                        className={`px-6 py-3 text-left text-xs font-medium text-[#121212] tracking-wider ${
+                                            sortable ? 'cursor-pointer hover:bg-gray-100' : ''
+                                        }`}
                                         onClick={() => handleSort(header.key)}
                                     >
                                         <div className="flex items-center space-x-1">
@@ -162,7 +220,7 @@ const DataTable = ({
                                     </th>
                                 ))}
                                 {actionColumn && (
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-[#121212]  tracking-wider">
+                                    <th className="px-6 py-3 text-left text-xs font-medium text-[#121212] tracking-wider">
                                         Action
                                     </th>
                                 )}
@@ -179,15 +237,18 @@ const DataTable = ({
                                 sortedData.map((row, index) => (
                                     <tr key={row.id || index} className="hover:bg-gray-50">
                                         {headers.map((header) => (
-                                            <td key={header.key} className="px-6 py-4 relativewhitespace-nowrap text-sm text-[#121212]">
+                                            <td key={header.key} className="px-6 py-4 whitespace-nowrap text-sm text-[#121212]">
                                                 {renderCell(row[header.key], header.key, row)}
                                             </td>
                                         ))}
-                                        {(name === 'Technician List' && actionColumn) && (
+                                        {actionColumn && (
                                             <td className="px-6 py-4 relative">
                                                 <button
-                                                    onClick={() => setShowActionMenu(showActionMenu === row.id ? null : row.id)}
-                                                    className="text-[#121212] hover:text-gray-600"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setShowActionMenu(showActionMenu === row.id ? null : row.id);
+                                                    }}
+                                                    className="text-[#121212] hover:text-gray-600 p-1"
                                                 >
                                                     <MoreVertical className="w-4 h-4" />
                                                 </button>
@@ -195,7 +256,10 @@ const DataTable = ({
                                                     <ActionDropdown
                                                         row={row}
                                                         onClose={() => setShowActionMenu(null)}
-                                                        handleClick={onRowAction}
+                                                        handleClick={(selectedRow, action) => {
+                                                            onRowAction(selectedRow, action);
+                                                            setShowActionMenu(null);
+                                                        }}
                                                     />
                                                 )}
                                             </td>
@@ -206,22 +270,64 @@ const DataTable = ({
                         </tbody>
                     </table>
                 </div>
+
+                {/* Mobile Card View */}
+                <div className="md:hidden p-4">
+                    {/* Mobile Sort Controls */}
+                    {sortable && headers.length > 0 && (
+                        <div className="mb-4">
+                            <label className="block text-xs font-medium text-gray-600 mb-2">Sort by:</label>
+                            <select
+                                value={sortConfig.key || ''}
+                                onChange={(e) => {
+                                    if (e.target.value) {
+                                        handleSort(e.target.value);
+                                    }
+                                }}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="">No sorting</option>
+                                {headers.map((header) => (
+                                    <option key={header.key} value={header.key}>
+                                        {header.label} {sortConfig.key === header.key ? 
+                                            (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+
+                    {/* Mobile Cards */}
+                    {sortedData.length === 0 ? (
+                        <div className="text-center py-12 text-[#121212]">
+                            {emptyMessage}
+                        </div>
+                    ) : (
+                        <div className="space-y-3">
+                            {sortedData.map((row, index) => (
+                                <MobileCard key={row.id || index} row={row} index={index} />
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                {/* Overlay for closing action menu */}
                 {showActionMenu && (
                     <div
-                        className="fixed inset-0 z-5"
+                        className="fixed inset-0 z-40"
                         onClick={() => setShowActionMenu(null)}
                     />
                 )}
             </div>
-            <div className=" px-6 py-3 flex items-center justify-end mt-6">
-                <button className="px-6 py-4 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium">
+
+            {/* Export Button */}
+            <div className="px-4 sm:px-6 py-3 flex items-center justify-end mt-6">
+                <button className="w-full sm:w-auto px-6 py-4 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium">
                     Export
                 </button>
             </div>
-        </div>
-
+        </div>  
     );
 };
-
 
 export default DataTable;
