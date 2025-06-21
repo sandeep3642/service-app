@@ -12,7 +12,7 @@ export default function Index() {
   const [isLoading, setIsLoading] = useState(false);
   const [serviceRequestData, setServiceRequestData] = useState({
     headers: [
-      { key: "_id", label: "Request ID" },
+      { key: "caseId", label: "Request ID" },
       { key: "createdAt", label: "Date and Time" },
       { key: "customer.name", label: "Customer Name" },
       { key: "product.name", label: "Product Type" },
@@ -81,7 +81,7 @@ export default function Index() {
 
   const formatServiceData = (apiData) => {
     return apiData.map((item) => ({
-      _id: item._id,
+      caseId: item.caseId ,
       createdAt: new Date(item.createdAt).toLocaleString(),
       "customer.name": item.customer?.name || "",
       "product.name": item.product?.name || "",
@@ -114,13 +114,14 @@ export default function Index() {
   };
 
   const renderCellContent = (header, value, rowIndex) => {
+    console.log(value);
     if (header === "Status") {
       return (
         <span
           onClick={() => setIsOpen(true)}
           className={`px-2 py-1  text-sm font-medium ${getStatusColor(value)}`}
         >
-          {value}
+          {value ? value:"NA"}
         </span>
       );
     }
@@ -139,7 +140,8 @@ export default function Index() {
       );
     }
 
-    return value;
+   if(value)  return value;
+   else return "NA"
   };
 
   async function getServiceRequestList() {
