@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, act } from "react";
 import { Search, Eye, MoreVertical, Menu, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import TechnicianAllocationDialog from "./TechnicianAllocationDialog";
@@ -7,17 +7,20 @@ import { toast } from "react-toastify";
 import Loader from "../../utilty/Loader";
 import GlobalPagination from "../../components/GlobalPagination";
 import { formatDate } from "../../utilty/common";
+import { useDebounce } from "../../hooks";
+import { getStatusBadge } from "../../utilty/globalStatus";
+import { getMessageName } from "../../utilty/messageConstant";
 
 export default function Index() {
   const navigate = useNavigate();
-  const menuRef = useRef(null);
+  const menuRefs = useRef({});
   const [activeTab, setActiveTab] = useState("service");
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [openMenuIndex, setOpenMenuIndex] = useState(null);
   const [serviceRequestData, setServiceRequestData] = useState({
     headers: [
-      { key: "caseId", label: "Request ID" },
+      { key: "caseId", label: "Case ID" },
       { key: "createdAt", label: "Date and Time" },
       { key: "customer.name", label: "Customer Name" },
       { key: "product.name", label: "Product Type" },
@@ -30,6 +33,10 @@ export default function Index() {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
+  const [search, setSearch] = useState(null);
+  const debouncedSearchTerm = useDebounce(search, 500);
+  const [currentRequestId, setCurrentRequestId] = useState(null);
+  const [currentRequestStatus, setCurrentRequestStatus] = useState(null);
 
   const sparePartData = {
     headers: [
@@ -86,7 +93,7 @@ export default function Index() {
     return apiData.map((item) => ({
       _id: item._id,
       caseId: item.caseId,
-      createdAt: formatDate(item.createdAt,true), 
+      createdAt: formatDate(item.createdAt, true),
       "customer.name": item.customer?.name || "",
       "product.name": item.product?.name || "",
       brand: item.brand,
@@ -102,32 +109,15 @@ export default function Index() {
   const currentData =
     activeTab === "service" ? serviceRequestData : sparePartData;
 
-  const getStatusColor = (status) => {
-    switch (status?.toLowerCase()) {
-      case "in progress":
-        return "text-orange-600 bg-orange-50";
-      case "cancelled":
-        return "text-red-600 bg-red-50";
-      case "completed":
-        return "text-blue-600 bg-blue-50";
-      case "received":
-        return "text-green-600 bg-green-50";
-      default:
-        return "text-gray-600 bg-gray-50";
-    }
-  };
-
   const renderCellContent = (header, value, rowIndex) => {
-    console.log(value);
     if (header === "Status") {
       return (
         <span
-          onClick={() => setIsOpen(true)}
-          className={`px-2 py-1 text-xs md:text-sm font-medium rounded-full cursor-pointer ${getStatusColor(
+          className={`text-xs md:text-sm font-medium  cursor-pointer ${getStatusBadge(
             value
           )}`}
         >
-          {value ? value:"NA"}
+          {value ? getMessageName(value) : "NA"}
         </span>
       );
     }
@@ -136,66 +126,93 @@ export default function Index() {
       const id =
         activeTab === "service" ? serviceRequestData.rows[rowIndex]._id : null;
 
-      return (
-        <div ref={menuRef} className="relative inline-block text-left">
-          <button
-            onClick={() =>
-              setOpenMenuIndex(openMenuIndex === rowIndex ? null : rowIndex)
-            }
-            className="p-1 hover:text-gray-800 text-gray-600 hover:bg-gray-100 rounded"
+      if (activeTab === "service") {
+        return (
+          <div
+            className="relative inline-block text-left"
+            ref={(el) => (menuRefs.current[rowIndex] = el)}
           >
-            <MoreVertical size={16} />
-          </button>
+            <button
+              onClick={() =>
+                setOpenMenuIndex(openMenuIndex === rowIndex ? null : rowIndex)
+              }
+              className="p-1 hover:text-gray-800 text-gray-600 hover:bg-gray-100 rounded"
+            >
+              <MoreVertical size={16} />
+            </button>
 
-          {openMenuIndex === rowIndex && (
-            <div className="absolute right-0 z-20 mt-2 w-40 origin-bottom-right rounded-md bg-white shadow-2xl border border-gray-300">
-              <div className="py-1 text-sm text-gray-700">
-                <button
-                  onClick={() => {
-                    if (id) {
-                      navigate("/service-detail", { state: id });
-                    }
-                    setOpenMenuIndex(null);
-                  }}
-                  className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
-                >
-                  View
-                </button>
-                <button
-                  onClick={() => {
-                    navigate("/service-edit", { state: id });
-                    setOpenMenuIndex(null);
-                  }}
-                  style={{
-                    display:
-                      serviceRequestData?.rows[rowIndex]?.status ===
-                        "CONFIRMED" ||
-                      serviceRequestData?.rows[rowIndex]?.status ===
-                        "WAITING_FOR_ASSIGNMENT"
-                        ? "inline-block"
-                        : "none",
-                  }}
-                  className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
-                >
-                  Change Status
-                </button>
-                <button
-                  onClick={() => {
-                    navigate("/service-delete", { state: id });
-                    setOpenMenuIndex(null);
-                  }}
-                  className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
-                >
-                  Assign Technician
-                </button>
+            {openMenuIndex === rowIndex && (
+              <div className="absolute right-0 z-20 mt-2 w-40 origin-bottom-right rounded-md bg-white shadow-2xl ring-1">
+                <div className="py-1 text-sm text-gray-700">
+                  <button
+                    onClick={() => {
+                      if (id) {
+                        navigate("/service-detail", { state: id });
+                      }
+                      setOpenMenuIndex(null);
+                    }}
+                    className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
+                  >
+                    View
+                  </button>
+                  <button
+                    onClick={() => {
+                      navigate("/service-edit", { state: id });
+                      setOpenMenuIndex(null);
+                    }}
+                    className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
+                  >
+                    Change Status
+                  </button>
+                  <button
+                    onClick={() => {
+                      setIsOpen(true);
+                      setCurrentRequestId(
+                        serviceRequestData?.rows[rowIndex]?._id
+                      );
+                      setCurrentRequestStatus(
+                        serviceRequestData?.rows[rowIndex]?.status
+                      );
+                      setOpenMenuIndex(null);
+                    }}
+                    style={{
+                      display:
+                        serviceRequestData?.rows[rowIndex]?.status ===
+                          "ACCEPTED_BY_TECHNICIAN" ||
+                        serviceRequestData?.rows[rowIndex]?.status ===
+                          "ASSIGNED_TO_TECHNICIAN" ||
+                        serviceRequestData?.rows[rowIndex]?.status ===
+                          "CONFIRMED" ||
+                        serviceRequestData?.rows[rowIndex]?.status ===
+                          "WAITING_FOR_ASSIGNMENT"
+                          ? "inline-block"
+                          : "none",
+                    }}
+                    className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
+                  >
+                    Assign Technician
+                  </button>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-      );
+            )}
+          </div>
+        );
+      } else {
+        return (
+          <Eye
+            size={16}
+            className="cursor-pointer"
+            onClick={() => navigate("/spare-part-detail")}
+          />
+        );
+      }
     }
 
-    return <span className="text-xs md:text-sm text-gray-900">{value ? value:"NA"} </span>;
+    return (
+      <span className="text-xs md:text-sm text-gray-900">
+        {value ? value : "NA"}{" "}
+      </span>
+    );
   };
 
   // Mobile Card Component
@@ -219,14 +236,14 @@ export default function Index() {
           <div className="flex items-center space-x-2">
             {activeTab === "service" && (
               <span
-                className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(
+                className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(
                   row.status
                 )}`}
               >
-                {row.status}
+                {getMessageName(row.status)}
               </span>
             )}
-            <div ref={menuRef} className="relative">
+            <div className="relative">
               <button
                 onClick={() =>
                   setOpenMenuIndex(openMenuIndex === rowIndex ? null : rowIndex)
@@ -327,10 +344,10 @@ export default function Index() {
     );
   };
 
-  async function getServiceRequestList(page = 1, limit = 10) {
+  async function getServiceRequestList(page = 1, limit = 10, search) {
     try {
       setIsLoading(true);
-      const response = await fetchServiceRequestList(page, limit);
+      const response = await fetchServiceRequestList(page, limit, search);
       const { details, status } = response;
 
       if (status.success && Array.isArray(details.serviceRequests)) {
@@ -351,18 +368,18 @@ export default function Index() {
   }
 
   useEffect(() => {
-    getServiceRequestList(currentPage, rowsPerPage);
-  }, [currentPage, rowsPerPage]);
+    getServiceRequestList(currentPage, rowsPerPage, debouncedSearchTerm);
+  }, [currentPage, rowsPerPage, debouncedSearchTerm]);
 
   useEffect(() => {
-    function handleClickOutside(event) {
-      if (
-        !event.target.closest(".menu-dropdown") &&
-        !event.target.closest("button")
-      ) {
+    const handleClickOutside = (event) => {
+      const isClickInsideAnyMenu = Object.values(menuRefs.current).some(
+        (ref) => ref && ref.contains(event.target)
+      );
+      if (!isClickInsideAnyMenu) {
         setOpenMenuIndex(null);
       }
-    }
+    };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
@@ -408,6 +425,8 @@ export default function Index() {
               size={15}
             />
             <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               type="text"
               placeholder="Search requests..."
               className="text-black outline-0 w-full pl-10 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -499,7 +518,12 @@ export default function Index() {
         />
       </div>
 
-      <TechnicianAllocationDialog isOpen={isOpen} setIsOpen={setIsOpen} />
+      <TechnicianAllocationDialog
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        id={currentRequestId}
+        status={currentRequestStatus}
+      />
     </div>
   );
 }

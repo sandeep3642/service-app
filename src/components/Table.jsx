@@ -1,121 +1,143 @@
-import React, { useState } from 'react';
-import { ChevronUp, ChevronDown, Search, Eye, Edit, Trash2, MoreHorizontal, MoreVertical } from 'lucide-react';
-import SearchIcon from ".././assets/search.png"
-import { getStatusBadge } from '../utilty/globalStatus';
-import { formatDate } from '../utilty/common';
+import React, { useState } from "react";
+import {
+  ChevronUp,
+  ChevronDown,
+  Search,
+  Eye,
+  Edit,
+  Trash2,
+  MoreHorizontal,
+  MoreVertical,
+} from "lucide-react";
+import SearchIcon from ".././assets/search.png";
+import { getStatusBadge } from "../utilty/globalStatus";
+import { formatDate } from "../utilty/common";
 
 // Reusable Table Component
 const DataTable = ({
-    headers = [],
-    data = [],
-    searchable = true,
-    sortable = true,
-    actionColumn = false,
-    onRowAction = null,
-    emptyMessage = "No data available",
-    className,
-    name,
-    actionMenu
+  headers = [],
+  data = [],
+  searchable = true,
+  sortable = true,
+  actionColumn = false,
+  onRowAction = null,
+  emptyMessage = "No data available",
+  className,
+  name,
+  actionMenu,
 }) => {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
-    const [showActionMenu, setShowActionMenu] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
+  const [showActionMenu, setShowActionMenu] = useState(null);
 
-    // Filter data based on search term
-    const filteredData = data.filter(row =>
-        Object.values(row).some(value =>
-            value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-        )
+  // Filter data based on search term
+  const filteredData = data.filter((row) =>
+    Object.values(row).some((value) =>
+      value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  );
+
+  // Sort data
+  const sortedData = React.useMemo(() => {
+    if (!sortConfig.key) return filteredData;
+
+    return [...filteredData].sort((a, b) => {
+      const aValue = a[sortConfig.key];
+      const bValue = b[sortConfig.key];
+
+      if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+      if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [filteredData, sortConfig]);
+
+  // Handle sorting
+  const handleSort = (key) => {
+    if (!sortable) return;
+
+    setSortConfig((prevConfig) => ({
+      key,
+      direction:
+        prevConfig.key === key && prevConfig.direction === "asc"
+          ? "desc"
+          : "asc",
+    }));
+  };
+
+  const ActionDropdown = ({ row, onClose, handleClick }) => (
+    <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-32">
+      {actionMenu &&
+        actionMenu.length > 0 &&
+        actionMenu.map((val) => (
+          <div
+            key={val}
+            onClick={() => {
+              handleClick(row, val);
+              onClose(); // Close menu after action
+            }}
+            className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 text-[#121212] cursor-pointer"
+          >
+            {val}
+          </div>
+        ))}
+    </div>
+  );
+
+  // Check if a value is a date
+  const isDateValue = (value, key) => {
+    if (!value) return false;
+
+    // Check if key suggests it's a date field
+    const dateKeywords = [
+      "date",
+      "created",
+      "updated",
+      "modified",
+      "time",
+      "start",
+      "end",
+      "due",
+    ];
+    const isDateKey = dateKeywords.some((keyword) =>
+      key.toLowerCase().includes(keyword)
     );
 
-    // Sort data
-    const sortedData = React.useMemo(() => {
-        if (!sortConfig.key) return filteredData;
+    // Check if value looks like a date
+    const dateRegex =
+      /^\d{4}-\d{2}-\d{2}|^\d{2}\/\d{2}\/\d{4}|^\d{4}\/\d{2}\/\d{2}|\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
+    const looksLikeDate = dateRegex.test(value.toString());
 
-        return [...filteredData].sort((a, b) => {
-            const aValue = a[sortConfig.key];
-            const bValue = b[sortConfig.key];
+    // Try to parse as date
+    const parsedDate = new Date(value);
+    const isValidDate =
+      parsedDate instanceof Date && !isNaN(parsedDate.getTime());
 
-            if (aValue < bValue) return sortConfig.direction === 'asc' ? -1 : 1;
-            if (aValue > bValue) return sortConfig.direction === 'asc' ? 1 : -1;
-            return 0;
-        });
-    }, [filteredData, sortConfig]);
+    return (isDateKey || looksLikeDate) && isValidDate;
+  };
 
-    // Handle sorting
-    const handleSort = (key) => {
-        if (!sortable) return;
+  // Render cell content with special handling for status, dates, and actions
+  const renderCell = (value, key, row, index) => {
+    if (key.includes("isActive")) {
+      let displayValue = value;
+      // Handle boolean values
+      if (typeof value === "boolean") {
+        displayValue = value ? "Active" : "Inactive";
+      }
 
-        setSortConfig(prevConfig => ({
-            key,
-            direction: prevConfig.key === key && prevConfig.direction === 'asc' ? 'desc' : 'asc'
-        }));
-    };
+      return (
+        <span
+          className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(
+            displayValue
+          )}`}
+        >
+          {displayValue}
+        </span>
+      );
+    }
 
-    const ActionDropdown = ({ row, onClose, handleClick }) => (
-        <div className="absolute right-0 top-8 bg-white border border-gray-200 rounded-lg shadow-lg z-50 min-w-32">
-            {
-                actionMenu && actionMenu.length > 0 && actionMenu.map(val =>
-                    <div
-                        key={val}
-                        onClick={() => {
-                            handleClick(row, val);
-                            onClose(); // Close menu after action
-                        }}
-                        className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 text-[#121212] cursor-pointer"
-                    >
-                        {val}
-                    </div>
-                )
-            }
-        </div>
-    );
-
-
-
-
-
-    // Check if a value is a date
-    const isDateValue = (value, key) => {
-        if (!value) return false;
-
-        // Check if key suggests it's a date field
-        const dateKeywords = ['date', 'created', 'updated', 'modified', 'time', 'start', 'end', 'due'];
-        const isDateKey = dateKeywords.some(keyword =>
-            key.toLowerCase().includes(keyword)
-        );
-
-        // Check if value looks like a date
-        const dateRegex = /^\d{4}-\d{2}-\d{2}|^\d{2}\/\d{2}\/\d{4}|^\d{4}\/\d{2}\/\d{2}|\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
-        const looksLikeDate = dateRegex.test(value.toString());
-
-        // Try to parse as date
-        const parsedDate = new Date(value);
-        const isValidDate = parsedDate instanceof Date && !isNaN(parsedDate.getTime());
-
-        return (isDateKey || looksLikeDate) && isValidDate;
-    };
-
-    // Render cell content with special handling for status, dates, and actions
-    const renderCell = (value, key, row, index) => {
-        if (key.includes('isActive')) {
-            let displayValue = value;
-            // Handle boolean values
-            if (typeof value === 'boolean') {
-
-                displayValue = value ? 'Active' : 'Inactive';
-            }
-
-            return (
-                <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(displayValue)}`}>
-                    {displayValue}
-                </span>
-            );
-        }
-
-        if (isDateValue(value, key)) {
-            return formatDate(value);
-        }
+    if (isDateValue(value, key)) {
+      return formatDate(value);
+    }
 
         return value ?? "NA";
     };
@@ -161,34 +183,36 @@ const DataTable = ({
         </div>
     );
 
-    return (
-        <div className="bg-gray-50">
-            <div className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}>
-                {/* Header Section */}
-                <div className="px-4 sm:px-6 py-2 border-gray-200">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
-                        {/* Left side - Title */}
-                        <div className="flex items-center space-x-6">
-                            <h1 className="text-lg font-medium text-gray-600">{name}</h1>
-                        </div>
+  return (
+    <div className="bg-gray-50">
+      <div
+        className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}
+      >
+        {/* Header Section */}
+        <div className="px-4 sm:px-6 py-2 border-gray-200">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
+            {/* Left side - Title */}
+            <div className="flex items-center space-x-6">
+              <h1 className="text-lg font-medium text-gray-600">{name}</h1>
+            </div>
 
-                        {/* Right side - Search Bar */}
-                        <div className="relative">
-                            <img
-                                src={SearchIcon}
-                                alt="search"
-                                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"
-                            />
-                            <input
-                                type="text"
-                                placeholder="Search"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="text-[#656565] font-medium pl-12 pr-4 py-1 border border-[#DDDDDD] rounded-lg w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                        </div>
-                    </div>
-                </div>
+            {/* Right side - Search Bar */}
+            <div className="relative">
+              <img
+                src={SearchIcon}
+                alt="search"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"
+              />
+              <input
+                type="text"
+                placeholder="Search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="text-[#656565] font-medium pl-12 pr-4 py-1 border border-[#DDDDDD] rounded-lg w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+        </div>
 
                 {/* Desktop Table View */}
                 <div className="hidden md:block overflow-x-auto">
@@ -266,45 +290,21 @@ const DataTable = ({
                     </table>
                 </div>
 
-                {/* Mobile Card View */}
-                <div className="md:hidden p-4">
-                    {/* Mobile Sort Controls */}
-                    {sortable && headers.length > 0 && (
-                        <div className="mb-4">
-                            <label className="block text-xs font-medium text-gray-600 mb-2">Sort by:</label>
-                            <select
-                                value={sortConfig.key || ''}
-                                onChange={(e) => {
-                                    if (e.target.value) {
-                                        handleSort(e.target.value);
-                                    }
-                                }}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            >
-                                <option value="">No sorting</option>
-                                {headers.map((header) => (
-                                    <option key={header.key} value={header.key}>
-                                        {header.label} {sortConfig.key === header.key ?
-                                            (sortConfig.direction === 'asc' ? '↑' : '↓') : ''}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
-
-                    {/* Mobile Cards */}
-                    {sortedData.length === 0 ? (
-                        <div className="text-center py-12 text-[#121212]">
-                            {emptyMessage}
-                        </div>
-                    ) : (
-                        <div className="space-y-3">
-                            {sortedData.map((row, index) => (
-                                <MobileCard key={row.id || index} row={row} index={index} />
-                            ))}
-                        </div>
-                    )}
-                </div>
+        {/* Mobile Card View */}
+        <div className="md:hidden p-4">
+          {/* Mobile Cards */}
+          {sortedData.length === 0 ? (
+            <div className="text-center py-12 text-[#121212]">
+              {emptyMessage}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {sortedData.map((row, index) => (
+                <MobileCard key={row.id || index} row={row} index={index} />
+              ))}
+            </div>
+          )}
+        </div>
 
                 {/* Overlay for closing action menu */}
                 {showActionMenu && (

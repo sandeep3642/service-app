@@ -6,6 +6,9 @@ export const getMessageName = (status) => {
     TIME_SLOT_SELECTED: 'Time Slot Selected',
     PAYMENT_COMPLETED: 'Payment Completed',
     CONFIRMED: 'Service Confirmed',
+    REJECTED:'Rejected',
+    PENDING:'Pending',
+    ACCEPTED:'Accepted',
 
     // Assignment States
     WAITING_FOR_ASSIGNMENT: 'Waiting for Technician Assignment',
@@ -15,6 +18,8 @@ export const getMessageName = (status) => {
     // Service Progress States
     TECHNICIAN_IN_ROUTE: 'Technician on the Way',
     SERVICE_IN_PROGRESS: 'Service in Progress',
+    SERVICE_CREATED:'Service Created',
+    TECHNICIAN_ASSIGNED:"Technician Assigned",
 
     // Hardware Related States
     HARDWARE_REQUESTED: 'Hardware Requested',
@@ -83,6 +88,9 @@ export const getMessageName = (status) => {
     LOCATION_UPDATED: 'Location Updated',
     CONTACT_INFO_UPDATED: 'Contact Info Updated',
     STATUS_UPDATED: 'Status Updated',
+
+    //==================Technicians==============
+    AVAILABLE:"Available"
   };
 
   return messageName[status] || status;
