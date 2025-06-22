@@ -26,6 +26,7 @@ const Login = lazy(() => import("./pages/Login"));
 import "./App.css";
 import PrivateRoute from "./utilty/PrivateRoute";
 import PublicRoute from "./utilty/PublicRoute";
+import AdminAccountSettings from "./pages/Admin-Account-Setting";
 
 function App() {
   return (
@@ -54,6 +55,7 @@ function App() {
                 element={<AddTechnicianForm />}
               />
               <Route path="activityLog" element={<ActivityLog />} />
+              <Route path="account" element={<AdminAccountSettings />} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Route>
