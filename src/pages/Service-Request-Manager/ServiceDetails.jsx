@@ -5,55 +5,55 @@ import Loader from "../../utilty/Loader";
 import {
   fetchServiceActivities,
   fetchServiceRequestById,
+  updateServiceRequestStatus,
 } from "./serviceRequestService";
 import { toast } from "react-toastify";
 import { formatDate } from "../../utilty/common";
 import { getMessageName } from "../../utilty/messageConstant";
+
+const controllableStatuses = [
+  "WAITING_FOR_ASSIGNMENT",
+  "ASSIGNED_TO_TECHNICIAN",
+  "ACCEPTED_BY_TECHNICIAN",
+  "HARDWARE_REQUESTED",
+  "HARDWARE_REQUEST_APPROVED",
+  "HARDWARE_REQUEST_REJECTED",
+  "HARDWARE_QUOTATION_SENT",
+  "HARDWARE_PAYMENT_PENDING",
+  "HARDWARE_PAYMENT_COMPLETED",
+  "HARDWARE_RECEIVED",
+  "HARDWARE_INSTALLED",
+  "QUALITY_CHECK_PENDING",
+  "QUALITY_CHECK_COMPLETED",
+  "REWORK_REQUIRED",
+  "CUSTOMER_FEEDBACK_PENDING",
+  "CUSTOMER_FEEDBACK_RECEIVED",
+  "CUSTOMER_VERIFICATION_PENDING",
+  "DOCUMENTATION_PENDING",
+  "DOCUMENTATION_COMPLETED",
+  "WARRANTY_VERIFICATION_PENDING",
+  "WARRANTY_VERIFIED",
+  "WARRANTY_REJECTED",
+  "REFUND_REQUESTED",
+  "REFUND_APPROVED",
+  "REFUND_REJECTED",
+  "REFUND_INITIATED",
+  "REFUND_PROCESSING",
+  "REFUND_COMPLETED",
+  "REFUND_FAILED",
+  "SERVICE_COMPLETED",
+  "SERVICE_CANCELLED",
+  "SERVICE_RESCHEDULED",
+];
 
 const ServiceDetails = () => {
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [servieRequestDto, setServiceRequestDto] = useState(null);
   const [activeTab, setActiveTab] = useState("overview");
-  const [status, setStatus] = useState("In Progress");
+  const [currentStatus, setCurrentStatus] = useState(null);
   const [comment, setComment] = useState("");
   const [timelineSteps, setTimelineSteps] = useState([]);
-
-  console.log(timelineSteps, "timelineSteps");
-
-  const timelineStepss = [
-    {
-      status: "Received",
-      date: "Apr 09, 2025, 11:00 AM",
-      completed: true,
-      icon: "check",
-    },
-    {
-      status: "Accepted",
-      date: "Apr 09, 2025, 11:20 AM",
-      completed: true,
-      icon: "check",
-    },
-    {
-      status: "Assigned",
-      date: "Apr 09, 2025, 11:30 AM",
-      completed: true,
-      icon: "check",
-    },
-    {
-      status: "In Progress",
-      date: "Apr 09, 2025, 01:00 PM",
-      completed: true,
-      icon: "clock",
-      current: true,
-    },
-    {
-      status: "Completed",
-      date: "",
-      completed: false,
-      icon: "empty",
-    },
-  ];
 
   async function getServiceRequestDataById(id) {
     try {
@@ -63,6 +63,7 @@ const ServiceDetails = () => {
       if (status.success && details) {
         toast.success(status.message);
         setServiceRequestDto(details);
+        setCurrentStatus(details?.status);
       }
     } catch (error) {
     } finally {
@@ -80,6 +81,30 @@ const ServiceDetails = () => {
         setTimelineSteps(details?.activities);
       }
     } catch (error) {
+      console.log(error)
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function updateStatus() {
+ 
+    try {
+      setIsLoading(true);
+      console.log("ooppapapa",setServiceRequestDto,currentStatus,comment)
+      const payload = {
+        serviceRequestId: servieRequestDto?._id,
+        status: currentStatus,
+        notes: comment,
+      };
+      console.log(payload,setServiceRequestDto,currentStatus,comment)
+      const response = await updateServiceRequestStatus(payload);
+      const { status, details } = response;
+      if (status.success && details) {
+        toast.success(status.message);
+      }
+    } catch (error) {
+      console.log(error)
     } finally {
       setIsLoading(false);
     }
@@ -87,8 +112,12 @@ const ServiceDetails = () => {
 
   useEffect(() => {
     if (location && location.state) {
-      getServiceRequestDataById(location.state);
-      getServiceRequestActivities(location.state);
+      if (location.state && location.state.includes("Status")) {
+        setActiveTab("status");
+      }
+      const newState = location.state.replace("Status", "");
+      getServiceRequestDataById(newState);
+      getServiceRequestActivities(newState);
     }
   }, [location]);
 
@@ -148,15 +177,14 @@ const ServiceDetails = () => {
                   Status
                 </label>
                 <select
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value)}
-                  className="px-3 py-2 border-2 text-black border-[#DDDDDD] rounded-md text-sm w-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={currentStatus}
+                  onChange={(e) => setCurrentStatus(e.target.value)}
+                  className="h-8  border-2 text-black border-[#DDDDDD] rounded-md text-sm w-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="Received">Received</option>
-                  <option value="Accepted">Accepted</option>
-                  <option value="Assigned">Assigned</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Completed">Completed</option>
+                  {controllableStatuses &&
+                    controllableStatuses.map((val) => (
+                      <option value={val}>{getMessageName(val)}</option>
+                    ))}
                 </select>
               </div>
 
@@ -167,10 +195,19 @@ const ServiceDetails = () => {
                 <textarea
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  className="flex-1 p-3 border-2 border-[#DDDDDD] rounded-md text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 text-black p-3 border-2 border-[#DDDDDD] rounded-md text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                   rows="6"
                   placeholder="Enter update message or note"
                 />
+              </div>
+
+              <div className="flex justify-end">
+                <button
+                  className="w-full sm:w-auto px-6 py-4 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium cursor-pointer"
+                  onClick={updateStatus}
+                >
+                  Update Status
+                </button>
               </div>
             </div>
           </div>
@@ -199,7 +236,7 @@ const ServiceDetails = () => {
               },
               {
                 label: "Current Status",
-                value: servieRequestDto?.status,
+                value: getMessageName(servieRequestDto?.status),
               },
               {
                 label: "Issue Description",
@@ -321,7 +358,6 @@ const ServiceDetails = () => {
 
       {activeTab === "activity" && (
         <div>
-       
           <div className="relative pt-4">
             <div className="flex items-center w-full relative">
               {timelineSteps &&

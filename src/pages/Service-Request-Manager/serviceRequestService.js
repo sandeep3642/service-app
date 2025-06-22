@@ -42,3 +42,11 @@ export const fetchTechniciansResponseList = async (id) => {
   );
   return res.data;
 };
+
+export const updateServiceRequestStatus = async (payload) => {
+  const res = await api.patch(
+    `/api/v1/user/serviceRequests/${payload?.serviceRequestId}/updateStatus`,
+    payload
+  );
+  return res.data;
+};

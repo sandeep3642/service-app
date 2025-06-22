@@ -14,6 +14,7 @@ import { getMessageName } from "../../utilty/messageConstant";
 export default function Index() {
   const navigate = useNavigate();
   const menuRefs = useRef({});
+  const menuRefsMobile = useRef({});
   const [activeTab, setActiveTab] = useState("service");
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -146,18 +147,7 @@ export default function Index() {
                 <div className="py-1 text-sm text-gray-700">
                   <button
                     onClick={() => {
-                      if (id) {
-                        navigate("/service-detail", { state: id });
-                      }
-                      setOpenMenuIndex(null);
-                    }}
-                    className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
-                  >
-                    View
-                  </button>
-                  <button
-                    onClick={() => {
-                      navigate("/service-edit", { state: id });
+                      navigate("/service-detail", { state: `${id}Status` });
                       setOpenMenuIndex(null);
                     }}
                     className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
@@ -190,7 +180,12 @@ export default function Index() {
                     }}
                     className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
                   >
-                    Assign Technician
+                    {serviceRequestData?.rows[rowIndex]?.status ===
+                      "ACCEPTED_BY_TECHNICIAN" ||
+                    serviceRequestData?.rows[rowIndex]?.status ===
+                      "ASSIGNED_TO_TECHNICIAN"
+                      ? "Track Technician"
+                      : "Assign Technician"}
                   </button>
                 </div>
               </div>
@@ -209,13 +204,26 @@ export default function Index() {
     }
 
     return (
-      <span className="text-xs md:text-sm text-gray-900">
-        {value ? value : "NA"}{" "}
+      <span
+        onClick={() => {
+          const id =
+            activeTab === "service"
+              ? serviceRequestData.rows[rowIndex]._id
+              : null;
+          if (id) {
+            navigate("/service-detail", { state: id });
+          }
+          setOpenMenuIndex(null);
+        }}
+        className={`text-xs md:text-sm ${
+          header === "Case ID" ? "text-blue-700" : "text-gray-900"
+        }`}
+      >
+        {value ? value : "NA"}
       </span>
     );
   };
 
-  // Mobile Card Component
   const renderMobileCard = (row, rowIndex) => {
     const id = activeTab === "service" ? row._id : null;
 
@@ -225,8 +233,18 @@ export default function Index() {
         className="bg-white border border-gray-200 rounded-lg p-4 mb-3 shadow-sm"
       >
         <div className="flex justify-between items-start mb-3">
-          <div className="flex-1">
-            <h3 className="font-semibold text-sm text-gray-900 mb-1">
+          <div
+            className="flex-1 cursor-pointer"
+            onClick={() => {
+              if (activeTab === "service" && id) {
+                navigate("/service-detail", { state: id });
+              } else if (activeTab === "spare") {
+                navigate("/spare-part-detail");
+              }
+              setOpenMenuIndex(null);
+            }}
+          >
+            <h3 className="font-semibold text-sm text-blue-700 mb-1 hover:underline">
               {activeTab === "service" ? row.caseId : row["Request ID"]}
             </h3>
             <p className="text-xs text-gray-500">
@@ -243,7 +261,10 @@ export default function Index() {
                 {getMessageName(row.status)}
               </span>
             )}
-            <div className="relative">
+            <div
+              className="relative"
+              ref={(el) => (menuRefsMobile.current[rowIndex] = el)}
+            >
               <button
                 onClick={() =>
                   setOpenMenuIndex(openMenuIndex === rowIndex ? null : rowIndex)
@@ -253,35 +274,48 @@ export default function Index() {
                 <MoreVertical size={16} />
               </button>
               {openMenuIndex === rowIndex && (
-                <div className="absolute right-0 z-20 mt-2 w-28 origin-top-right rounded-md bg-white shadow-lg border border-gray-700">
+                <div className="absolute right-0 z-20 mt-2 w-32 origin-top-right rounded-md bg-white shadow-lg border border-gray-200">
                   <div className="py-1 text-sm text-gray-700">
-                    <button
-                      onClick={() => {
-                        navigate("/service-detail", { state: id });
-                        setOpenMenuIndex(null);
-                      }}
-                      className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
-                    >
-                      View
-                    </button>
-                    <button
-                      onClick={() => {
-                        navigate("/service-edit", { state: id });
-                        setOpenMenuIndex(null);
-                      }}
-                      className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => {
-                        navigate("/service-delete", { state: id });
-                        setOpenMenuIndex(null);
-                      }}
-                      className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
-                    >
-                      Delete
-                    </button>
+                    {activeTab === "service" && (
+                      <>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate("/service-detail", {
+                              state: `${id}Status`,
+                            });
+                            setOpenMenuIndex(null);
+                          }}
+                          className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
+                        >
+                          Change Status
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent event bubbling
+                            setIsOpen(true);
+                            setCurrentRequestId(row._id);
+                            setCurrentRequestStatus(row.status);
+                            setOpenMenuIndex(null);
+                          }}
+                          style={{
+                            display:
+                              row.status === "ACCEPTED_BY_TECHNICIAN" ||
+                              row.status === "ASSIGNED_TO_TECHNICIAN" ||
+                              row.status === "CONFIRMED" ||
+                              row.status === "WAITING_FOR_ASSIGNMENT"
+                                ? "block"
+                                : "none",
+                          }}
+                          className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
+                        >
+                          {row.status === "ACCEPTED_BY_TECHNICIAN" ||
+                          row.status === "ASSIGNED_TO_TECHNICIAN"
+                            ? "Track Technician"
+                            : "Assign Technician"}
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               )}
@@ -376,7 +410,11 @@ export default function Index() {
       const isClickInsideAnyMenu = Object.values(menuRefs.current).some(
         (ref) => ref && ref.contains(event.target)
       );
-      if (!isClickInsideAnyMenu) {
+      const isClickInsideAnyMobileMenu = Object.values(
+        menuRefsMobile.current
+      ).some((ref) => ref && ref.contains(event.target));
+
+      if (!isClickInsideAnyMenu && !isClickInsideAnyMobileMenu) {
         setOpenMenuIndex(null);
       }
     };
