@@ -7,3 +7,9 @@ export const fetchTechniciansList = async (page = 1, limit = 10) => {
 };
 
 
+export const fetchTechnicianDetail = async (id) => {
+  const res = await api.get(
+    `/api/v1/user/technicians/profileInfo/${id}`
+  );
+  return res.data;
+};

@@ -5,9 +5,17 @@ import blockIcon from '../../assets/block.png';
 import ProfileImage from '../../assets/profile.png';
 import DocumentIcon from '../../assets/Document.png'
 import TechnicianEarningsModal from './TechnicianEarningsModal';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { fetchTechnicianDetail } from './technician';
+import Loader from '../../utilty/Loader';
+import { toast } from 'react-toastify';
+import { getStatusBadge } from '../../utilty/globalStatus';
+import { formatDate } from '../../utilty/common';
+import { getMessageName } from '../../utilty/messageConstant';
 const TechnicianView = () => {
+    const location = useLocation()
     const [activeTab, setActiveTab] = useState('Profile Info');
+    const [isLoading, setIsLoading] = useState(false);
     const [activeWorkTab, setActiveWorkTab] = useState('This Month');
     const [title, setTitle] = useState("Technician Details")
     const tabs = ['Profile Info', 'Service History', 'Performance Metrics'];
@@ -17,6 +25,7 @@ const TechnicianView = () => {
     const chartRef = useRef(null);
     const chartInstanceRef = useRef(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [profileData, setProfileData] = useState(null)
     const navigate = useNavigate();
     // Register Chart.js components
     useEffect(() => {
@@ -238,18 +247,7 @@ const TechnicianView = () => {
     const handleEarningSummary = () => {
         setIsModalOpen(true)
     }
-    const getStatusColor = (status) => {
-        switch (status) {
-            case 'Active':
-                return 'text-[#03A416]';
-            case 'Approved':
-                return 'text-[#03A416]';
-            case 'Pending':
-                return ' text-yellow-800';
-            default:
-                return 'text-gray-600';
-        }
-    };
+
 
     const renderProfileInfo = () => (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -262,7 +260,7 @@ const TechnicianView = () => {
                     <div className="flex items-start space-x-4 mb-6">
                         <div className="relative">
                             <img
-                                src={ProfileImage}
+                                src={profileData?.profileSummary?.profilePictureUrl ?? ProfileImage}
                                 alt="Profile"
                                 className="w-40 h-40 rounded-lg object-cover"
                             />
@@ -271,27 +269,27 @@ const TechnicianView = () => {
                         <div className="flex-1 space-y-2">
                             <div className="flex justify-between">
                                 <span className="text-sm text-[#121212]">ID:</span>
-                                <span className="text-sm font-medium text-[#121212]">TE001</span>
+                                <span className="text-sm font-medium text-[#121212]">{profileData?.profileSummary?.id ?? "NA"}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-sm text-[#121212]">Name:</span>
-                                <span className="text-sm font-medium text-[#121212]">Rajesh Kumar</span>
+                                <span className="text-sm font-medium text-[#121212]">{profileData?.profileSummary?.name ?? "NA"}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-sm text-[#121212]">Phone:</span>
-                                <span className="text-sm font-medium text-[#121212]">+91 8009996321</span>
+                                <span className="text-sm font-medium text-[#121212]">{profileData?.profileSummary?.phone ?? "NA"}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-sm text-[#121212]">Status:</span>
-                                <span className={`text-sm font-medium ${getStatusColor('Active')}`}>Active</span>
+                                <span className={`text-sm font-medium ${getStatusBadge(profileData?.profileSummary?.status)}`}>{profileData?.profileSummary?.status ?? "NA"}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-sm text-[#121212]">Role:</span>
-                                <span className="text-sm font-medium text-[#121212]">Senior Laptop Repair</span>
+                                <span className="text-sm font-medium text-[#121212]">{profileData?.profileSummary?.role ?? "NA"}</span>
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-sm text-[#121212]">Location:</span>
-                                <span className="text-sm font-medium text-[#121212]">Kolkata</span>
+                                <span className="text-sm font-medium text-[#121212]">{profileData?.profileSummary?.location ?? "NA"}</span>
                             </div>
                         </div>
                     </div>
@@ -300,81 +298,136 @@ const TechnicianView = () => {
                 {/* ID Proof Section */}
                 <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 max-w-xl">
                     <h4 className="font-medium border-b border-gray-200 text-[#121212] mb-3">ID Proof</h4>
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div className="flex items-center space-x-3">
-                            <div className="w-12 h-10 flex ">
-                                <img src={DocumentIcon} alt="document" />
+
+                    {profileData?.idProof && Object.entries(profileData?.idProof).map(([key, value]) => {
+                        const uploadedDate = formatDate(value?.uploadedAt);
+                        const status = value?.status;
+                        const fileUrl = value?.fileUrl
+
+                        return (
+                            <div key={key} className="flex items-center justify-between p-3 bg-gray-50 mt-2">
+                                <div className="flex items-center space-x-3">
+                                    <div className="w-12 h-10 flex">
+
+                                        <a href={fileUrl} target="_blank" rel="noopener noreferrer">
+                                            <img src={fileUrl ?? DocumentIcon} alt={key} className="w-32 h-auto border rounded cursor-pointer" />
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <p className="text-md font-medium text-[#121212]">{getMessageName(key)}</p>
+                                        <p className="text-xs text-gray-500">
+                                            Uploaded on {uploadedDate}{' '}
+                                            <span className={`px-2 py-1 text-xs font-medium rounded mt-1 ${getStatusBadge(status)}`}>
+                                                {status}
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center space-x-2" style={{ display: status === "Rejected" ? "none" : "flex" }}>
+                                    {
+                                        status === "Approved" &&
+                                        <>
+                                            <a
+                                                href={value.fileUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="shadow-xs border-1 text-[#3163BF] font-medium px-5 py-1 rounded"
+                                            >
+                                                View
+                                            </a>
+                                            <a
+                                                href={value.fileUrl}
+                                                download
+                                                className="shadow-xs border-1 text-[#3163BF] font-medium px-5 py-1 rounded"
+                                            >
+                                                Download
+                                            </a>
+                                        </>
+                                    }
+                                    {status === 'pending' && (
+                                        <>
+                                            <button className="bg-[#03A416]  cursor-pointer text-white  px-3 py-2 rounded-lg   items-center">
+                                                Approved
+                                            </button>
+                                            <button className=" shadow-xs cursor-pointer border-1 text-[#FF0606] font-medium px-5 py-1 rounded-lg  items-center">
+                                                Reject
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
                             </div>
-                            <div>
-                                <p className="text-md font-medium text-[#121212]">Aadhaar Card</p>
-                                <p className="text-xs text-gray-500">Uploaded on 12 May 2025 <span className={` px-2 py-1 text-xs font-medium rounded mt-1 ${getStatusColor('Approved')}`}>
-                                    Approved
-                                </span>
-                                </p>
-                            </div>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <button className="shadow-xs border-1 text-[#3163BF] font-medium px-5 py-1 rounded   items-center">
-                                View
-                            </button>
-                            <button className=" shadow-xs border-1 text-[#3163BF] font-medium px-5 py-1 rounded  items-center">
-                                Download
-                            </button>
-                        </div>
-                    </div>
+                        );
+                    })}
                 </div>
 
                 {/* Certificate Section */}
-                <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 max-w-xl">
-                    <h4 className="font-medium border-b border-gray-200 text-[#121212] mb-3">Certificate</h4>
-                    {/* Certificate 1 - Pending */}
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-3">
-                        <div className="flex items-center space-x-3">
-                            <div className="w-12 h-10 flex ">
-                                <img src={DocumentIcon} alt="document" />
-                            </div>
-                            <div>
-                                <p className="text-md font-medium text-[#121212]">Certificate_1</p>
-                                <p className="text-xs text-gray-500">Uploaded on 12 May 2025 <span className={` px-2 py-1 text-xs font-medium rounded mt-1 ${getStatusColor('Pending')}`}>
-                                    Pending
-                                </span>
-                                </p>
-                            </div>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <button className="bg-[#03A416]  text-white  px-3 py-2 rounded-lg   items-center">
-                                Approved
-                            </button>
-                            <button className=" shadow-xs border-1 text-[#FF0606] font-medium px-5 py-1 rounded-lg  items-center">
-                                Reject
-                            </button>
-                        </div>
-                    </div>
+                {profileData?.certificates?.length > 0 && (
+                    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 max-w-xl mt-4">
+                        <h4 className="font-medium border-b border-gray-200 text-[#121212] mb-3">Certificates</h4>
 
-                    {/* Certificate 2 - Approved */}
-                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div className="flex items-center space-x-3">
-                            <div className="w-12 h-10 flex ">
-                                <img src={DocumentIcon} alt="document" />
-                            </div>
-                            <div>
-                                <p className="text-md font-medium text-[#121212]">Certificate_2</p>
-                                <p className="text-xs text-gray-500">Uploaded on 12 May 2025 <span className={` px-2 py-1 text-xs font-medium rounded mt-1 ${getStatusColor('Approved')}`}>
-                                    Approved
-                                </span>
-                                </p>
-                            </div>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <button className="shadow-xs border-1 text-blue-800 font-medium px-5 py-1 rounded   items-center">
-                                View
-                            </button>
-                            <button className=" shadow-xs border-1 text-blue-800 font-medium px-5 py-1 rounded  items-center">
-                                Download
-                            </button>
-                        </div>
+                        {profileData.certificates.map((cert, index) => {
+                            const uploadedDate = formatDate(cert?.uploadedAt);
+                            const status = cert.status;
+                            const fileUrl = cert.fileUrl;
+                            const certName = cert.name || `Certificate_${index + 1}`;
+
+                            return (
+                                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-3">
+                                    <div className="flex items-center space-x-3">
+                                        <div className="w-12 h-10 flex">
+                                            <a href={fileUrl} target="_blank" rel="noopener noreferrer">
+                                                <img src={DocumentIcon} alt={certName} className="w-32 h-auto border rounded cursor-pointer" />
+                                            </a>
+                                        </div>
+                                        <div>
+                                            <p className="text-md font-medium text-[#121212]">{certName}</p>
+                                            <p className="text-xs text-gray-500">
+                                                Uploaded on {uploadedDate}{' '}
+                                                <span className={`px-2 py-1 text-xs font-medium rounded mt-1 ${getStatusBadge(status)}`}>
+                                                    {status}
+                                                </span>
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center space-x-2" style={{ display: status === "Rejected" ? "none" : "flex" }}>
+                                        {status === "Approved" && (
+                                            <>
+                                                <a
+                                                    href={fileUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="shadow-xs border-1 text-[#3163BF] font-medium px-5 py-1 rounded"
+                                                >
+                                                    View
+                                                </a>
+                                                <a
+                                                    href={fileUrl}
+                                                    download
+                                                    className="shadow-xs border-1 text-[#3163BF] font-medium px-5 py-1 rounded"
+                                                >
+                                                    Download
+                                                </a>
+                                            </>
+                                        )}
+                                        {status === "pending" && (
+                                            <>
+                                                <button className="bg-[#03A416] text-white px-3 py-2 rounded-lg items-center">
+                                                    Approved
+                                                </button>
+                                                <button className="shadow-xs border-1 text-[#FF0606] font-medium px-5 py-1 rounded-lg items-center">
+                                                    Reject
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })}
                     </div>
-                </div>
+                )}
+
             </div>
 
             {/* Right Column - Contact Information, Skills & Expertise */}
@@ -386,23 +439,22 @@ const TechnicianView = () => {
                     <div className="flex-1 space-y-2">
                         <div className='flex justify-between'>
                             <span className="text-sm text-[#121212] block mb-1">Phone:</span>
-                            <span className="text-sm font-medium text-[#121212]">+91 8009996321</span>
+                            <span className="text-sm font-medium text-[#121212]">{profileData?.profileSummary.phone ?? "NA"}</span>
                         </div>
                         <div className='flex justify-between'>
                             <label className="text-sm text-[#121212] block mb-1">Alternate Contact:</label>
-                            <p className="text-sm font-medium text-[#121212]">+91 9876501234</p>
+                            <p className="text-sm font-medium text-[#121212]">{profileData?.contactInformation?.alternateContact ?? "NA"}</p>
                         </div>
                         <div className='flex justify-between'>
                             <label className=" flex text-sm text-[#121212]  mb-1">Address:</label>\
                             <div>
-                                <p className="text-sm font-medium text-[#121212] ">123, Indiranagar,</p>
-                                <p className="text-sm font-medium text-[#121212]">Kolkata - 560038</p>
+                                <p className="text-sm font-medium text-[#121212] ">{profileData?.contactInformation?.address ?? "NA"}</p>
                             </div>
 
                         </div>
                         <div className='flex justify-between'>
                             <label className="text-sm text-[#121212] block mb-1">Email:</label>
-                            <p className="text-sm font-medium text-[#121212]">rajesh@gmail.com</p>
+                            <p className="text-sm font-medium text-[#121212]">{profileData?.contactInformation?.email ?? "NA"}</p>
                         </div>
                     </div>
                 </div>
@@ -411,10 +463,7 @@ const TechnicianView = () => {
                 <div className="bg-white rounded-lg shadow-md border border-gray-200  mr-10 p-6 max-w-lg p-6">
                     <h4 className="text-lg border-b border-gray-200 font-semibold text-[#121212] mb-4">Skills & Expertise</h4>
                     <div className="space-y-2">
-                        <p className="text-sm text-[#121212]">Laptop Hardware Troubleshooting</p>
-                        <p className="text-sm text-[#121212]">Chip-Level Repair (BGA Rework, Soldering,<br></br> IC Replacement)</p>
-                        <p className="text-sm text-[#121212]">OS Installation & Recovery (Windows, macOS, Linux)</p>
-                        <p className="text-sm text-[#121212]">Keyboard, Trackpad, and Screen Replacement</p>
+                        <p className="text-sm text-[#121212]">{profileData?.skillsAndExpertise?.skills.map((val) => val + " ,")}</p>
                     </div>
                 </div>
             </div>
@@ -423,7 +472,7 @@ const TechnicianView = () => {
     const renderServiceHistory = () => (
         <div className="space-y-6">
             {/* Work History Section */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div className="bg-white rounded-lg shadow-sm border  p-6">
                 {/* Header with Title and Search */}
                 <div className="flex justify-between items-center ">
                     <h3 className="text-lg font-semibold text-black">Work History</h3>
@@ -472,7 +521,7 @@ const TechnicianView = () => {
                     <table className="w-full">
 
                         <thead>
-                            <tr className="border-b bg-gray-800 border-gray-100">
+                            <tr className="border-b bg-gray-100 border-gray-100">
                                 <th className="text-left py-3 px-4 text-sm font-medium text-black">Date</th>
                                 <th className="text-left py-3 px-4 text-sm font-medium text-black">Service ID</th>
                                 <th className="text-left py-3 px-4 text-sm font-medium text-black">Service Type</th>
@@ -769,6 +818,33 @@ const TechnicianView = () => {
             </div>
         );
     };
+
+    async function fetchTechnicianDetailbyId(id) {
+        try {
+            setIsLoading(true);
+            const response = await fetchTechnicianDetail(id);
+
+            const { status, details } = response;
+
+            if (status.success && details) {
+                toast.success(status.message);
+                setProfileData(details);
+
+            }
+        } catch (error) {
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    console.log(profileData, "profileDate")
+    useEffect(() => {
+        if (location && location.state) {
+            fetchTechnicianDetailbyId(location.state)
+        }
+    }, [location]);
+
+    if (isLoading) return <Loader />;
 
     return (
         <div className="min-h-screen">

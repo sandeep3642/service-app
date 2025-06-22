@@ -73,7 +73,7 @@ const Technician = () => {
   const handleRowAction = (row, mode) => {
     console.log(mode)
     if (mode === 'View Detail') {
-      navigate('/technician-view', { state: { technician: row } });
+      navigate('/technician-view', { state: row._id });
 
     }
     if (mode === 'Delete') {

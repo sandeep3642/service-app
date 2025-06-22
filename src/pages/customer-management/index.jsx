@@ -9,7 +9,6 @@ import Loader from "../../utilty/Loader";
 import GlobalPagination from "../../components/GlobalPagination";
 
 const customerHeaders = [
-    { key: '_id', label: 'ID' },
     { key: 'name', label: 'Name' },
     { key: 'email', label: 'Email' },
     { key: 'phoneNumber', label: 'Mobile No.' },
