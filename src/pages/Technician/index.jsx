@@ -8,7 +8,6 @@ import { fetchTechniciansList } from "./technician";
 import GlobalPagination from "../../components/GlobalPagination";
 import Loader from "../../utilty/Loader";
 const technicianHeaders = [
-  { key: 'id', label: 'ID' },
   { key: 'name', label: 'Name' },
   { key: 'email', label: 'Email' },
   { key: 'phoneNumber', label: 'Mobile No.' },
