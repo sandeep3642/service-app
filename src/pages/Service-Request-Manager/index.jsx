@@ -34,8 +34,11 @@ export default function Index() {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
+
   const [search, setSearch] = useState(null);
   const debouncedSearchTerm = useDebounce(search, 500);
+
+  
   const [currentRequestId, setCurrentRequestId] = useState(null);
   const [currentRequestStatus, setCurrentRequestStatus] = useState(null);
 
@@ -493,12 +496,12 @@ export default function Index() {
       <div className="hidden md:block bg-white">
         <div className="overflow-x-auto w-full">
           <table className="min-w-full table-auto">
-            <thead className="bg-gray-100 border-b border-gray-200">
+            <thead className="bg-[#F8F8F8] border-b border-gray-200">
               <tr>
                 {currentData.headers.map((header, index) => (
                   <th
                     key={index}
-                    className="px-4 lg:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    className="px-4 lg:px-6 py-3 text-left text-sm font-medium text-[#121212] tracking-wider"
                   >
                     {header.label}
                   </th>

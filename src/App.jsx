@@ -22,6 +22,7 @@ const ActivityLog = lazy(() =>
   import("./pages/Service-Request-Manager/ActivityLog")
 );
 const Login = lazy(() => import("./pages/Login"));
+const SubAdmin = lazy(() => import("./pages/sub-admin"));
 
 import "./App.css";
 import PrivateRoute from "./utilty/PrivateRoute";
@@ -59,6 +60,7 @@ function App() {
               <Route path="account" element={<AdminAccountSettings />} />
               <Route path="complaint" element={<ComplaintsTabs/>}/>
               <Route path="*" element={<NotFoundPage />} />
+              <Route path="sub-admin" element={<SubAdmin/>}/>
             </Route>
           </Route>
         </Routes>

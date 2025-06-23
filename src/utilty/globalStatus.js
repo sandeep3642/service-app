@@ -1,7 +1,7 @@
 export const getStatusBadge = (status) => {
         const statusColors = {
             'Active': ' text-[#03A416]',
-            'Inactive': ' text-gray-800',
+            'Inactive': ' text-red-800',
             'In Progress': 'text-blue-800',
             'Completed': ' text-green-800',
             'Cancelled': 'text-red-800',
