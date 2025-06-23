@@ -35,7 +35,7 @@ const ActivityLog = ({ timelineData }) => {
           sortedActivities.reverse().map((item, index) => (
             <div key={index} className="relative">
               {/* Blue Dot */}
-              <div className="absolute -left-[33px] top-0 w-4 h-4 bg-[#0096FF] rounded-full border border-white"></div>
+              <div className="absolute -left-[25px] top-0 w-4 h-4 bg-[#0096FF] rounded-full border border-white"></div>
 
               {/* Text Content */}
               <div>
