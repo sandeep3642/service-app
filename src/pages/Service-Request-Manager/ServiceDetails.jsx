@@ -10,6 +10,7 @@ import {
 import { toast } from "react-toastify";
 import { formatDate } from "../../utilty/common";
 import { getMessageName } from "../../utilty/messageConstant";
+import ActivityLog from "./ActivityLog";
 
 const controllableStatuses = [
   "WAITING_FOR_ASSIGNMENT",
@@ -360,44 +361,7 @@ const ServiceDetails = () => {
         <div>
           <div className="relative pt-4">
             <div className="flex items-center w-full relative">
-              {timelineSteps &&
-                timelineSteps.map((step, index) => (
-                  <div
-                    key={index}
-                    className="flex flex-col items-center w-70 relative  h-25"
-                  >
-                    {/* Connecting line */}
-                    {index < timelineSteps.length - 1 && (
-                      <div className="absolute top-4 left-1/2 w-full h-0 z-0">
-                        <div
-                          className={`border-t-2 ${
-                            step.completed
-                              ? "border-dashed border-[#267596]"
-                              : "border-dashed border-gray-400"
-                          }`}
-                        ></div>
-                      </div>
-                    )}
-
-                    {/* Icon */}
-                    <div
-                      className={`z-10 w-8 h-8 rounded-full flex items-center justify-center border-2 ${"bg-[#267596] text-white border-[#267596]"}`}
-                    >
-                      <Check className="w-4 h-4" />
-                    </div>
-
-                    <div className="text-center mt-2">
-                      <p className={`text-sm font-medium ${"text-[#267596]"}`}>
-                        {getMessageName(step.activityType)}
-                      </p>
-                      {step.createdAt && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          {formatDate(step.createdAt, true)}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                ))}
+             <ActivityLog timelineData={timelineSteps} />
             </div>
           </div>
         </div>
