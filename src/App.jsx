@@ -27,6 +27,7 @@ import "./App.css";
 import PrivateRoute from "./utilty/PrivateRoute";
 import PublicRoute from "./utilty/PublicRoute";
 import AdminAccountSettings from "./pages/Admin-Account-Setting";
+import ComplaintsTabs from "./pages/complaints";
 
 function App() {
   return (
@@ -56,6 +57,7 @@ function App() {
               />
               <Route path="activityLog" element={<ActivityLog />} />
               <Route path="account" element={<AdminAccountSettings />} />
+              <Route path="complaint" element={<ComplaintsTabs/>}/>
               <Route path="*" element={<NotFoundPage />} />
             </Route>
           </Route>
