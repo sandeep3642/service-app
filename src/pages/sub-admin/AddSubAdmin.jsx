@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Edit3, Save, X } from "lucide-react";
 
-export default function EditTechnician({ onClose }) {
+export default function AddSubAdmin({ onClose }) {
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
     id: "TE001",
@@ -20,12 +20,7 @@ export default function EditTechnician({ onClose }) {
   };
 
   const handleCancel = () => {
-    // setIsEditing(false);
-    // setEditData({ ...formData });
-    if (onClose) {
-      console.log("hello Cancel ");
-      onClose();
-    }
+    onClose();
   };
 
   const handleSave = () => {
@@ -50,7 +45,7 @@ export default function EditTechnician({ onClose }) {
             "linear-gradient(to bottom right, rgba(0, 0, 0, 0.3), rgba(100, 100, 100, 0.4))",
         }}
       />
-      <div className="relative  bg-white rounded-lg shadow-xl max-w-xl  mx-4 p-6 z-10">
+      <div className="relative  bg-white rounded-lg shadow-xl w-2xl  mx-4 p-6 z-10">
         {/* Close button */}
         <button
           onClick={handleCancel}
@@ -59,15 +54,7 @@ export default function EditTechnician({ onClose }) {
           <X size={20} />
         </button>
         {/* ID and Name Row */}
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-2">
-              ID
-            </label>
-            <div className="bg-gray-200 px-3 py-2 rounded-md text-gray-700 font-medium">
-              {formData.id}
-            </div>
-          </div>
+        <div className="mb-4">
           <div>
             <label className="block text-sm font-medium text-gray-600 mb-2">
               Name
@@ -136,12 +123,18 @@ export default function EditTechnician({ onClose }) {
           />
         </div>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-3">
+          <button
+            onClick={handleCancel}
+            className="flex justify-end  text-black border border-[#121212] px-4 py-2 rounded-lg font-medium cursor-pointer  transition-colors"
+          >
+            Cancel
+          </button>
           <button
             onClick={handleSave}
-            className="flex justify-end  bg-cyan-500 text-white py-4 px-3 rounded-lg font-medium hover:bg-cyan-600 transition-colors"
+            className="flex justify-end  bg-cyan-500 text-white px-9 py-2 rounded-lg cursor-pointer font-medium hover:bg-cyan-600 transition-colors"
           >
-            Save Changes
+            Next
           </button>
         </div>
       </div>

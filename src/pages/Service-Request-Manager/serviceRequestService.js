@@ -50,3 +50,13 @@ export const updateServiceRequestStatus = async (payload) => {
   );
   return res.data;
 };
+
+export const addServiceNote = async (payload) => {
+  const res = await api.post(
+    `/api/v1/user/serviceRequests/${payload?.serviceRequestId}/addNote`,
+    {
+      note: payload?.notes,
+    }
+  );
+  return res.data;
+};

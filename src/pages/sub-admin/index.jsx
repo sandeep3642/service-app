@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import DataTable from "../../components/Table";
 import { data } from "autoprefixer";
 import { useDebounce } from "../../hooks";
+import AddSubAdmin from "./AddSubAdmin";
 
 const headers = [
   { key: "name", label: "Name" },
@@ -42,6 +43,10 @@ const users = [
 const Index = () => {
   const [search, setSearch] = useState("");
   const debouncedSearchTerm = useDebounce(search, 500);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleClose = () => setIsOpen(false);
+
   return (
     <div>
       <div className="py-3 flex items-center justify-end ">
@@ -49,6 +54,7 @@ const Index = () => {
           className="px-4 py-3 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium
          cursor-pointer
         "
+          onClick={() => setIsOpen(true)}
         >
           <span className="font-bold"> + </span>
           Add Sub admin
@@ -64,6 +70,8 @@ const Index = () => {
         search={search}
         setSearch={setSearch}
       />
+
+      {isOpen && <AddSubAdmin isOpen={isOpen} onClose={handleClose} />}
     </div>
   );
 };

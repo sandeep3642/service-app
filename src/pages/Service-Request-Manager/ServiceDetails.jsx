@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Check, Clock } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import Loader from "../../utilty/Loader";
 import {
+  addServiceNote,
   fetchServiceActivities,
   fetchServiceRequestById,
   updateServiceRequestStatus,
@@ -11,41 +11,8 @@ import { toast } from "react-toastify";
 import { formatDate } from "../../utilty/common";
 import { getMessageName } from "../../utilty/messageConstant";
 import ActivityLog from "./ActivityLog";
-
-const controllableStatuses = [
-  "WAITING_FOR_ASSIGNMENT",
-  "ASSIGNED_TO_TECHNICIAN",
-  "ACCEPTED_BY_TECHNICIAN",
-  "HARDWARE_REQUESTED",
-  "HARDWARE_REQUEST_APPROVED",
-  "HARDWARE_REQUEST_REJECTED",
-  "HARDWARE_QUOTATION_SENT",
-  "HARDWARE_PAYMENT_PENDING",
-  "HARDWARE_PAYMENT_COMPLETED",
-  "HARDWARE_RECEIVED",
-  "HARDWARE_INSTALLED",
-  "QUALITY_CHECK_PENDING",
-  "QUALITY_CHECK_COMPLETED",
-  "REWORK_REQUIRED",
-  "CUSTOMER_FEEDBACK_PENDING",
-  "CUSTOMER_FEEDBACK_RECEIVED",
-  "CUSTOMER_VERIFICATION_PENDING",
-  "DOCUMENTATION_PENDING",
-  "DOCUMENTATION_COMPLETED",
-  "WARRANTY_VERIFICATION_PENDING",
-  "WARRANTY_VERIFIED",
-  "WARRANTY_REJECTED",
-  "REFUND_REQUESTED",
-  "REFUND_APPROVED",
-  "REFUND_REJECTED",
-  "REFUND_INITIATED",
-  "REFUND_PROCESSING",
-  "REFUND_COMPLETED",
-  "REFUND_FAILED",
-  "SERVICE_COMPLETED",
-  "SERVICE_CANCELLED",
-  "SERVICE_RESCHEDULED",
-];
+import DiamondIcon from "../../assets/diamond.png";
+import { CONTROLLABLE_STATUSES } from "../../utilty/static";
 
 const ServiceDetails = () => {
   const location = useLocation();
@@ -55,6 +22,7 @@ const ServiceDetails = () => {
   const [currentStatus, setCurrentStatus] = useState(null);
   const [comment, setComment] = useState("");
   const [timelineSteps, setTimelineSteps] = useState([]);
+  const [notes, setNotes] = useState("");
 
   async function getServiceRequestDataById(id) {
     try {
@@ -62,15 +30,20 @@ const ServiceDetails = () => {
       const response = await fetchServiceRequestById(id);
       const { status, details } = response;
       if (status.success && details) {
-        toast.success(status.message);
+        // toast.success(status.message);
         setServiceRequestDto(details);
-        setCurrentStatus(details?.status);
+
+        setCurrentStatus(details?.serviceDetails?.status);
       }
     } catch (error) {
     } finally {
       setIsLoading(false);
     }
   }
+
+  useEffect(() => {
+    console.log("current", servieRequestDto?.pricing);
+  }, [servieRequestDto]);
 
   async function getServiceRequestActivities(id) {
     try {
@@ -78,34 +51,55 @@ const ServiceDetails = () => {
       const response = await fetchServiceActivities(id);
       const { status, details } = response;
       if (status.success && details) {
-        toast.success(status.message);
+        // toast.success(status.message);
         setTimelineSteps(details?.activities);
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
     } finally {
       setIsLoading(false);
     }
   }
 
   async function updateStatus() {
- 
     try {
       setIsLoading(true);
-      console.log("ooppapapa",setServiceRequestDto,currentStatus,comment)
+
       const payload = {
-        serviceRequestId: servieRequestDto?._id,
+        serviceRequestId: servieRequestDto?.serviceDetails?._id,
         status: currentStatus,
         notes: comment,
       };
-      console.log(payload,setServiceRequestDto,currentStatus,comment)
+      console.log(payload, setServiceRequestDto, currentStatus, comment);
       const response = await updateServiceRequestStatus(payload);
       const { status, details } = response;
       if (status.success && details) {
         toast.success(status.message);
       }
     } catch (error) {
-      console.log(error)
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function addNote() {
+    try {
+      setIsLoading(true);
+
+      const payload = {
+        serviceRequestId: servieRequestDto?.serviceDetails?._id,
+        notes: notes,
+      };
+      console.log(payload)
+
+      const response = await addServiceNote(payload);
+      const { status, details } = response;
+      if (status.success && details) {
+        toast.success(status.message);
+      }
+    } catch (error) {
+      console.log(error);
     } finally {
       setIsLoading(false);
     }
@@ -182,8 +176,8 @@ const ServiceDetails = () => {
                   onChange={(e) => setCurrentStatus(e.target.value)}
                   className="h-8  border-2 text-black border-[#DDDDDD] rounded-md text-sm w-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  {controllableStatuses &&
-                    controllableStatuses.map((val) => (
+                  {CONTROLLABLE_STATUSES &&
+                    CONTROLLABLE_STATUSES.map((val) => (
                       <option value={val}>{getMessageName(val)}</option>
                     ))}
                 </select>
@@ -212,8 +206,6 @@ const ServiceDetails = () => {
               </div>
             </div>
           </div>
-
-          {/* Service Timeline */}
         </div>
       )}
 
@@ -221,52 +213,82 @@ const ServiceDetails = () => {
       {activeTab === "overview" && (
         <div className="p-0">
           {/* Request Basic Info */}
-          <div className="grid grid-cols-2  gap-y-6">
+          <div className="grid grid-cols-2 gap-y-4">
             {[
-              { label: "Case ID", value: servieRequestDto?.caseId },
+              {
+                label: "Case ID",
+                value: servieRequestDto?.serviceDetails?.caseId,
+                showIcon: servieRequestDto?.serviceDetails?.isPriority,
+              },
               {
                 label: "Request Date",
-                value: formatDate(servieRequestDto?.createdAt, true),
+                value: formatDate(
+                  servieRequestDto?.serviceDetails?.requestDate,
+                  true
+                ),
               },
               { label: "Product", value: servieRequestDto?.product?.name },
               {
                 label: "Issue Type",
-                value: servieRequestDto?.serviceOptions
-                  .map((val) => val.name)
-                  .join(","),
+                value: servieRequestDto?.serviceDetails?.issueDescription,
               },
               {
                 label: "Current Status",
-                value: getMessageName(servieRequestDto?.status),
+                value: getMessageName(servieRequestDto?.serviceDetails?.status),
               },
               {
                 label: "Issue Description",
-                value: servieRequestDto?.issueDescription,
+                value: servieRequestDto?.serviceDetails?.issueDescription,
+              },
+
+              // These two will only show if isPriority is true
+              ...(servieRequestDto?.serviceDetails?.isPriority
+                ? [
+                    {
+                      label: "Preferred Date",
+                      value: formatDate(
+                        servieRequestDto?.serviceDetails?.preferredDate
+                      ),
+                    },
+                    {
+                      label: "Preferred Time Slot",
+                      value: servieRequestDto?.serviceDetails?.preferredTime,
+                    },
+                  ]
+                : []),
+              {
+                label: "Technician Name",
+                value: servieRequestDto?.technician?.name,
               },
             ].map((item, idx) => (
-              <div key={idx} className="flex  rounded-md gap-x-4 items-start">
+              <div key={idx} className="flex rounded-md gap-x-4 items-start">
                 <p className="text-md font-[400] text-[#121212] w-[200px]">
                   {item.label}
                 </p>
-                <p className="text-md font-[400] text-[#121212]">
-                  {item.value}
-                </p>
+                <div className="flex items-center">
+                  {item?.showIcon && (
+                    <img src={DiamondIcon} alt="" className="h-4 w-4 mr-2" />
+                  )}
+                  <p className="text-md font-[400] text-[#121212]">
+                    {item.value}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
 
           {/* Customer Info */}
           <div>
-            <h3 className="text-base font-medium text-[#606060] mt-4 mb-4 border-b border-gray-200 pb-2">
+            <h3 className="text-base font-medium text-[#606060] mt-4 mb-4 border-b border-gray-200 pb-1">
               Customer Info
             </h3>
-            <div className="grid grid-cols-2  gap-y-6">
+            <div className="grid grid-cols-2 gap-y-4">
               <div className="flex  rounded-md gap-x-4 items-start">
                 <p className="text-md font-[400] text-[#121212] w-[200px]">
                   Name
                 </p>
                 <p className="text-md font-[400] text-[#121212]">
-                  {servieRequestDto?.customer?.name}
+                  {servieRequestDto?.customer?.contactPersonName}
                 </p>
               </div>
               <div className="flex  rounded-md gap-x-4 items-start">
@@ -274,9 +296,7 @@ const ServiceDetails = () => {
                   Phone Number
                 </p>
                 <p className="text-md font-[400] text-[#121212]">
-                  <span>{servieRequestDto?.customer?.countryCode}</span>
-                  &nbsp;
-                  {servieRequestDto?.customer?.phoneNumber}
+                  {servieRequestDto?.customer?.contactPersonPhone}
                 </p>
               </div>
               <div className="flex  rounded-md gap-x-4 items-start">
@@ -284,7 +304,7 @@ const ServiceDetails = () => {
                   Email
                 </p>
                 <p className="text-md font-[400] text-[#121212]">
-                  {servieRequestDto?.customer?.email || "-"}
+                  {servieRequestDto?.customer?.contactPersonEmail || "-"}
                 </p>
               </div>
               <div className="flex  rounded-md gap-x-4 items-start">
@@ -292,9 +312,12 @@ const ServiceDetails = () => {
                   Address
                 </p>
                 <p className="text-md font-[400] text-[#121212] leading-relaxed">
-                  123, Green Street, Bangalore,
+                  {servieRequestDto?.customer?.serviceAddress?.address},{" "}
+                  {servieRequestDto?.customer?.serviceAddress?.locality},
+                  {servieRequestDto?.customer?.serviceAddress?.city},
                   <br />
-                  Karnataka - 560001
+                  {servieRequestDto?.customer?.serviceAddress?.state} -{" "}
+                  {servieRequestDto?.customer?.serviceAddress?.pincode}
                 </p>
               </div>
             </div>
@@ -302,16 +325,16 @@ const ServiceDetails = () => {
 
           {/* Device Info */}
           <div>
-            <h3 className="text-base font-medium text-[#606060] mb-4 border-b border-gray-200 pb-2">
+            <h3 className="text-base font-medium text-[#606060] mb-4 border-b border-gray-200 pb-1">
               Device Info
             </h3>
-            <div className="grid grid-cols-2  gap-y-6">
+            <div className="grid grid-cols-2  gap-y-4">
               <div className="flex  rounded-md gap-x-4 items-start">
                 <p className="text-md font-[400] text-[#121212] w-[200px]">
                   Brand
                 </p>
                 <p className="text-md font-[400] text-[#121212]">
-                  {servieRequestDto?.brand}
+                  {servieRequestDto?.product?.brand}
                 </p>
               </div>
               <div className="flex  rounded-md gap-x-4 items-start">
@@ -319,7 +342,7 @@ const ServiceDetails = () => {
                   Model
                 </p>
                 <p className="text-md font-[400] text-[#121212]">
-                  {servieRequestDto?.modelNumber}
+                  {servieRequestDto?.product?.model}
                 </p>
               </div>
               <div className="flex  rounded-md gap-x-4 items-start">
@@ -327,7 +350,7 @@ const ServiceDetails = () => {
                   Serial Number
                 </p>
                 <p className="text-md font-[400] text-[#121212]">
-                  {servieRequestDto?.serialNumber}
+                  {servieRequestDto?.product?.serialNumber}
                 </p>
               </div>
               <div className="flex  rounded-md gap-x-4 items-start">
@@ -335,24 +358,86 @@ const ServiceDetails = () => {
                   Warranty Status
                 </p>
                 <p className="text-md font-[400] text-[#121212] leading-relaxed">
-                  {servieRequestDto?.isInWarranty
+                  {servieRequestDto?.product?.isInWarranty
                     ? "  In-Warranty"
-                    : "Not   In-Warranty"}
+                    : "Not In-Warranty"}
                 </p>
               </div>
             </div>
           </div>
 
+          {/* Payment Info */}
+          <div className="mt-5">
+            <h3 className="text-base font-medium text-[#606060] mb-4 border-b border-gray-200 pb-1">
+              Payment Transactions
+            </h3>
+            <div className="grid grid-cols-2  gap-y-4">
+              <div className="flex  rounded-md gap-x-4 items-start">
+                <p className="text-md font-[400] text-[#121212] w-[200px]">
+                  Service Fee Paid
+                </p>
+                <p className="text-md font-[400] text-[#121212]">
+                  {servieRequestDto?.pricing?.serviceCost}
+                </p>
+              </div>
+              <div className="flex  rounded-md gap-x-4 items-start">
+                <p className="text-md font-[400] text-[#121212] w-[200px]">
+                  Additional Charges
+                </p>
+                <p className="text-md font-[400] text-[#121212]">
+                  {servieRequestDto?.pricing?.extraAmount}
+                </p>
+              </div>
+              <div className="flex  rounded-md gap-x-4 items-start">
+                <p className="text-md font-[400] text-[#121212] w-[200px]">
+                  Payment Mode
+                </p>
+                <p className="text-md font-[400] text-[#121212]">Online</p>
+              </div>
+              <div className="flex  rounded-md gap-x-4 items-start">
+                <p className="text-md font-[400] text-[#121212] w-[200px]">
+                  Payment Date & Time
+                </p>
+                <p className="text-md font-[400] text-[#121212] leading-relaxed">
+                  {formatDate(servieRequestDto?.pricing?.paymentDate, true)}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Customer Uploaded Media */}
+          <div className="mt-5">
+            <h3 className="text-base font-medium text-[#606060] mb-4 border-b border-gray-200 pb-1">
+              Customer Uploaded Media
+            </h3>
+            <div className="flex gap-4">
+              {servieRequestDto?.media?.images.length > 0 &&
+                servieRequestDto?.media?.images.map((val) => (
+                  <img src={val} alt="val" className="h-35 w-45" />
+                ))}
+            </div>
+          </div>
+
           {/* Add Internal Note */}
           <div className="mt-10">
-            <h3 className="text-base font-medium text-[#606060] mb-2 pb-2">
+            <h3 className="text-base font-medium text-[#606060] mb-2 pb-1">
               Add Internal Note (Admin only)
             </h3>
             <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
               className="w-full text-black p-3 border-2 border-[#DDDDDD] rounded-md  text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
               rows="4"
               placeholder="Add internal note for admin"
             />
+          </div>
+          <div className="flex justify-end">
+            <button
+              className="w-full sm:w-auto px-6 py-4 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium cursor-pointer"
+              onClick={addNote}
+            >
+              Add Note
+            </button>
           </div>
         </div>
       )}
@@ -361,7 +446,7 @@ const ServiceDetails = () => {
         <div>
           <div className="relative pt-4">
             <div className="flex items-center w-full relative">
-             <ActivityLog timelineData={timelineSteps} />
+              <ActivityLog timelineData={timelineSteps} />
             </div>
           </div>
         </div>

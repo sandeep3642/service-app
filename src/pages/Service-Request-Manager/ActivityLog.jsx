@@ -2,11 +2,13 @@ import React from "react";
 // import Icon from "../../assets/icon.png";
 import { getMessageName } from "../../utilty/messageConstant";
 import { formatDate } from "../../utilty/common";
-
+import CustomerIcon from "../../assets/customer1.png";
+import AdminIcon from "../../assets/admin.png";
+import TechnicianIcon from "../../assets/technician.png";
 const ActivityLog = ({ timelineData }) => {
-  const sortedActivities =timelineData && timelineData.sort(
-    (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-  );
+  const sortedActivities =
+    timelineData &&
+    timelineData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   return (
     <div className="p-2  w-screen">
@@ -29,22 +31,34 @@ const ActivityLog = ({ timelineData }) => {
       </div>
 
       {/* Timeline */}
-      <div className="relative border-l-2 border-dashed border-[#0096FF] pl-6 space-y-6 mt-5 ml-5">
+      <div className="relative space-y-6 mt-5 ml-2">
         {sortedActivities &&
           sortedActivities.length > 0 &&
           sortedActivities.reverse().map((item, index) => (
-            <div key={index} className="relative">
-              {/* Blue Dot */}
-              <div className="absolute -left-[25px] top-0 w-4 h-4 bg-[#0096FF] rounded-full border border-white"></div>
-
-              {/* Text Content */}
-              <div>
-                <p className="text-gray-900 font-medium text-lg">
+            <div key={index} className="flex gap-5">
+              <img
+                src={
+                  item?.performedBy?.type === "CUSTOMER"
+                    ? CustomerIcon
+                    : item?.performedBy?.type === "ADMIN"
+                    ? AdminIcon
+                    : TechnicianIcon
+                }
+                alt=""
+                className="h-8 w-8"
+              />
+              <div className="flex w-5xl justify-between items-center ">
+                <div>
+                <p className="text-[#393939] font-medium text-lg">
                   {getMessageName(item.activityType)}
                 </p>
-                <p className="text-sm text-black">{item.notes}</p>
+                <p className="text-sm text-black">
+                  Note from {item?.performedBy?.type} : &nbsp;
+                  {item.notes}
+                </p>
+                </div>
                 <p className="text-sm text-[#606060]">
-                  {formatDate(item.createdAt,true)}
+                  {formatDate(item.createdAt, true)}
                 </p>
               </div>
             </div>

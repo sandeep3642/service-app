@@ -13,10 +13,10 @@ export const formatDate = (dateValue, needTime = false) => {
 
     if (!needTime) return datePart;
 
-    const timePart = date.toLocaleTimeString("en-GB", {
+    const timePart = date.toLocaleTimeString("en-US", {
       hour: "2-digit",
       minute: "2-digit",
-      hour12: false,
+      hour12: true,
     });
 
     return `${datePart}, ${timePart}`;
