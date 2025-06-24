@@ -95,7 +95,7 @@ export default function TechnicianAllocationDialog({
 
   return (
     <div
-      className="fixed inset-0  flex items-center justify-center z-50 border-2 border-red-500"
+      className="fixed inset-0  flex items-center justify-center z-5"
       style={{
         background:
           "linear-gradient(to bottom right, rgba(0, 0, 0, 0.3), rgba(100, 100, 100, 0.4))",
