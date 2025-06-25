@@ -7,10 +7,16 @@ import AdminIcon from "../../assets/admin.png";
 import TechnicianIcon from "../../assets/technician.png";
 import { toast } from "react-toastify";
 import { addServiceNote } from "./serviceRequestService";
-const ActivityLog = ({ timelineData, serviceRequestId, setIsLoading }) => {
-  const sortedActivities =
-    timelineData &&
-    timelineData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+const ActivityLog = ({
+  timelineData,
+  serviceRequestId,
+  setIsLoading,
+  hasMore,
+  loadMore,
+}) => {
+  // const timelineData =
+  //   timelineData &&
+  //   timelineData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   const [notes, setNotes] = useState("");
 
@@ -57,9 +63,9 @@ const ActivityLog = ({ timelineData, serviceRequestId, setIsLoading }) => {
 
       {/* Timeline */}
       <div className="relative space-y-4 sm:space-y-6 mt-4 sm:mt-5 ml-1 sm:ml-2">
-        {sortedActivities &&
-          sortedActivities.length > 0 &&
-          sortedActivities.reverse().map((item, index) => (
+        {timelineData &&
+          timelineData.length > 0 &&
+          timelineData.reverse().map((item, index) => (
             <div key={index} className="flex gap-3 sm:gap-5">
               <div className="flex-shrink-0">
                 <img
@@ -92,6 +98,16 @@ const ActivityLog = ({ timelineData, serviceRequestId, setIsLoading }) => {
               </div>
             </div>
           ))}
+        {hasMore && (
+          <div className="flex justify-center mt-6">
+            <button
+              onClick={loadMore}
+              className="px-6 py-2 text-sm font-medium bg-gray-100 text-blue-600 rounded-md hover:bg-gray-200"
+            >
+              Load More
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Add Internal Note Section */}

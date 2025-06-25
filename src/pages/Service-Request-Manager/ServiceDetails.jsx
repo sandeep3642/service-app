@@ -23,6 +23,7 @@ const ServiceDetails = () => {
   const [comment, setComment] = useState("");
   const [timelineSteps, setTimelineSteps] = useState([]);
   const [notes, setNotes] = useState("");
+  const [pagination, setPagination] = useState({ page: 1, total: 0, pages: 1 });
 
   async function getServiceRequestDataById(id) {
     try {
@@ -41,14 +42,24 @@ const ServiceDetails = () => {
     }
   }
 
-  async function getServiceRequestActivities(id) {
+  async function getServiceRequestActivities(id, page = 1, append = false) {
     try {
       setIsLoading(true);
-      const response = await fetchServiceActivities(id);
+      const response = await fetchServiceActivities(id, page); // make sure your API supports page param
       const { status, details } = response;
+
       if (status.success && details) {
-        // toast.success(status.message);
-        setTimelineSteps(details?.activities);
+        if (append) {
+          setTimelineSteps((prev) => [...prev, ...details?.activities]);
+        } else {
+          setTimelineSteps(details?.activities);
+        }
+
+        setPagination({
+          page: details?.pagination?.page,
+          total: details?.pagination?.total,
+          pages: details?.pagination?.pages,
+        });
       }
     } catch (error) {
       console.log(error);
@@ -56,6 +67,7 @@ const ServiceDetails = () => {
       setIsLoading(false);
     }
   }
+
 
   async function updateStatus() {
     try {
@@ -437,10 +449,21 @@ const ServiceDetails = () => {
                   />
                 ))}
             </div>
+            {servieRequestDto?.media?.hasVideo && (
+              <div className="flex flex-wrap gap-2 sm:gap-4 mt-5">
+                <video
+                  src={servieRequestDto?.media?.video}
+                  controls
+                  className="w-full max-w-lg h-auto rounded-lg"
+                >
+                  Your browser does not support the video tag.
+                </video>
+              </div>
+            )}
           </div>
 
           {/* Add Internal Note */}
-          <div className="mt-8 sm:mt-10 px-4 w-full max-w-full">
+          <div className="mt-8 sm:mt-10 w-full max-w-full">
             <h3 className="text-base font-medium text-[#606060] mb-2 pb-1">
               Add Internal Note (Admin only)
             </h3>
@@ -471,6 +494,14 @@ const ServiceDetails = () => {
                 timelineData={timelineSteps}
                 serviceRequestId={servieRequestDto?.serviceDetails?._id}
                 setIsLoading={setIsLoading}
+                loadMore={() =>
+                  getServiceRequestActivities(
+                    servieRequestDto?.serviceDetails?._id,
+                    pagination.page + 1,
+                    true
+                  )
+                }
+                hasMore={pagination.page < pagination.pages}
               />
             </div>
           </div>

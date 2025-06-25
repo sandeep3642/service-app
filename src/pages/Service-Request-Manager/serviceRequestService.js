@@ -16,8 +16,8 @@ export const fetchServiceRequestById = async (id) => {
   return res.data;
 };
 
-export const fetchServiceActivities = async (id) => {
-  const res = await api.get(`/api/v1/user/serviceRequests/${id}/activities`);
+export const fetchServiceActivities = async (id,page) => {
+  const res = await api.get(`/api/v1/user/serviceRequests/${id}/activities?page=${page}&limit=5`);
   return res.data;
 };
 
