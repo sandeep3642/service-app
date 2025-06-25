@@ -27,7 +27,7 @@ const DocumentCard = ({
                     </a>
                 </div>
                 <div className="text-left">
-                    <p className="text-sm font-medium text-[#121212] leading-tight">{title}</p>
+                    <p className="text-sm font-medium text-[#121212] leading-tight">{name}</p>
                     <div className="text-xs text-gray-500 flex items-center flex-wrap gap-1">
                         <span>Uploaded on {uploadedDate}</span>
                         <span className={`ml-2 font-medium ${getStatusBadge(status)}`}>{status}</span>
