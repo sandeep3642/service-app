@@ -13,3 +13,11 @@ export const fetchTechnicianDetail = async (id) => {
   );
   return res.data;
 };
+
+export const approveRejectDocument = async (payload,id) => {
+  const res = await api.post(
+    `/api/v1/user/technicians/documents/${id}/approveReject`,
+    payload
+  );
+  return res.data;
+};

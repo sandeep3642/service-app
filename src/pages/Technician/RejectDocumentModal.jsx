@@ -8,11 +8,9 @@ const RejectDocumentModal = ({ isOpen, onClose, onSubmit }) => {
     if (!isOpen) return null;
 
     const handleSubmit = () => {
-        if (reason.trim()) {
             onSubmit(reason);
             setReason("");
-        }
-    };
+         };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">

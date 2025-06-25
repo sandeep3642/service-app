@@ -6,15 +6,56 @@ import { formatDate } from '../../utilty/common';
 import { getMessageName } from '../../utilty/messageConstant';
 import RejectionReasonModal from './RejectionReasonModal';
 import RejectDocumentModal from './RejectDocumentModal';
+import { toast } from 'react-toastify';
+import { approveRejectDocument, fetchTechnicianDetail } from './technician';
 const RenderProfileInfo = ({ profileData }) => {
     const [showRejectionModal, setShowRejectionModal] = useState(false);
-      const [showRejectModal, setShowRejectModal] = useState(false);
-
-    const handleReject = (reason) => {
-        // 🔁 You can make an API call here to save rejection reason and update status
-        console.log("Rejected with reason:", reason);
+    const [showRejectModal, setShowRejectModal] = useState(false);
+    const [documentId, setDocumetId] = useState("")
+    const handleSubmit = async (reason) => {
+        console.log("Rejected with reason:", reason,documentId,"documnet ");
+        try {
+            let payload = {
+                action: "reject",
+                reason: reason
+            };
+            const response = await approveRejectDocument(payload, documentId);
+            console.log(response, "res>>>>>>>>>>.")
+            const { status, details } = response;
+            if (status.success) {
+                toast.success(status.message)
+                await fetchTechnicianDetail(profileData?.profileSummary?._id)
+            }
+        } catch (error) { }
+        finally {
+            console.log(profileData?.profileSummary?._id)
+            await fetchTechnicianDetail(profileData?.profileSummary?._id)
+        }
         setShowRejectModal(false);
+
     };
+    const handleApprove = async (id) => {
+        try {
+            let payload = { action: "approve" };
+            const response = await approveRejectDocument(payload, id);
+            console.log(response, "res>>>>>>>>>>.")
+            const { status, details } = response;
+            if (status.success) {
+                toast.success(status.message)
+                await fetchTechnicianDetail(profileData?.profileSummary?._id)
+            }
+        } catch (error) { }
+        finally {
+            debugger
+            console.log(profileData?.profileSummary?._id)
+            await fetchTechnicianDetail(profileData?.profileSummary?._id)
+        }
+    }
+    const handleReject = (id) => {
+        console.log(id,"handleErejected")
+        setDocumetId(id)
+        setShowRejectModal(true)
+    }
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {/* Left Column - Profile Summary, ID Proof, Certificate */}
@@ -62,83 +103,82 @@ const RenderProfileInfo = ({ profileData }) => {
                 </div>
 
                 {profileData?.idProof && (
-                    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 max-w-xl">
+                    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 max-w-xl mt-4">
                         <h4 className="font-medium border-b border-gray-200 text-[#121212] mb-3">ID Proof</h4>
 
                         {Object.entries(profileData.idProof).map(([key, value]) => {
                             const uploadedDate = formatDate(value?.uploadedAt);
-                            const status = value?.status?.toLowerCase(); // normalize casing
+                            const status = value?.status?.toLowerCase();
                             const fileUrl = value?.fileUrl;
-
+                            const id = value?._id
                             return (
-                                <div key={key} className="flex items-center justify-between p-3 bg-gray-50 mt-2">
-                                    <div className="flex items-center space-x-3">
-                                        <div className="w-12 h-10 flex">
+                                <div
+                                    key={key}
+                                    className="flex flex-col md:flex-row md:items-center justify-between p-3 bg-gray-50 rounded-lg mb-3 space-y-3 md:space-y-0"
+                                >
+                                    {/* Left: Image + Info */}
+                                    <div className="flex items-start md:items-center space-x-3 w-full md:w-auto">
+                                        <div className="w-12 h-10 flex-shrink-0">
                                             <a href={fileUrl} target="_blank" rel="noopener noreferrer">
                                                 <img
                                                     src={fileUrl ?? DocumentIcon}
                                                     alt={key}
-                                                    className="w-32 h-auto border rounded cursor-pointer"
+                                                    className="w-full h-full object-contain border rounded cursor-pointer"
                                                 />
                                             </a>
                                         </div>
-                                        <div>
-                                            <p className="text-md font-medium text-[#121212]">{getMessageName(key)}</p>
-                                            <p className="text-xs text-gray-500">
-                                                Uploaded on {uploadedDate}{' '}
-                                                <span className={`px-2 py-1 text-xs font-medium rounded mt-1 ${getStatusBadge(status)}`}>
+
+                                        <div className="text-left">
+                                            <p className="text-sm font-medium text-[#121212] leading-tight">
+                                                {getMessageName(key)}
+                                            </p>
+                                            <div className="text-xs text-gray-500 flex items-center flex-wrap">
+                                                <span>Uploaded on {uploadedDate}</span>
+                                                <span className={`ml-2 font-medium ${getStatusBadge(status)}`}>
                                                     {status}
                                                 </span>
-                                            </p>
+                                                {status === "rejected" && (
+                                                    <span
+                                                        onClick={() => setShowRejectionModal(id)}
+                                                        className="ml-2 text-blue-500 cursor-pointer underline whitespace-nowrap"
+                                                    >
+                                                        see why?
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center space-x-2">
-                                        {status === "rejected" && (
+                                    {/* Right: Buttons */}
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        {(status === "approved" || status === "rejected") && (
                                             <>
                                                 <a
                                                     href={fileUrl}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="shadow-xs border-1 text-[#3163BF] font-medium px-5 py-1 rounded"
+                                                    className="border border-[#3163BF] text-[#3163BF] text-xs px-4 py-1 rounded"
                                                 >
                                                     View
                                                 </a>
                                                 <a
                                                     href={fileUrl}
                                                     download
-                                                    className="shadow-xs border-1 text-[#3163BF] font-medium px-5 py-1 rounded"
+                                                    className="border border-[#3163BF] text-[#3163BF] text-xs px-4 py-1 rounded"
                                                 >
                                                     Download
                                                 </a>
                                             </>
                                         )}
-                                        {status === "approved" && (
-                                            <>
-                                                <a
-                                                    href={fileUrl}
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                    className="shadow-xs border-1 text-[#3163BF] font-medium px-5 py-1 rounded"
-                                                >
-                                                    View
-                                                </a>
-                                                <a
-                                                    href={fileUrl}
-                                                    download
-                                                    className="shadow-xs border-1 text-[#3163BF] font-medium px-5 py-1 rounded"
-                                                >
-                                                    Download
-                                                </a>
-                                            </>
-                                        )}
+
                                         {status === "pending" && (
                                             <>
-                                                <button className="bg-[#03A416] cursor-pointer text-white px-3 py-2 rounded-lg items-center">
-                                                    Approved
+                                                <button onClick={() => handleApprove(id)} className="bg-[#03A416] text-white text-xs px-4 py-1 rounded cursor-pointer">
+                                                    Approve
                                                 </button>
-                                                <button className="shadow-xs cursor-pointer border-1 text-[#FF0606] font-medium px-5 py-1 rounded-lg items-center"
-                                                    onClick={() => setShowRejectModal(true)}
+                                                <button
+                                                    onClick={() => handleReject(id)}
+                                                    className="border border-[#FF0606] text-[#FF0606] text-xs px-4 py-1 rounded cursor-pointer"
                                                 >
                                                     Reject
                                                 </button>
@@ -150,14 +190,15 @@ const RenderProfileInfo = ({ profileData }) => {
                         })}
                     </div>
                 )}
+
                 {/* Selfie Section */}
                 {profileData?.selfie && (
-                    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 max-w-xl">
+                    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 max-w-xl mt-4">
                         <h4 className="font-medium border-b border-gray-200 text-[#121212] mb-3">Selfie</h4>
 
-                        <div className="flex items-center justify-between p-3 bg-gray-50 mt-2">
-                            <div className="flex items-center space-x-3">
-                                <div className="w-12 h-10 flex">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between p-3 bg-gray-50 rounded-lg space-y-3 md:space-y-0">
+                            <div className="flex items-start md:items-center space-x-3 w-full md:w-auto">
+                                <div className="w-12 h-10 flex-shrink-0">
                                     <a
                                         href={profileData.selfie.fileUrl}
                                         target="_blank"
@@ -166,69 +207,47 @@ const RenderProfileInfo = ({ profileData }) => {
                                         <img
                                             src={profileData.selfie.fileUrl ?? DocumentIcon}
                                             alt="selfie"
-                                            className="w-32 h-auto border rounded cursor-pointer"
+                                            className="w-full h-full object-contain border rounded cursor-pointer"
                                         />
                                     </a>
                                 </div>
-                                <div>
-                                    <p className="text-md font-medium text-[#121212]">Selfie</p>
-                                    <p className="text-xs text-gray-500">
-                                        Uploaded on {formatDate(profileData.selfie.uploadedAt)}{" "}
+
+                                <div className="text-left">
+                                    <p className="text-sm font-medium text-[#121212] leading-tight">Selfie</p>
+                                    <div className="text-xs text-gray-500 flex items-center flex-wrap">
+                                        <span>Uploaded on {formatDate(profileData.selfie.uploadedAt)}</span>
                                         <span
-                                            className={`px-2 py-1 text-xs font-medium rounded mt-1 ${getStatusBadge(
-                                                profileData.selfie.status
-                                            )}`}
+                                            className={`ml-2 text-xs font-medium ${getStatusBadge(profileData.selfie.status)}`}
                                         >
                                             {profileData.selfie.status}
                                         </span>
-                                        {profileData.selfie.status === "rejected" && (
+                                        {profileData.selfie.status === 'rejected' && (
                                             <span
                                                 onClick={() => setShowRejectionModal(true)}
-                                                className="text-red-500 cursor-pointer ml-2 underline text-xs"
+                                                className="ml-2 text-blue-500 cursor-pointer underline whitespace-nowrap"
                                             >
                                                 see why?
                                             </span>
                                         )}
-                                    </p>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div
-                                className="flex items-center space-x-2"
-                            >
-                                {profileData.selfie.status === 'rejected' && (
+                            <div className="flex items-center gap-2 flex-wrap">
+                                {(profileData.selfie.status === 'approved' || profileData.selfie.status === 'rejected') && (
                                     <>
                                         <a
                                             href={profileData.selfie.fileUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="shadow-xs border-1 text-[#3163BF] font-medium px-5 py-1 rounded"
+                                            className="border border-[#3163BF] text-[#3163BF] text-xs px-4 py-1 rounded"
                                         >
                                             View
                                         </a>
                                         <a
                                             href={profileData.selfie.fileUrl}
                                             download
-                                            className="shadow-xs border-1 text-[#3163BF] font-medium px-5 py-1 rounded"
-                                        >
-                                            Download
-                                        </a>
-                                    </>
-                                )}
-                                {profileData.selfie.status === 'approved' && (
-                                    <>
-                                        <a
-                                            href={profileData.selfie.fileUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="shadow-xs border-1 text-[#3163BF] font-medium px-5 py-1 rounded"
-                                        >
-                                            View
-                                        </a>
-                                        <a
-                                            href={profileData.selfie.fileUrl}
-                                            download
-                                            className="shadow-xs border-1 text-[#3163BF] font-medium px-5 py-1 rounded"
+                                            className="border border-[#3163BF] text-[#3163BF] text-xs px-4 py-1 rounded"
                                         >
                                             Download
                                         </a>
@@ -236,10 +255,10 @@ const RenderProfileInfo = ({ profileData }) => {
                                 )}
                                 {profileData.selfie.status === 'pending' && (
                                     <>
-                                        <button className="bg-[#03A416] cursor-pointer text-white px-3 py-2 rounded-lg items-center">
-                                            Approved
+                                        <button onClick={() => handleApprove(profileData?.selfie?._id)} className="bg-[#03A416] text-white text-xs px-4 py-1 rounded cursor-pointer">
+                                            Approve
                                         </button>
-                                        <button className="shadow-xs cursor-pointer border-1 text-[#FF0606] font-medium px-5 py-1 rounded-lg items-center">
+                                        <button  onClick={() => setShowRejectModal(profileData?.selfie?._id)} className="border border-[#FF0606] text-[#FF0606] text-xs px-4 py-1 rounded cursor-pointer">
                                             Reject
                                         </button>
                                     </>
@@ -248,62 +267,75 @@ const RenderProfileInfo = ({ profileData }) => {
                         </div>
                     </div>
                 )}
+
                 {/* Police Verification Section */}
                 {profileData?.policeVerification && (
-                    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 max-w-xl">
+                    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 max-w-xl mt-4">
                         <h4 className="font-medium border-b border-gray-200 text-[#121212] mb-3">Police Verification</h4>
 
-                        <div className="flex items-center justify-between p-3 bg-gray-50 mt-2">
-                            <div className="flex items-center space-x-3">
-                                <div className="w-12 h-10 flex">
-                                    <a href={profileData?.policeVerification?.fileUrl} target="_blank" rel="noopener noreferrer">
+                        <div className="flex flex-col md:flex-row md:items-center justify-between p-3 bg-gray-50 rounded-lg space-y-3 md:space-y-0">
+                            <div className="flex items-start md:items-center space-x-3 w-full md:w-auto">
+                                <div className="w-12 h-10 flex-shrink-0">
+                                    <a
+                                        href={profileData?.policeVerification?.fileUrl}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
                                         <img
                                             src={profileData?.policeVerification?.fileUrl ?? DocumentIcon}
                                             alt="policeVerification"
-                                            className="w-32 h-auto border rounded cursor-pointer"
+                                            className="w-full h-full object-contain border rounded cursor-pointer"
                                         />
                                     </a>
                                 </div>
-                                <div>
-                                    <p className="text-md font-medium text-[#121212]">Police Verification</p>
-                                    <p className="text-xs text-gray-500">
-                                        Uploaded on {formatDate(profileData.policeVerification.uploadedAt)}{' '}
-                                        <span className={`px-2 py-1 text-xs font-medium rounded mt-1 ${getStatusBadge(profileData.policeVerification.status)}`}>
+
+                                <div className="text-left">
+                                    <p className="text-sm font-medium text-[#121212] leading-tight">Police Verification</p>
+                                    <div className="text-xs text-gray-500 flex items-center flex-wrap">
+                                        <span>Uploaded on {formatDate(profileData.policeVerification.uploadedAt)}</span>
+                                        <span className={`ml-2 font-medium ${getStatusBadge(profileData.policeVerification.status)}`}>
                                             {profileData.policeVerification.status}
                                         </span>
-                                    </p>
+                                        {profileData.policeVerification.status === 'rejected' && (
+                                            <span
+                                                onClick={() => setShowRejectionModal(true)}
+                                                className="ml-2 text-blue-500 cursor-pointer underline whitespace-nowrap"
+                                            >
+                                                see why?
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
-                            <div
-                                className="flex items-center space-x-2"
-                                style={{ display: profileData.policeVerification.status === 'rejected' ? 'none' : 'flex' }}
-                            >
-                                {profileData.policeVerification.status === 'approved' && (
-                                    <>
-                                        <a
-                                            href={profileData.policeVerification.fileUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="shadow-xs border-1 text-[#3163BF] font-medium px-5 py-1 rounded"
-                                        >
-                                            View
-                                        </a>
-                                        <a
-                                            href={profileData.policeVerification.fileUrl}
-                                            download
-                                            className="shadow-xs border-1 text-[#3163BF] font-medium px-5 py-1 rounded"
-                                        >
-                                            Download
-                                        </a>
-                                    </>
-                                )}
+                            <div className="flex items-center gap-2 flex-wrap">
+                                {(profileData.policeVerification.status === 'approved' || profileData.policeVerification.status === 'rejected')
+                                    && (
+                                        <>
+                                            <a
+                                                href={profileData.policeVerification.fileUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="border border-[#3163BF] text-[#3163BF] text-xs px-4 py-1 rounded"
+                                            >
+                                                View
+                                            </a>
+                                            <a
+                                                href={profileData.policeVerification.fileUrl}
+                                                download
+                                                className="border border-[#3163BF] text-[#3163BF] text-xs px-4 py-1 rounded"
+                                            >
+                                                Download
+                                            </a>
+                                        </>
+                                    )}
+
                                 {profileData.policeVerification.status === 'pending' && (
                                     <>
-                                        <button className="bg-[#03A416] cursor-pointer text-white px-3 py-2 rounded-lg items-center">
-                                            Approved
+                                        <button onClick={() => handleApprove(profileData?.policeVerification?._id)} className="bg-[#03A416] text-white text-xs px-4 py-1 rounded cursor-pointer">
+                                            Approve
                                         </button>
-                                        <button className="shadow-xs cursor-pointer border-1 text-[#FF0606] font-medium px-5 py-1 rounded-lg items-center">
+                                        <button  onClick={() => handleReject(profileData?.policeVerification?._id)} className="border border-[#FF0606] text-[#FF0606] text-xs px-4 py-1 rounded cursor-pointer">
                                             Reject
                                         </button>
                                     </>
@@ -311,8 +343,8 @@ const RenderProfileInfo = ({ profileData }) => {
                             </div>
                         </div>
                     </div>
-
                 )}
+
             </div>
 
             {/* Right Column - Contact Information, Skills & Expertise */}
@@ -361,41 +393,78 @@ const RenderProfileInfo = ({ profileData }) => {
                             const status = cert.status;
                             const fileUrl = cert.fileUrl;
                             const certName = cert.name || `Certificate_${index + 1}`;
+                            const id = cert?._id;
 
                             return (
-                                <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg mb-3">
-                                    <div className="flex items-center space-x-3">
-                                        <div className="w-12 h-10 flex">
+                                <div
+                                    key={index}
+                                    className="flex flex-col md:flex-row md:items-center justify-between p-3 bg-gray-50 rounded-lg mb-3 space-y-3 md:space-y-0"
+                                >
+                                    <div className="flex items-start md:items-center space-x-3 w-full md:w-auto">
+                                        <div className="w-12 h-10 flex-shrink-0">
                                             <a href={fileUrl} target="_blank" rel="noopener noreferrer">
-                                                <img src={DocumentIcon} alt={certName} className="w-32 h-auto border rounded cursor-pointer" />
+                                                <img
+                                                    src={DocumentIcon}
+                                                    alt={certName}
+                                                    className="w-full h-full object-contain border rounded cursor-pointer"
+                                                />
                                             </a>
                                         </div>
-                                        <div>
-                                            <p className="text-md font-medium text-[#121212]">{certName}</p>
-                                            <p className="text-xs text-gray-500">
-                                                Uploaded on {uploadedDate}{' '}
-                                                <span className={`px-2 py-1 text-xs font-medium rounded mt-1 ${getStatusBadge(status)}`}>
+                                        <div className="text-left">
+                                            <p className="text-sm font-medium text-[#121212] leading-tight">{certName}</p>
+                                            <div className="text-xs text-gray-500 flex items-center flex-wrap">
+                                                <span>Uploaded on {uploadedDate}</span>
+                                                <span
+                                                    className={`ml-2 text-xs font-medium ${getStatusBadge(status)}`}
+                                                >
                                                     {status}
                                                 </span>
-                                            </p>
+                                                {status === "rejected" && (
+                                                    <span
+                                                        onClick={() => setShowRejectionModal(true)}
+                                                        className="ml-2 text-blue-500 cursor-pointer underline whitespace-nowrap"
+                                                    >
+                                                        see why?
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center space-x-2" style={{ display: status === "rejected" ? "none" : "flex" }}>
-                                        {status === "approved" && (
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                        {status === "rejected" && (
                                             <>
                                                 <a
                                                     href={fileUrl}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="shadow-xs border-1 text-[#3163BF] font-medium px-5 py-1 rounded"
+                                                    className="border border-[#3163BF] text-[#3163BF] text-xs px-4 py-1 rounded"
                                                 >
                                                     View
                                                 </a>
                                                 <a
                                                     href={fileUrl}
                                                     download
-                                                    className="shadow-xs border-1 text-[#3163BF] font-medium px-5 py-1 rounded"
+                                                    className="border border-[#3163BF] text-[#3163BF] text-xs px-4 py-1 rounded"
+                                                >
+                                                    Download
+                                                </a>
+                                            </>
+                                        )}
+                                        {status === "approved" && (
+                                            <>
+                                                <a
+                                                    href={fileUrl}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    className="border border-[#3163BF] text-[#3163BF] text-xs px-4 py-1 rounded"
+                                                >
+                                                    View
+                                                </a>
+                                                <a
+                                                    href={fileUrl}
+                                                    download
+                                                    className="border border-[#3163BF] text-[#3163BF] text-xs px-4 py-1 rounded"
                                                 >
                                                     Download
                                                 </a>
@@ -403,10 +472,10 @@ const RenderProfileInfo = ({ profileData }) => {
                                         )}
                                         {status === "pending" && (
                                             <>
-                                                <button className="bg-[#03A416] text-white px-3 py-2 rounded-lg items-center">
-                                                    Approved
+                                                <button onClick={() => handleApprove(id)} className="bg-[#03A416] text-white text-xs px-4 py-1 rounded">
+                                                    Approve
                                                 </button>
-                                                <button className="shadow-xs border-1 text-[#FF0606] font-medium px-5 py-1 rounded-lg items-center">
+                                                <button  onClick={() => setShowRejectModal(id)}  className="border border-[#FF0606] text-[#FF0606] text-xs px-4 py-1 rounded">
                                                     Reject
                                                 </button>
                                             </>
@@ -425,7 +494,7 @@ const RenderProfileInfo = ({ profileData }) => {
             <RejectDocumentModal
                 isOpen={showRejectModal}
                 onClose={() => setShowRejectModal(false)}
-                onSubmit={handleReject}
+                onSubmit={handleSubmit}
             />
         </div>
     );

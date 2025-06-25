@@ -14,9 +14,11 @@ export const getStatusBadge = (status) => {
             'Completed':'text-[#0C94D2]',
             'Cancelled':'text-[#FF0606]',
             'Received':'text-[#267596]',
-            'Rejected':'text-red-500',
-            'Accepted':'text-green-800',
-            'pending':'text-orange-400'
+            'rejected':'text-red-500',
+            'accepted':'text-green-800',
+            'pending':'text-orange-400',
+            'rejected':'text-red-800',
+            'approved':'text-[#03A416]'
         };
 
         return statusColors[status] || 'text-gray-800';
