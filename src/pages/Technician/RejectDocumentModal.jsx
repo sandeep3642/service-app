@@ -8,13 +8,12 @@ const RejectDocumentModal = ({ isOpen, onClose, onSubmit }) => {
     if (!isOpen) return null;
 
     const handleSubmit = () => {
-            onSubmit(reason);
-            setReason("");
-         };
+        onSubmit(reason);
+        setReason("");
+    };
 
     return (
         <div className="fixed inset-0 z-50 flex items-center  justify-center">
-
             {/* Overlay Layer */}
             <div
                 className="absolute inset-0"
