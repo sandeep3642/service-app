@@ -95,7 +95,7 @@ const ActivityLog = ({ timelineData, serviceRequestId, setIsLoading }) => {
       </div>
 
       {/* Add Internal Note Section */}
-      <div className="mt-8 sm:mt-10">
+      <div className="mt-8 sm:mt-10 px-4 sm:px-0 w-full max-w-full">
         <h3 className="text-sm sm:text-base font-medium text-[#606060] mb-2 sm:mb-3 pb-1">
           Add Internal Note (Admin only)
         </h3>

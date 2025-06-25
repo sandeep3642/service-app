@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, Outlet } from "react-router-dom"; // Import Outlet
+import { useLocation, Outlet } from "react-router-dom";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 
 const Layout = () => {
-  // Remove children prop since we're using Outlet
   const [activeItem, setActiveItem] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
@@ -71,11 +70,11 @@ const Layout = () => {
   }, []);
 
   return (
-    <div className="flex h-screen w-screen">
+    <div className="flex h-screen w-full overflow-hidden">
       {/* Overlay for mobile */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-opacity-50 z-40 lg:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
@@ -87,9 +86,9 @@ const Layout = () => {
         setSidebarOpen={setSidebarOpen}
       />
 
-      <div className="flex-1 flex flex-col lg:ml-0">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-        <main className="flex-1 overflow-auto p-4 lg:p-6">
+        <main className="flex-1 overflow-auto p-4 lg:p-6 min-h-0">
           <Outlet />
         </main>
       </div>

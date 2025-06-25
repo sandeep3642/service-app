@@ -115,7 +115,7 @@ const ServiceDetails = () => {
   if (isLoading) return <Loader />;
 
   return (
-    <div className="mx-auto p-4 sm:p-6 lg:p-8">
+    <div className="mx-auto p-4 sm:p-0 lg:p-8">
       <h1 className="text-lg sm:text-xl font-medium mb-6 sm:mb-8 text-gray-800">
         Details Tab
       </h1>
@@ -158,42 +158,46 @@ const ServiceDetails = () => {
 
       {/* Status Update Tab */}
       {activeTab === "status" && (
-        <div className="space-y-8 sm:space-y-12">
+        <div className="space-y-8 sm:space-y-12 px-4 xs:px-0 w-full max-w-full">
           {/* Change Request Status */}
           <div>
             <h2 className="text-base sm:text-lg font-medium text-gray-900 mb-4 sm:mb-6">
               Change Request Status
             </h2>
             <div className="space-y-4 sm:space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+              {/* Status dropdown */}
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full">
                 <label className="text-sm font-medium text-gray-700 sm:w-16">
                   Status
                 </label>
                 <select
                   value={currentStatus}
                   onChange={(e) => setCurrentStatus(e.target.value)}
-                  className="h-10 sm:h-8 border-2 text-black border-[#DDDDDD] rounded-md text-sm w-full sm:w-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="h-10 sm:h-8 border-2 text-black border-[#DDDDDD] rounded-md text-sm w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  {CONTROLLABLE_STATUSES &&
-                    CONTROLLABLE_STATUSES.map((val) => (
-                      <option value={val}>{getMessageName(val)}</option>
-                    ))}
+                  {CONTROLLABLE_STATUSES?.map((val) => (
+                    <option key={val} value={val}>
+                      {getMessageName(val)}
+                    </option>
+                  ))}
                 </select>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+              {/* Comment textarea */}
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 w-full">
                 <label className="text-sm font-medium text-gray-700 sm:w-16 sm:pt-3">
                   Comment
                 </label>
                 <textarea
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  className="flex-1 text-black p-3 border-2 border-[#DDDDDD] rounded-md text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 text-black p-3 border-2 border-[#DDDDDD] rounded-md text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
                   rows="4"
                   placeholder="Enter update message or note"
                 />
               </div>
 
+              {/* Submit button */}
               <div className="flex justify-end">
                 <button
                   className="w-full sm:w-auto px-6 py-3 sm:py-4 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium cursor-pointer"
@@ -436,20 +440,20 @@ const ServiceDetails = () => {
           </div>
 
           {/* Add Internal Note */}
-          <div className="mt-8 sm:mt-10">
+          <div className="mt-8 sm:mt-10 px-4 w-full max-w-full">
             <h3 className="text-base font-medium text-[#606060] mb-2 pb-1">
               Add Internal Note (Admin only)
             </h3>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full text-black p-3 border-2 border-[#DDDDDD] rounded-md text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="text-black p-3 border-2 border-[#DDDDDD] rounded-md text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
               rows="4"
               placeholder="Add internal note for admin"
             />
             <div className="flex justify-end mt-3 sm:mt-4">
               <button
-                className="w-full sm:w-auto px-6 py-3 sm:py-4 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium cursor-pointer"
+                className="px-6 py-3 sm:py-4 w-full bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium cursor-pointer"
                 onClick={addNote}
               >
                 Add Note
