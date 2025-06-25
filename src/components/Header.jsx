@@ -1,8 +1,11 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Search, Bell, ChevronDown, Menu } from "lucide-react";
 import UserIcon from "../assets/user.png";
+import { useUser } from "../context/UserContext";
 
 const Header = ({ sidebarOpen, setSidebarOpen }) => {
+  const { user } = useUser();
+
   return (
     <div className="bg-white  px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between">
       {/* Left section with hamburger and search */}
@@ -46,8 +49,10 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
 
           {/* User info - hidden on small screens */}
           <div className="hidden sm:block text-sm">
-            <div className="text-gray-700 font-medium">Derrick Favvisk</div>
-            <div className="text-gray-500 text-xs">derrick@gmail.com</div>
+            <div className="text-gray-700 font-medium">
+              {user?.firstName} {user?.lastName}
+            </div>
+            <div className="text-gray-500 text-xs">{user?.email}</div>
           </div>
 
           <ChevronDown className="w-4 h-4 lg:w-6 lg:h-6 text-gray-800" />

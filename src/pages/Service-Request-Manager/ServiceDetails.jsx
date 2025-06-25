@@ -41,10 +41,6 @@ const ServiceDetails = () => {
     }
   }
 
-  useEffect(() => {
-    console.log("current", servieRequestDto?.pricing);
-  }, [servieRequestDto]);
-
   async function getServiceRequestActivities(id) {
     try {
       setIsLoading(true);
@@ -91,7 +87,7 @@ const ServiceDetails = () => {
         serviceRequestId: servieRequestDto?.serviceDetails?._id,
         notes: notes,
       };
-      console.log(payload)
+      console.log(payload);
 
       const response = await addServiceNote(payload);
       const { status, details } = response;
@@ -119,25 +115,27 @@ const ServiceDetails = () => {
   if (isLoading) return <Loader />;
 
   return (
-    <div className="mx-auto p-8">
-      <h1 className="text-xl font-medium mb-8 text-gray-800">Details Tab</h1>
+    <div className="mx-auto p-4 sm:p-6 lg:p-8">
+      <h1 className="text-lg sm:text-xl font-medium mb-6 sm:mb-8 text-gray-800">
+        Details Tab
+      </h1>
 
       {/* Tab Navigation */}
       <div className="border-b border-gray-200 mb-1">
-        <nav className="flex">
+        <nav className="flex overflow-x-auto">
           <button
             onClick={() => setActiveTab("overview")}
-            className={`px-4 py-2 font-medium text-sm border-b-2 cursor-pointer  ${
+            className={`px-3 sm:px-4 py-2 font-medium text-xs sm:text-sm border-b-2 cursor-pointer whitespace-nowrap ${
               activeTab === "overview"
                 ? "border-[#267596] text-[#267596] bg-[#F6F6F6]"
                 : "border-transparent text-gray-500 hover:text-gray-700"
             }`}
           >
-            Request Overiew
+            Request Overview
           </button>
           <button
             onClick={() => setActiveTab("status")}
-            className={`px-4 py-2 font-medium text-sm border-b-2 cursor-pointer  ${
+            className={`px-3 sm:px-4 py-2 font-medium text-xs sm:text-sm border-b-2 cursor-pointer whitespace-nowrap ${
               activeTab === "status"
                 ? "border-[#267596] text-[#267596] bg-[#F6F6F6]"
                 : "border-transparent text-gray-500 hover:text-gray-700"
@@ -147,7 +145,7 @@ const ServiceDetails = () => {
           </button>
           <button
             onClick={() => setActiveTab("activity")}
-            className={`px-4 py-2 font-medium text-sm border-b-2 cursor-pointer  ${
+            className={`px-3 sm:px-4 py-2 font-medium text-xs sm:text-sm border-b-2 cursor-pointer whitespace-nowrap ${
               activeTab === "activity"
                 ? "border-[#267596] text-[#267596] bg-[#F6F6F6]"
                 : "border-transparent text-gray-500 hover:text-gray-700"
@@ -160,21 +158,21 @@ const ServiceDetails = () => {
 
       {/* Status Update Tab */}
       {activeTab === "status" && (
-        <div className="space-y-12">
+        <div className="space-y-8 sm:space-y-12">
           {/* Change Request Status */}
           <div>
-            <h2 className="text-lg font-medium text-gray-900 mb-6">
+            <h2 className="text-base sm:text-lg font-medium text-gray-900 mb-4 sm:mb-6">
               Change Request Status
             </h2>
-            <div className="space-y-6">
-              <div className="flex items-center gap-4">
-                <label className="text-sm font-medium text-gray-700 w-16">
+            <div className="space-y-4 sm:space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                <label className="text-sm font-medium text-gray-700 sm:w-16">
                   Status
                 </label>
                 <select
                   value={currentStatus}
                   onChange={(e) => setCurrentStatus(e.target.value)}
-                  className="h-8  border-2 text-black border-[#DDDDDD] rounded-md text-sm w-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="h-10 sm:h-8 border-2 text-black border-[#DDDDDD] rounded-md text-sm w-full sm:w-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   {CONTROLLABLE_STATUSES &&
                     CONTROLLABLE_STATUSES.map((val) => (
@@ -183,22 +181,22 @@ const ServiceDetails = () => {
                 </select>
               </div>
 
-              <div className="flex gap-4">
-                <label className="text-sm font-medium text-gray-700 w-16 pt-3">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+                <label className="text-sm font-medium text-gray-700 sm:w-16 sm:pt-3">
                   Comment
                 </label>
                 <textarea
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   className="flex-1 text-black p-3 border-2 border-[#DDDDDD] rounded-md text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  rows="6"
+                  rows="4"
                   placeholder="Enter update message or note"
                 />
               </div>
 
               <div className="flex justify-end">
                 <button
-                  className="w-full sm:w-auto px-6 py-4 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium cursor-pointer"
+                  className="w-full sm:w-auto px-6 py-3 sm:py-4 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium cursor-pointer"
                   onClick={updateStatus}
                 >
                   Update Status
@@ -213,7 +211,7 @@ const ServiceDetails = () => {
       {activeTab === "overview" && (
         <div className="p-0">
           {/* Request Basic Info */}
-          <div className="grid grid-cols-2 gap-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-y-3 sm:gap-y-4">
             {[
               {
                 label: "Case ID",
@@ -261,15 +259,18 @@ const ServiceDetails = () => {
                 value: servieRequestDto?.technician?.name,
               },
             ].map((item, idx) => (
-              <div key={idx} className="flex rounded-md gap-x-4 items-start">
-                <p className="text-md font-[400] text-[#121212] w-[200px]">
+              <div
+                key={idx}
+                className="flex flex-col sm:flex-row rounded-md gap-y-1 sm:gap-x-4 sm:items-start"
+              >
+                <p className="text-sm sm:text-md font-[500] sm:font-[400] text-[#606060] sm:text-[#121212] sm:w-[200px]">
                   {item.label}
                 </p>
                 <div className="flex items-center">
                   {item?.showIcon && (
                     <img src={DiamondIcon} alt="" className="h-4 w-4 mr-2" />
                   )}
-                  <p className="text-md font-[400] text-[#121212]">
+                  <p className="text-sm sm:text-md font-[400] text-[#121212]">
                     {item.value}
                   </p>
                 </div>
@@ -278,40 +279,40 @@ const ServiceDetails = () => {
           </div>
 
           {/* Customer Info */}
-          <div>
-            <h3 className="text-base font-medium text-[#606060] mt-4 mb-4 border-b border-gray-200 pb-1">
+          <div className="mt-6 sm:mt-8">
+            <h3 className="text-base font-medium text-[#606060] mb-3 sm:mb-4 border-b border-gray-200 pb-1">
               Customer Info
             </h3>
-            <div className="grid grid-cols-2 gap-y-4">
-              <div className="flex  rounded-md gap-x-4 items-start">
-                <p className="text-md font-[400] text-[#121212] w-[200px]">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-y-3 sm:gap-y-4">
+              <div className="flex flex-col sm:flex-row rounded-md gap-y-1 sm:gap-x-4 sm:items-start">
+                <p className="text-sm sm:text-md font-[500] sm:font-[400] text-[#606060] sm:text-[#121212] sm:w-[200px]">
                   Name
                 </p>
-                <p className="text-md font-[400] text-[#121212]">
+                <p className="text-sm sm:text-md font-[400] text-[#121212]">
                   {servieRequestDto?.customer?.contactPersonName}
                 </p>
               </div>
-              <div className="flex  rounded-md gap-x-4 items-start">
-                <p className="text-md font-[400] text-[#121212] w-[200px]">
+              <div className="flex flex-col sm:flex-row rounded-md gap-y-1 sm:gap-x-4 sm:items-start">
+                <p className="text-sm sm:text-md font-[500] sm:font-[400] text-[#606060] sm:text-[#121212] sm:w-[200px]">
                   Phone Number
                 </p>
-                <p className="text-md font-[400] text-[#121212]">
+                <p className="text-sm sm:text-md font-[400] text-[#121212]">
                   {servieRequestDto?.customer?.contactPersonPhone}
                 </p>
               </div>
-              <div className="flex  rounded-md gap-x-4 items-start">
-                <p className="text-md font-[400] text-[#121212] w-[200px]">
+              <div className="flex flex-col sm:flex-row rounded-md gap-y-1 sm:gap-x-4 sm:items-start">
+                <p className="text-sm sm:text-md font-[500] sm:font-[400] text-[#606060] sm:text-[#121212] sm:w-[200px]">
                   Email
                 </p>
-                <p className="text-md font-[400] text-[#121212]">
+                <p className="text-sm sm:text-md font-[400] text-[#121212]">
                   {servieRequestDto?.customer?.contactPersonEmail || "-"}
                 </p>
               </div>
-              <div className="flex  rounded-md gap-x-4 items-start">
-                <p className="text-md font-[400] text-[#121212] w-[200px]">
+              <div className="flex flex-col sm:flex-row rounded-md gap-y-1 sm:gap-x-4 sm:items-start">
+                <p className="text-sm sm:text-md font-[500] sm:font-[400] text-[#606060] sm:text-[#121212] sm:w-[200px]">
                   Address
                 </p>
-                <p className="text-md font-[400] text-[#121212] leading-relaxed">
+                <p className="text-sm sm:text-md font-[400] text-[#121212] leading-relaxed">
                   {servieRequestDto?.customer?.serviceAddress?.address},{" "}
                   {servieRequestDto?.customer?.serviceAddress?.locality},
                   {servieRequestDto?.customer?.serviceAddress?.city},
@@ -324,42 +325,42 @@ const ServiceDetails = () => {
           </div>
 
           {/* Device Info */}
-          <div>
-            <h3 className="text-base font-medium text-[#606060] mb-4 border-b border-gray-200 pb-1">
+          <div className="mt-6 sm:mt-8">
+            <h3 className="text-base font-medium text-[#606060] mb-3 sm:mb-4 border-b border-gray-200 pb-1">
               Device Info
             </h3>
-            <div className="grid grid-cols-2  gap-y-4">
-              <div className="flex  rounded-md gap-x-4 items-start">
-                <p className="text-md font-[400] text-[#121212] w-[200px]">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-y-3 sm:gap-y-4">
+              <div className="flex flex-col sm:flex-row rounded-md gap-y-1 sm:gap-x-4 sm:items-start">
+                <p className="text-sm sm:text-md font-[500] sm:font-[400] text-[#606060] sm:text-[#121212] sm:w-[200px]">
                   Brand
                 </p>
-                <p className="text-md font-[400] text-[#121212]">
+                <p className="text-sm sm:text-md font-[400] text-[#121212]">
                   {servieRequestDto?.product?.brand}
                 </p>
               </div>
-              <div className="flex  rounded-md gap-x-4 items-start">
-                <p className="text-md font-[400] text-[#121212] w-[200px]">
+              <div className="flex flex-col sm:flex-row rounded-md gap-y-1 sm:gap-x-4 sm:items-start">
+                <p className="text-sm sm:text-md font-[500] sm:font-[400] text-[#606060] sm:text-[#121212] sm:w-[200px]">
                   Model
                 </p>
-                <p className="text-md font-[400] text-[#121212]">
+                <p className="text-sm sm:text-md font-[400] text-[#121212]">
                   {servieRequestDto?.product?.model}
                 </p>
               </div>
-              <div className="flex  rounded-md gap-x-4 items-start">
-                <p className="text-md font-[400] text-[#121212] w-[200px]">
+              <div className="flex flex-col sm:flex-row rounded-md gap-y-1 sm:gap-x-4 sm:items-start">
+                <p className="text-sm sm:text-md font-[500] sm:font-[400] text-[#606060] sm:text-[#121212] sm:w-[200px]">
                   Serial Number
                 </p>
-                <p className="text-md font-[400] text-[#121212]">
+                <p className="text-sm sm:text-md font-[400] text-[#121212]">
                   {servieRequestDto?.product?.serialNumber}
                 </p>
               </div>
-              <div className="flex  rounded-md gap-x-4 items-start">
-                <p className="text-md font-[400] text-[#121212] w-[200px]">
+              <div className="flex flex-col sm:flex-row rounded-md gap-y-1 sm:gap-x-4 sm:items-start">
+                <p className="text-sm sm:text-md font-[500] sm:font-[400] text-[#606060] sm:text-[#121212] sm:w-[200px]">
                   Warranty Status
                 </p>
-                <p className="text-md font-[400] text-[#121212] leading-relaxed">
+                <p className="text-sm sm:text-md font-[400] text-[#121212] leading-relaxed">
                   {servieRequestDto?.product?.isInWarranty
-                    ? "  In-Warranty"
+                    ? "In-Warranty"
                     : "Not In-Warranty"}
                 </p>
               </div>
@@ -367,38 +368,49 @@ const ServiceDetails = () => {
           </div>
 
           {/* Payment Info */}
-          <div className="mt-5">
-            <h3 className="text-base font-medium text-[#606060] mb-4 border-b border-gray-200 pb-1">
+          <div className="mt-6 sm:mt-8">
+            <h3 className="text-base font-medium text-[#606060] mb-3 sm:mb-4 border-b border-gray-200 pb-1">
               Payment Transactions
             </h3>
-            <div className="grid grid-cols-2  gap-y-4">
-              <div className="flex  rounded-md gap-x-4 items-start">
-                <p className="text-md font-[400] text-[#121212] w-[200px]">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-y-3 sm:gap-y-4">
+              <div className="flex flex-col sm:flex-row rounded-md gap-y-1 sm:gap-x-4 sm:items-start">
+                <p className="text-sm sm:text-md font-[500] sm:font-[400] text-[#606060] sm:text-[#121212] sm:w-[200px]">
                   Service Fee Paid
                 </p>
-                <p className="text-md font-[400] text-[#121212]">
-                  {servieRequestDto?.pricing?.serviceCost}
+                <p className="text-sm sm:text-md font-[400] text-[#121212]">
+                  &#8377; {servieRequestDto?.pricing?.serviceCost}
                 </p>
               </div>
-              <div className="flex  rounded-md gap-x-4 items-start">
-                <p className="text-md font-[400] text-[#121212] w-[200px]">
+              <div className="flex flex-col sm:flex-row rounded-md gap-y-1 sm:gap-x-4 sm:items-start">
+                <p className="text-sm sm:text-md font-[500] sm:font-[400] text-[#606060] sm:text-[#121212] sm:w-[200px]">
                   Additional Charges
                 </p>
-                <p className="text-md font-[400] text-[#121212]">
-                  {servieRequestDto?.pricing?.extraAmount}
+                <p className="text-sm sm:text-md font-[400] text-[#121212]">
+                  &#8377; {servieRequestDto?.pricing?.extraAmount}
                 </p>
               </div>
-              <div className="flex  rounded-md gap-x-4 items-start">
-                <p className="text-md font-[400] text-[#121212] w-[200px]">
-                  Payment Mode
+              <div className="flex flex-col sm:flex-row rounded-md gap-y-1 sm:gap-x-4 sm:items-start">
+                <p className="text-sm sm:text-md font-[500] sm:font-[400] text-[#606060] sm:text-[#121212] sm:w-[200px]">
+                  Payment Status
                 </p>
-                <p className="text-md font-[400] text-[#121212]">Online</p>
+                <p className="text-sm sm:text-md font-[400] text-[#121212]">
+                  {servieRequestDto?.pricing?.paymentStatus}
+                </p>
               </div>
-              <div className="flex  rounded-md gap-x-4 items-start">
-                <p className="text-md font-[400] text-[#121212] w-[200px]">
+              <div className="flex flex-col sm:flex-row rounded-md gap-y-1 sm:gap-x-4 sm:items-start">
+                <p className="text-sm sm:text-md font-[500] sm:font-[400] text-[#606060] sm:text-[#121212] sm:w-[200px]">
+                  Payment Reference No.
+                </p>
+                <p className="text-sm sm:text-md font-[400] text-[#121212] break-all">
+                  {servieRequestDto?.pricing?.paymentReferenceNumber}
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row rounded-md gap-y-1 sm:gap-x-4 sm:items-start">
+                <p className="text-sm sm:text-md font-[500] sm:font-[400] text-[#606060] sm:text-[#121212] sm:w-[200px]">
                   Payment Date & Time
                 </p>
-                <p className="text-md font-[400] text-[#121212] leading-relaxed">
+                <p className="text-sm sm:text-md font-[400] text-[#121212] leading-relaxed">
                   {formatDate(servieRequestDto?.pricing?.paymentDate, true)}
                 </p>
               </div>
@@ -406,38 +418,43 @@ const ServiceDetails = () => {
           </div>
 
           {/* Customer Uploaded Media */}
-          <div className="mt-5">
-            <h3 className="text-base font-medium text-[#606060] mb-4 border-b border-gray-200 pb-1">
+          <div className="mt-6 sm:mt-8">
+            <h3 className="text-base font-medium text-[#606060] mb-3 sm:mb-4 border-b border-gray-200 pb-1">
               Customer Uploaded Media
             </h3>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-2 sm:gap-4">
               {servieRequestDto?.media?.images.length > 0 &&
-                servieRequestDto?.media?.images.map((val) => (
-                  <img src={val} alt="val" className="h-35 w-45" />
+                servieRequestDto?.media?.images.map((val, index) => (
+                  <img
+                    key={index}
+                    src={val}
+                    alt={`Media ${index + 1}`}
+                    className="h-24 w-32 sm:h-35 sm:w-45 object-cover rounded-md border"
+                  />
                 ))}
             </div>
           </div>
 
           {/* Add Internal Note */}
-          <div className="mt-10">
+          <div className="mt-8 sm:mt-10">
             <h3 className="text-base font-medium text-[#606060] mb-2 pb-1">
               Add Internal Note (Admin only)
             </h3>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full text-black p-3 border-2 border-[#DDDDDD] rounded-md  text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full text-black p-3 border-2 border-[#DDDDDD] rounded-md text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
               rows="4"
               placeholder="Add internal note for admin"
             />
-          </div>
-          <div className="flex justify-end">
-            <button
-              className="w-full sm:w-auto px-6 py-4 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium cursor-pointer"
-              onClick={addNote}
-            >
-              Add Note
-            </button>
+            <div className="flex justify-end mt-3 sm:mt-4">
+              <button
+                className="w-full sm:w-auto px-6 py-3 sm:py-4 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium cursor-pointer"
+                onClick={addNote}
+              >
+                Add Note
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -446,7 +463,11 @@ const ServiceDetails = () => {
         <div>
           <div className="relative pt-4">
             <div className="flex items-center w-full relative">
-              <ActivityLog timelineData={timelineSteps} />
+              <ActivityLog
+                timelineData={timelineSteps}
+                serviceRequestId={servieRequestDto?.serviceDetails?._id}
+                setIsLoading={setIsLoading}
+              />
             </div>
           </div>
         </div>

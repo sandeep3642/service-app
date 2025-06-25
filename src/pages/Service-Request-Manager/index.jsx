@@ -277,8 +277,8 @@ export default function Index() {
                 <MoreVertical size={16} />
               </button>
               {openMenuIndex === rowIndex && (
-                <div className="absolute right-0 z-20 mt-2 w-32 origin-top-right rounded-md bg-white shadow-lg border border-gray-200">
-                  <div className="py-1 text-sm text-gray-700">
+                <div className="absolute right-0 z-20 mt-2 w-35 origin-top-right rounded-md bg-white shadow-lg border border-gray-200">
+                  <div className="py-1 text-gray-700">
                     {activeTab === "service" && (
                       <>
                         <button
@@ -289,7 +289,7 @@ export default function Index() {
                             });
                             setOpenMenuIndex(null);
                           }}
-                          className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
+                          className="block w-full px-4 py-2 hover:bg-gray-100 text-left text-xs"
                         >
                           Change Status
                         </button>
@@ -310,7 +310,7 @@ export default function Index() {
                                 ? "block"
                                 : "none",
                           }}
-                          className="block w-full px-4 py-2 hover:bg-gray-100 text-left"
+                          className="block w-full px-4 py-2 hover:bg-gray-100 text-left text-xs"
                         >
                           {row.status === "ACCEPTED_BY_TECHNICIAN" ||
                           row.status === "ASSIGNED_TO_TECHNICIAN"

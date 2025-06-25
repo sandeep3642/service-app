@@ -29,43 +29,53 @@ import PrivateRoute from "./utilty/PrivateRoute";
 import PublicRoute from "./utilty/PublicRoute";
 import AdminAccountSettings from "./pages/Admin-Account-Setting";
 import ComplaintsTabs from "./pages/complaints";
+import { UserProvider } from "./context/UserContext";
 
 function App() {
   return (
-    <Router>
-      <Suspense fallback={<Loader />}>
-        <ToastContainer position="top-right" autoClose={3000} theme="colored" />
-        <Routes>
-          {/* Public Route */}
-          <Route element={<PublicRoute />}>
-            <Route path="/" element={<Login />} />
-          </Route>
-
-          {/* Private Routes */}
-          <Route element={<PrivateRoute />}>
-            <Route element={<Layout />}>
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="customer" element={<CustomerManagement />} />
-              <Route path="customer-view" element={<CustomerView />} />
-              <Route path="technician" element={<Technician />} />
-              <Route path="technician-view" element={<TechnicianView />} />
-              <Route path="service" element={<ServiceRequestManager />} />
-              <Route path="service-detail" element={<ServiceDetails />} />
-              <Route path="spare-part-detail" element={<SparePartDetails />} />
-              <Route
-                path="add-new-technician"
-                element={<AddTechnicianForm />}
-              />
-              <Route path="activityLog" element={<ActivityLog />} />
-              <Route path="account" element={<AdminAccountSettings />} />
-              <Route path="complaint" element={<ComplaintsTabs/>}/>
-              <Route path="*" element={<NotFoundPage />} />
-              <Route path="sub-admin" element={<SubAdmin/>}/>
+    <UserProvider>
+      <Router>
+        <Suspense fallback={<Loader />}>
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            theme="colored"
+          />
+          <Routes>
+            {/* Public Route */}
+            <Route element={<PublicRoute />}>
+              <Route path="/" element={<Login />} />
             </Route>
-          </Route>
-        </Routes>
-      </Suspense>
-    </Router>
+
+            {/* Private Routes */}
+            <Route element={<PrivateRoute />}>
+              <Route element={<Layout />}>
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="customer" element={<CustomerManagement />} />
+                <Route path="customer-view" element={<CustomerView />} />
+                <Route path="technician" element={<Technician />} />
+                <Route path="technician-view" element={<TechnicianView />} />
+                <Route path="service" element={<ServiceRequestManager />} />
+                <Route path="service-detail" element={<ServiceDetails />} />
+                <Route
+                  path="spare-part-detail"
+                  element={<SparePartDetails />}
+                />
+                <Route
+                  path="add-new-technician"
+                  element={<AddTechnicianForm />}
+                />
+                <Route path="activityLog" element={<ActivityLog />} />
+                <Route path="account" element={<AdminAccountSettings />} />
+                <Route path="complaint" element={<ComplaintsTabs />} />
+                <Route path="*" element={<NotFoundPage />} />
+                <Route path="sub-admin" element={<SubAdmin />} />
+              </Route>
+            </Route>
+          </Routes>
+        </Suspense>
+      </Router>
+    </UserProvider>
   );
 }
 
