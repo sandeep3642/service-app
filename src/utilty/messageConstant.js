@@ -91,8 +91,8 @@ export const getMessageName = (status) => {
 
     //==================Technicians==============
     AVAILABLE: "Available",
-    aadhaar_back: "Aadhar Back",
-    aadhaar_front: "Aadhar Front",
+    aadhaar_back: "Aadhar Card Back View",
+    aadhaar_front: "Aadhar Card Front View",
 
     SERVICE_CONFIRMED:"Service Confirmed",
     TECHNICIAN_ACCEPTED:"Technician Accepted"

@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import ProfileImage from "../../assets/profile.png";
-import DocumentIcon from "../../assets/Document.png";
 import { getStatusBadge } from "../../utilty/globalStatus";
 import { formatDate } from "../../utilty/common";
 import { getMessageName } from "../../utilty/messageConstant";
@@ -135,6 +134,7 @@ const RenderProfileInfo = ({ profileData, fetchTechnicianDetailbyId }) => {
                                 <DocumentCard
                                     key={key}
                                     title={getMessageName(key)}
+                                    name="Id Proof"
                                     fileUrl={fileUrl}
                                     uploadedDate={uploadedDate}
                                     status={status}
@@ -150,8 +150,8 @@ const RenderProfileInfo = ({ profileData, fetchTechnicianDetailbyId }) => {
                 {/* Selfie Section */}
                 {profileData?.selfie && (
                     <DocumentCard
-                        title="Selfie"
-                        name="Selfie"
+                        title="Selfie Verification"
+                        name="Selfie Image"
                         fileUrl={profileData.selfie.fileUrl}
                         uploadedDate={formatDate(profileData.selfie.uploadedAt)}
                         status={profileData.selfie.status?.toLowerCase()}
@@ -165,6 +165,7 @@ const RenderProfileInfo = ({ profileData, fetchTechnicianDetailbyId }) => {
                 {profileData?.policeVerification && (
                     <DocumentCard
                         title="Police Verification"
+                        name="Verification Document"
                         fileUrl={profileData.policeVerification.fileUrl}
                         uploadedDate={formatDate(profileData.policeVerification.uploadedAt)}
                         status={profileData.policeVerification.status?.toLowerCase()}
@@ -248,8 +249,8 @@ const RenderProfileInfo = ({ profileData, fetchTechnicianDetailbyId }) => {
                             return (
                                 <DocumentCard
                                     key={id}
-                                    name="Certificates"
-                                    title={certName}
+                                    title="Certificates"
+                                    name={certName}
                                     fileUrl={fileUrl}
                                     uploadedDate={uploadedDate}
                                     status={status}
