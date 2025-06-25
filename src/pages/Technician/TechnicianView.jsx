@@ -657,7 +657,7 @@ const TechnicianView = () => {
                 </div>
 
                 {/* Tab Content */}
-                {activeTab === 'Profile Info' && <RenderProfileInfo profileData={profileData}/>}
+                {activeTab === 'Profile Info' && <RenderProfileInfo profileData={profileData} fetchTechnicianDetailbyId={fetchTechnicianDetailbyId} />}
                 {activeTab === 'Service History' && renderServiceHistory()}
                 {activeTab === 'Performance Metrics' && renderPerformanceMetrics()}
 
