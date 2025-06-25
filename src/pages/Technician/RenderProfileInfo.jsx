@@ -489,6 +489,7 @@ const RenderProfileInfo = ({ profileData }) => {
             </div>
             <RejectionReasonModal
                 isOpen={showRejectionModal}
+                profileData={profileData}
                 onClose={() => setShowRejectionModal(false)}
             />
             <RejectDocumentModal
