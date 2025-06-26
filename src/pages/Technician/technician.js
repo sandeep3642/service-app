@@ -21,3 +21,19 @@ export const approveRejectDocument = async (payload,id) => {
   );
   return res.data;
 };
+
+export const blockUnblock = async (payload,id) => {
+  const res = await api.post(
+    `/api/v1/user/technicians/profile/${id}/blockUnblock`,
+    payload
+  );
+  return res.data;
+};
+
+export const approveRejectProfile = async (payload,id) => {
+  const res = await api.post(
+    `/api/v1/user/technicians/profile/${id}/approveReject`,
+    payload
+  );
+  return res.data;
+};
