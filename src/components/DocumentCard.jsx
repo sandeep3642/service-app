@@ -20,7 +20,7 @@ const DocumentCard = ({
                 <div className="w-12 h-10 flex-shrink-0">
                     <a href={fileUrl} target="_blank" rel="noopener noreferrer">
                         <img
-                            src={title.toLowerCase().includes("certificate") ? DocumentIcon : (fileUrl ?? DocumentIcon)}
+                            src={fileUrl ?? DocumentIcon}
                             alt={title}
                             className="w-full h-full object-contain border rounded cursor-pointer"
                         />

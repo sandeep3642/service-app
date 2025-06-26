@@ -21,7 +21,7 @@ const Technician = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const navigate = useNavigate();
-  const actionMenu = ["View Detail", "Edit", "Delete"];
+  const actionMenu = ["Edit", "Delete"];
   const [technicianData, setTechnicians] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
