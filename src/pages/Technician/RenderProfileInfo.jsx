@@ -8,9 +8,8 @@ import RejectDocumentModal from "./RejectDocumentModal";
 import { toast } from "react-toastify";
 import { approveRejectDocument } from "./technician";
 import DocumentCard from "../../components/DocumentCard";
+
 const RenderProfileInfo = ({ profileData, fetchTechnicianDetailbyId }) => {
-
-
     const [showRejectionModal, setShowRejectionModal] = useState(false);
     const [showRejectModal, setShowRejectModal] = useState(false);
     const [documentId, setDocumetId] = useState("");
@@ -46,6 +45,7 @@ const RenderProfileInfo = ({ profileData, fetchTechnicianDetailbyId }) => {
         }
         setShowRejectModal(false);
     };
+
     const handleApprove = async (id) => {
         try {
             let payload = { action: "approve" };
@@ -61,227 +61,242 @@ const RenderProfileInfo = ({ profileData, fetchTechnicianDetailbyId }) => {
             fetchTechnicianDetailbyId(profileData?.profileSummary?._id);
         }
     };
+
     const handleReject = (id) => {
         setDocumetId(id);
         setShowRejectModal(true);
     };
+
     return (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
             {/* Left Column - Profile Summary, ID Proof, Certificate */}
-            <div className="space-y-6">
-                {/* Profile Summary Card */}
-                <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6 max-w-2xl">
-                    <h3 className="text-lg font-semibold border-b border-gray-200 text-[#393939] mb-4">
+            <div className="space-y-4 sm:space-y-6">
+                {/* Profile Summary Card - Responsive */}
+                <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 sm:p-6 w-full">
+                    <h3 className="text-base sm:text-lg font-semibold border-b border-gray-200 text-[#393939] mb-4">
                         Profile Summary
                     </h3>
 
-                    <div className="flex items-start space-x-4 mb-6">
-                        <div className="relative">
+                    <div className="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
+                        <div className="relative w-full sm:w-auto flex justify-center sm:justify-start">
                             <img
                                 src={
                                     profileData?.profileSummary?.profilePictureUrl ?? ProfileImage
                                 }
                                 alt="Profile"
-                                className="w-40 h-40 rounded-lg object-cover"
+                                className="w-32 h-32 sm:w-40 sm:h-40 rounded-lg object-cover"
                             />
                         </div>
 
-                        <div className="flex-1 space-y-2">
-                            <div className="flex justify-between">
-                                <span className="text-sm text-[#121212]">ID:</span>
-                                <span className="text-sm font-medium text-[#121212]">
+                        <div className="flex-1 w-full space-y-2">
+                            <div className="flex items-center justify-between gap-2 border-b border-gray-100 pb-1">
+                                <span className="text-sm text-[#121212] font-medium">ID:</span>
+                                <span className="text-sm font-medium text-[#121212] break-all">
                                     {profileData?.profileSummary?.id ?? "NA"}
                                 </span>
                             </div>
-                            <div className="flex justify-between">
-                                <span className="text-sm text-[#121212]">Name:</span>
-                                <span className="text-sm font-medium text-[#121212]">
+                            <div className="flex items-center justify-between gap-2 border-b border-gray-100 pb-1">
+                                <span className="text-sm text-[#121212] font-medium">Name:</span>
+                                <span className="text-sm font-medium text-[#121212] break-words">
                                     {profileData?.profileSummary?.name ?? "NA"}
                                 </span>
                             </div>
-                            <div className="flex justify-between">
-                                <span className="text-sm text-[#121212]">Phone:</span>
+                            <div className="flex items-center justify-between gap-2 border-b border-gray-100 pb-1">
+                                <span className="text-sm text-[#121212] font-medium">Phone:</span>
                                 <span className="text-sm font-medium text-[#121212]">
                                     {profileData?.profileSummary?.phone ?? "NA"}
                                 </span>
                             </div>
-                            <div className="flex justify-between">
-                                <span className="text-sm text-[#121212]">Status:</span>
-                                <span
-                                    className={`text-sm font-medium ${getStatusBadge(
-                                        profileData?.profileSummary?.status
-                                    )}`}
-                                >
+                            <div className="flex items-center justify-between gap-2 border-b border-gray-100 pb-1">
+                                <span className="text-sm text-[#121212] font-medium">Status:</span>
+                                <span className={`text-sm font-medium ${getStatusBadge(profileData?.profileSummary?.status)}`}>
                                     {profileData?.profileSummary?.status ?? "NA"}
                                 </span>
                             </div>
-                            <div className="flex justify-between">
-                                <span className="text-sm text-[#121212]">Role:</span>
+                            <div className="flex items-center justify-between gap-2 border-b border-gray-100 pb-1">
+                                <span className="text-sm text-[#121212] font-medium">Role:</span>
                                 <span className="text-sm font-medium text-[#121212]">
                                     {profileData?.profileSummary?.role ?? "NA"}
                                 </span>
                             </div>
-                            <div className="flex justify-between">
-                                <span className="text-sm text-[#121212]">Location:</span>
-                                <span className="text-sm font-medium text-[#121212]">
+                            <div className="flex items-center justify-between gap-2">
+                                <span className="text-sm text-[#121212] font-medium">Location:</span>
+                                <span className="text-sm font-medium text-[#121212] break-words">
                                     {profileData?.profileSummary?.location ?? "NA"}
                                 </span>
                             </div>
+
                         </div>
                     </div>
                 </div>
 
+                {/* ID Proof Section - Responsive */}
                 {profileData?.idProof && (
-                    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 max-w-2xl mt-4">
-                        <h4 className="font-medium border-b border-gray-200 text-[#121212] mb-3">
+                    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 w-full">
+                        <h4 className="text-base sm:text-lg font-medium border-b border-gray-200 text-[#121212] mb-3">
                             ID Proof
                         </h4>
 
-                        {Object.entries(profileData.idProof).map(([key, value]) => {
-                            const uploadedDate = formatDate(value?.uploadedAt);
-                            const status = value?.status?.toLowerCase();
-                            const fileUrl = value?.fileUrl;
-                            const id = value?._id;
-                            const reason = value?.rejectedReason
-                            return (
-                                <DocumentCard
-                                    key={key}
-                                    title={getMessageName(key)}
-                                    name="Id Proof"
-                                    fileUrl={fileUrl}
-                                    uploadedDate={uploadedDate}
-                                    status={status}
-                                    onApprove={() => handleApprove(id)}
-                                    onReject={() => handleReject(id)}
-                                    showReason={() => showRejectionReasonModal(reason)}
-                                />
-                            );
-                        })}
+                        <div className="space-y-3">
+                            {Object.entries(profileData.idProof).map(([key, value]) => {
+                                const uploadedDate = formatDate(value?.uploadedAt);
+                                const status = value?.status?.toLowerCase();
+                                const fileUrl = value?.fileUrl;
+                                const id = value?._id;
+                                const reason = value?.rejectedReason
+                                return (
+                                    <DocumentCard
+                                        key={key}
+                                        title={getMessageName(key)}
+                                        name="Id Proof"
+                                        fileUrl={fileUrl}
+                                        uploadedDate={uploadedDate}
+                                        status={status}
+                                        onApprove={() => handleApprove(id)}
+                                        onReject={() => handleReject(id)}
+                                        showReason={() => showRejectionReasonModal(reason)}
+                                    />
+                                );
+                            })}
+                        </div>
                     </div>
                 )}
 
-                {/* Selfie Section */}
+                {/* Selfie Section - Responsive */}
                 {profileData?.selfie && (
-                    <DocumentCard
-                        title="Selfie Verification"
-                        name="Selfie Image"
-                        fileUrl={profileData.selfie.fileUrl}
-                        uploadedDate={formatDate(profileData.selfie.uploadedAt)}
-                        status={profileData.selfie.status?.toLowerCase()}
-                        onApprove={() => handleApprove(profileData.selfie._id)}
-                        onReject={() => handleReject(profileData.selfie._id)}
-                        showReason={() => showRejectionReasonModal(profileData?.selfie?.rejectedReason)}
-                    />
+                    <div className="w-full">
+                        <DocumentCard
+                            title="Selfie Verification"
+                            name="Selfie Image"
+                            fileUrl={profileData.selfie.fileUrl}
+                            uploadedDate={formatDate(profileData.selfie.uploadedAt)}
+                            status={profileData.selfie.status?.toLowerCase()}
+                            onApprove={() => handleApprove(profileData.selfie._id)}
+                            onReject={() => handleReject(profileData.selfie._id)}
+                            showReason={() => showRejectionReasonModal(profileData?.selfie?.rejectedReason)}
+                        />
+                    </div>
                 )}
 
-                {/* Police Verification Section */}
+                {/* Police Verification Section - Responsive */}
                 {profileData?.policeVerification && (
-                    <DocumentCard
-                        title="Police Verification"
-                        name="Verification Document"
-                        fileUrl={profileData.policeVerification.fileUrl}
-                        uploadedDate={formatDate(profileData.policeVerification.uploadedAt)}
-                        status={profileData.policeVerification.status?.toLowerCase()}
-                        onApprove={() => handleApprove(profileData.policeVerification._id)}
-                        onReject={() => handleReject(profileData.policeVerification._id)}
-                        showReason={() => showRejectionReasonModal(profileData?.policeVerification?.rejectedReason)}
-                    />
+                    <div className="w-full">
+                        <DocumentCard
+                            title="Police Verification"
+                            name="Verification Document"
+                            fileUrl={profileData.policeVerification.fileUrl}
+                            uploadedDate={formatDate(profileData.policeVerification.uploadedAt)}
+                            status={profileData.policeVerification.status?.toLowerCase()}
+                            onApprove={() => handleApprove(profileData.policeVerification._id)}
+                            onReject={() => handleReject(profileData.policeVerification._id)}
+                            showReason={() => showRejectionReasonModal(profileData?.policeVerification?.rejectedReason)}
+                        />
+                    </div>
                 )}
             </div>
 
             {/* Right Column - Contact Information, Skills & Expertise */}
-            <div className="space-y-6">
-                {/* Contact Information Card */}
-                <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 max-w-2xl mt-4">
-                    <h3 className="text-lg border-b border-gray-200 font-semibold text-[#121212] mb-6">
+            <div className="space-y-4 sm:space-y-6">
+                {/* Contact Information Card - Responsive */}
+                <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 w-full">
+                    <h3 className="text-base sm:text-lg border-b border-gray-200 font-semibold text-[#121212] mb-4 sm:mb-6">
                         Contact Information
                     </h3>
 
-                    <div className="flex-1 space-y-2">
-                        <div className="flex justify-between">
-                            <span className="text-sm text-[#121212] block mb-1">Phone:</span>
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between gap-2 border-b border-gray-100 pb-2">
+                            <span className="text-sm text-[#121212] font-medium">Phone:</span>
                             <span className="text-sm font-medium text-[#121212]">
-                                {profileData?.profileSummary.phone ?? "NA"}
+                                {profileData?.profileSummary?.phone ?? "NA"}
                             </span>
                         </div>
-                        <div className="flex justify-between">
-                            <label className="text-sm text-[#121212] block mb-1">
-                                Alternate Contact:
-                            </label>
-                            <p className="text-sm font-medium text-[#121212]">
+
+                        <div className="flex items-center justify-between gap-2 border-b border-gray-100 pb-2">
+                            <span className="text-sm text-[#121212] font-medium">Alternate Contact:</span>
+                            <span className="text-sm font-medium text-[#121212]">
                                 {profileData?.contactInformation?.alternateContact ?? "NA"}
-                            </p>
+                            </span>
                         </div>
-                        <div className="flex justify-between">
-                            <label className=" flex text-sm text-[#121212]  mb-1">
-                                Address:
-                            </label>
-                            \
-                            <div>
-                                <p className="text-sm font-medium text-[#121212] ">
-                                    {profileData?.contactInformation?.address ?? "NA"}
-                                </p>
-                            </div>
+
+                        <div className="flex items-center justify-between gap-2 border-b border-gray-100 pb-2">
+                            <span className="text-sm text-[#121212] font-medium">Address:</span>
+                            <span className="text-sm font-medium text-[#121212] text-right break-words">
+                                {profileData?.contactInformation?.address ?? "NA"}
+                            </span>
                         </div>
-                        <div className="flex justify-between">
-                            <label className="text-sm text-[#121212] block mb-1">
-                                Email:
-                            </label>
-                            <p className="text-sm font-medium text-[#121212]">
+
+                        <div className="flex items-center justify-between gap-2">
+                            <span className="text-sm text-[#121212] font-medium">Email:</span>
+                            <span className="text-sm font-medium text-[#121212] break-all text-right">
                                 {profileData?.contactInformation?.email ?? "NA"}
-                            </p>
+                            </span>
                         </div>
+
                     </div>
                 </div>
 
-                {/* Skills & Expertise Card */}
-                <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 max-w-2xl mt-4">
-                    <h4 className="text-lg border-b border-gray-200 font-semibold text-[#121212] mb-4">
+                {/* Skills & Expertise Card - Responsive */}
+                <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 w-full">
+                    <h4 className="text-base sm:text-lg border-b border-gray-200 font-semibold text-[#121212] mb-4">
                         Skills & Expertise
                     </h4>
                     <div className="space-y-2">
-                        <p className="text-sm text-[#121212]">
-                            {profileData?.skillsAndExpertise?.skills.map((val) => val + " ,")}
-                        </p>
+                        <div className="flex flex-wrap gap-2">
+                            {profileData?.skillsAndExpertise?.skills?.map((skill, index) => (
+                                <span
+                                    key={index}
+                                    className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full"
+                                >
+                                    {skill}
+                                </span>
+                            )) || (
+                                    <span className="text-sm text-[#121212]">No skills listed</span>
+                                )}
+                        </div>
                     </div>
                 </div>
-                {/* Certificate Section */}
+
+                {/* Certificate Section - Responsive */}
                 {profileData?.certificates?.length > 0 && (
-                    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 max-w-2xl mt-4">
-                        <h4 className="font-medium border-b border-gray-200 text-[#121212] mb-3">
+                    <div className="bg-white rounded-lg shadow-md border border-gray-200 p-4 w-full">
+                        <h4 className="text-base sm:text-lg font-medium border-b border-gray-200 text-[#121212] mb-3">
                             Certificates
                         </h4>
 
-                        {profileData.certificates.map((cert, index) => {
-                            const uploadedDate = formatDate(cert?.uploadedAt);
-                            const status = cert.status?.toLowerCase();
-                            const fileUrl = cert.fileUrl;
-                            const certName = cert.name || `Certificate_${index + 1}`;
-                            const id = cert?._id;
-                            const reason = cert?.rejectedReason;
-                            return (
-                                <DocumentCard
-                                    key={id}
-                                    title="Certificates"
-                                    name={certName}
-                                    fileUrl={fileUrl}
-                                    uploadedDate={uploadedDate}
-                                    status={status}
-                                    onApprove={() => handleApprove(id)}
-                                    onReject={() => setShowRejectModal(id)}
-                                    showReason={() => showRejectionReasonModal(reason)}
-                                />
-                            );
-                        })}
+                        <div className="space-y-3">
+                            {profileData.certificates.map((cert, index) => {
+                                const uploadedDate = formatDate(cert?.uploadedAt);
+                                const status = cert.status?.toLowerCase();
+                                const fileUrl = cert.fileUrl;
+                                const certName = cert.name || `Certificate_${index + 1}`;
+                                const id = cert?._id;
+                                const reason = cert?.rejectedReason;
+                                return (
+                                    <DocumentCard
+                                        key={id}
+                                        title="Certificates"
+                                        name={certName}
+                                        fileUrl={fileUrl}
+                                        uploadedDate={uploadedDate}
+                                        status={status}
+                                        onApprove={() => handleApprove(id)}
+                                        onReject={() => setShowRejectModal(id)}
+                                        showReason={() => showRejectionReasonModal(reason)}
+                                    />
+                                );
+                            })}
+                        </div>
                     </div>
                 )}
-
             </div>
+
+            {/* Modals */}
             <RejectionReasonModal
                 isOpen={showRejectionModal}
                 profileData={profileData}
                 onClose={handleCloseRejectionReson}
                 rejectionReason={rejectionReason}
+                name="document"
             />
             <RejectDocumentModal
                 isOpen={showRejectModal}

@@ -15,6 +15,9 @@ import { getMessageName } from '../../utilty/messageConstant';
 import RenderProfileInfo from './RenderProfileInfo';
 import RenderServiceHistory from './RenderServiceHistory';
 import RenderPerformanceMetrics from './RenderPerformanceMetrics';
+import RejectionReasonModal from './RejectionReasonModal';
+import RejectDocumentModal from './RejectDocumentModal';
+
 const TechnicianView = () => {
     const location = useLocation()
     const [activeTab, setActiveTab] = useState('Profile Info');
@@ -24,12 +27,15 @@ const TechnicianView = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [profileData, setProfileData] = useState(null)
     const navigate = useNavigate();
-    const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
-    const [rejectReason, setRejectReason] = useState("");
+    const [showRejectionModal, setShowRejectionModal] = useState(false);
+    const [showRejectModal, setShowRejectModal] = useState(false);
+    const [rejectionReason, setRejectionReason] = useState("")
+
     const handleDelete = () => {
         setIsModalOpen(true)
         console.log("Hello")
     }
+
     const handleDeleteConfirm = () => {
         console.log('Customer deleted!');
         // Add your delete logic here
@@ -39,8 +45,15 @@ const TechnicianView = () => {
     const handleModalClose = () => {
         setIsModalOpen(false);
     };
+    function showRejectionReasonModal(reason) {
+        setShowRejectionModal(true)
+        setRejectionReason(reason)
+    }
 
-
+    function handleCloseRejectionReson() {
+        setShowRejectionModal(false)
+        setRejectionReason("")
+    }
     const handleClick = async (key = 'block') => {
         try {
             setIsLoading(true);
@@ -60,7 +73,6 @@ const TechnicianView = () => {
         }
     };
 
-
     async function fetchTechnicianDetailbyId(id) {
         try {
             setIsLoading(true);
@@ -71,13 +83,13 @@ const TechnicianView = () => {
             if (status.success && details) {
                 toast.success(status.message);
                 setProfileData(details);
-
             }
         } catch (error) {
         } finally {
             setIsLoading(false);
         }
     }
+
     const handleApprove = async () => {
         try {
             setIsLoading(true);
@@ -94,25 +106,25 @@ const TechnicianView = () => {
         }
     };
 
-    const handleRejectConfirm = async () => {
-        if (!rejectReason.trim()) {
+    const handleRejectConfirm = async (reason) => {
+        if (!reason.trim()) {
             return toast.error("Please provide a rejection reason.");
         }
 
         try {
             setIsLoading(true);
-            const payload = { action: "reject", reason: rejectReason };
+            const payload = { action: "reject", reason: reason };
             const res = await approveRejectProfile(payload, location.state);
             if (res.status.success) {
                 toast.success(res.status.message);
                 fetchTechnicianDetailbyId(location.state);
             }
-            setIsRejectModalOpen(false);
+            setShowRejectModal(false);
         } catch (err) {
             toast.error("Rejection failed");
         } finally {
             setIsLoading(false);
-            setRejectReason("");
+            fetchTechnicianDetailbyId(location.state); // Refresh technician data after action
         }
     };
 
@@ -125,21 +137,27 @@ const TechnicianView = () => {
     if (isLoading) return <Loader />;
 
     return (
-        <div className="min-h-screen">
-            <div className="mx-auto py-6">
-                <h1 className="text-xl font-semibold text-[#121212]">
-                    {activeTab === 'Profile Info' && 'Technician Details'}
-                    {activeTab === 'Service History' && 'Service History'}
-                    {activeTab === 'Performance Metrics' && 'Technician Details'}
-                </h1>                {/* Tabs */}
-                <div className="flex border-b border-gray-200 mb-6 mt-5">
-                    <nav className="flex justify-between w-full">
-                        <div className="flex space-x-14">
+        <div className="min-h-screen px-2 sm:px-4 lg:px-6">
+            <div className="mx-auto py-4 sm:py-6">
+                {/* Header - Responsive */}
+                <div className="mb-4 sm:mb-6">
+                    <h1 className="text-lg sm:text-xl font-semibold text-[#121212] break-words">
+                        {activeTab === 'Profile Info' && 'Technician Details'}
+                        {activeTab === 'Service History' && 'Service History'}
+                        {activeTab === 'Performance Metrics' && 'Technician Details'}
+                    </h1>
+                </div>
+
+                {/* Tabs - Mobile Responsive */}
+                <div className="border-b border-gray-200 mb-4 sm:mb-6">
+                    <nav className="flex flex-col sm:flex-row sm:justify-between w-full space-y-3 sm:space-y-0">
+                        {/* Tab Navigation - Horizontal scroll on mobile */}
+                        <div className="flex space-x-4 sm:space-x-14 overflow-x-auto scrollbar-hide">
                             {tabs.map((tab) => (
                                 <button
                                     key={tab}
                                     onClick={() => setActiveTab(tab)}
-                                    className={`py-2 px-1 border-b-2 font-medium text-md whitespace-nowrap ${activeTab === tab
+                                    className={`py-2 px-1 border-b-2 font-medium text-sm sm:text-base whitespace-nowrap flex-shrink-0 ${activeTab === tab
                                         ? 'border-blue-500 text-blue-600'
                                         : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                                         }`}
@@ -148,37 +166,70 @@ const TechnicianView = () => {
                                 </button>
                             ))}
                         </div>
-                        {activeTab === 'Profile Info' && profileData?.profileSummary?.status === "Active" && (
-                            <div className="flex space-x-4">
-                                <button
-                                    onClick={handleApprove}
-                                    className="bg-green-600 text-white px-4 py-2 rounded"
-                                >
-                                    Approve
-                                </button>
-                                <button
-                                    onClick={() => setIsRejectModalOpen(true)}
-                                    className="bg-red-600 text-white px-4 py-2 rounded"
-                                >
-                                    Reject
-                                </button>
-                            </div>
-                        )}
 
-                        {activeTab === 'Profile Info' && profileData?.profileSummary?.status && (
-                            <button
-                                className="mt-1 w-20 h-6 mr-55"
-                                onClick={() =>
-                                    handleClick(profileData?.profileSummary?.status === "Active" ? "block" : "unblock")
+                        {/* Action Buttons - Stack on mobile */}
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                            {activeTab === 'Profile Info' && (() => {
+                                const reviewStatus = profileData?.profileSummary?.profileReview?.status;
+                                const isActive = profileData?.profileSummary?.isActive;
+                                const reason = profileData?.profileSummary?.profileReview?.rejectedReason;
+                                console.log(reason)
+                                {
+                                    if (['SUBMITTED', 'UNDER_REVIEW'].includes(reviewStatus))
+                                        return (
+                                            <div className="flex flex-row flex-wrap gap-2 sm:gap-4">
+                                                <p className='text-black  px-3 sm:px-4 py-2 rounded text-sm sm:text-base'>{reviewStatus}</p>
+                                                <button
+                                                    onClick={handleApprove}
+                                                    className="bg-green-600 text-white px-3 sm:px-4 py-2 rounded text-sm sm:text-base"
+                                                >
+                                                    Approve
+                                                </button>
+                                                <button
+                                                    onClick={() => setShowRejectModal(true)}
+                                                    className="bg-red-600 text-white px-3 sm:px-4 py-2 rounded text-sm sm:text-base"
+                                                >
+                                                    Reject
+                                                </button>
+                                            </div>
+                                        )
                                 }
-                            >
-                                <img
-                                    src={profileData?.profileSummary?.status === "Active" ? blockIcon : unblockIcon}
-                                    className="mt-1 w-20 h-6 mr-55"
-                                    alt={profileData?.profileSummary?.status === "Active" ? "Block" : "Unblock"}
-                                />
-                            </button>
-                        )}
+
+
+                                {
+                                    if (reviewStatus === 'REJECTED')
+                                        return (
+                                            <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+                                                <p className="text-red-500 font-medium text-sm sm:text-base">Rejected</p>
+                                                <button
+                                                    onClick={() => showRejectionReasonModal(reason)}
+                                                    className="text-blue-600 underline text-sm sm:text-base hover:text-blue-800"
+                                                >
+                                                    See Why?
+                                                </button>
+                                            </div>
+                                        )
+                                }
+
+
+                                if (reviewStatus === 'APPROVED') {
+                                    return (
+                                        <button
+                                            className="flex items-center justify-center p-1"
+                                            onClick={() => handleClick(isActive ? "block" : "unblock")}
+                                        >
+                                            <img
+                                                src={isActive ? blockIcon : unblockIcon}
+                                                className="w-16 sm:w-20 h-5 sm:h-6"
+                                                alt={isActive ? "Block" : "Unblock"}
+                                            />
+                                        </button>
+                                    );
+                                }
+
+                                return null;
+                            })()}
+                        </div>
 
                     </nav>
                 </div>
@@ -193,50 +244,22 @@ const TechnicianView = () => {
                     onClose={handleModalClose}
                     onConfirm={handleDeleteConfirm}
                 />
-            </div>
-            {isRejectModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center">
-                    {/* Overlay Layer */}
-                    <div
-                        className="absolute inset-0"
-                        style={{
-                            background: 'linear-gradient(to bottom right, rgba(0, 0, 0, 0.3), rgba(100, 100, 100, 0.4))',
-                        }}
-                    />
+            </div >
 
-                    {/* Modal Container */}
-                    <div className="relative bg-white rounded-lg shadow-xl  mx-4 p-6 z-10">
-                        {/* Close Button */}
-
-                        {/* Modal Content */}
-                        <h2 className="text-lg text-black font-semibold mb-4">Why is this technician rejected?</h2>
-                        <textarea
-                            className="w-full border border-gray-600 text-gray-700 rounded p-2"
-                            rows="4"
-                            placeholder="Enter reason"
-                            value={rejectReason}
-                            onChange={(e) => setRejectReason(e.target.value)}
-                        ></textarea>
-
-                        <div className="mt-4 flex justify-end space-x-4">
-                            <button
-                                onClick={() => setIsRejectModalOpen(false)}
-                                className="bg-gray-300 text-black px-4 py-2 rounded"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleRejectConfirm}
-                                className="bg-red-600 text-white px-4 py-2 rounded"
-                            >
-                                Reject
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+            {/* Rejection Modal - Responsive */}
+            <RejectionReasonModal
+                isOpen={showRejectionModal}
+                profileData={profileData}
+                onClose={handleCloseRejectionReson}
+                rejectionReason={rejectionReason}
+                name="technician"
+            />
+            <RejectDocumentModal
+                isOpen={showRejectModal}
+                onClose={() => setShowRejectModal(false)}
+                onSubmit={handleRejectConfirm}
+            />
         </div >
-
     );
 };
 

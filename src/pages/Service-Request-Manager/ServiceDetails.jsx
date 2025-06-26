@@ -44,7 +44,6 @@ const ServiceDetails = () => {
 
   async function getServiceRequestActivities(id, page = 1, append = false) {
     try {
-      setIsLoading(true);
       const response = await fetchServiceActivities(id, page); // make sure your API supports page param
       const { status, details } = response;
 

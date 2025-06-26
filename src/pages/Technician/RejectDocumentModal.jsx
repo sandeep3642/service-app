@@ -8,6 +8,9 @@ const RejectDocumentModal = ({ isOpen, onClose, onSubmit }) => {
     if (!isOpen) return null;
 
     const handleSubmit = () => {
+        if (!reason.trim()) {
+            return toast.error("Please provide a rejection reason.");
+        }
         onSubmit(reason);
         setReason("");
     };
