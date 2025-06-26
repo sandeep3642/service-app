@@ -68,7 +68,6 @@ const ServiceDetails = () => {
     }
   }
 
-
   async function updateStatus() {
     try {
       setIsLoading(true);
@@ -88,6 +87,7 @@ const ServiceDetails = () => {
       console.log(error);
     } finally {
       setIsLoading(false);
+      getServiceRequestDataById(servieRequestDto?.serviceDetails?._id);
     }
   }
 
@@ -110,6 +110,7 @@ const ServiceDetails = () => {
       console.log(error);
     } finally {
       setIsLoading(false);
+      getServiceRequestActivities(servieRequestDto?.serviceDetails?._id);
     }
   }
 
@@ -476,7 +477,7 @@ const ServiceDetails = () => {
             />
             <div className="flex justify-end mt-3 sm:mt-4">
               <button
-                className="px-6 py-3 sm:py-4 w-full bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium cursor-pointer"
+                className="px-6 py-3 sm:py-4 w-full sm:w-40 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium cursor-pointer"
                 onClick={addNote}
               >
                 Add Note
@@ -501,6 +502,7 @@ const ServiceDetails = () => {
                     true
                   )
                 }
+                getServiceRequestActivities={getServiceRequestActivities}
                 hasMore={pagination.page < pagination.pages}
               />
             </div>

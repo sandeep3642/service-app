@@ -13,6 +13,7 @@ const ActivityLog = ({
   setIsLoading,
   hasMore,
   loadMore,
+  getServiceRequestActivities,
 }) => {
   // const timelineData =
   //   timelineData &&
@@ -38,6 +39,7 @@ const ActivityLog = ({
       console.log(error);
     } finally {
       setIsLoading(false);
+      getServiceRequestActivities(serviceRequestId);
     }
   }
 

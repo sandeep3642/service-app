@@ -38,7 +38,6 @@ export default function Index() {
   const [search, setSearch] = useState(null);
   const debouncedSearchTerm = useDebounce(search, 500);
 
-  
   const [currentRequestId, setCurrentRequestId] = useState(null);
   const [currentRequestStatus, setCurrentRequestStatus] = useState(null);
 
@@ -114,6 +113,7 @@ export default function Index() {
     activeTab === "service" ? serviceRequestData : sparePartData;
 
   const renderCellContent = (header, value, rowIndex) => {
+    console.log("header", header);
     if (header === "Status") {
       return (
         <span
@@ -219,7 +219,7 @@ export default function Index() {
           setOpenMenuIndex(null);
         }}
         className={`text-xs md:text-sm ${
-          header === "Case ID" ? "text-blue-700" : "text-gray-900"
+          header === "Case ID" ? "text-blue-700 cursor-pointer" : "text-gray-900"
         }`}
       >
         {value ? value : "NA"}
