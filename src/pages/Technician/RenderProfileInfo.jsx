@@ -14,10 +14,15 @@ const RenderProfileInfo = ({ profileData, fetchTechnicianDetailbyId }) => {
     const [showRejectModal, setShowRejectModal] = useState(false);
     const [documentId, setDocumetId] = useState("");
     const [rejectionReason, setRejectionReason] = useState("")
+    const [rejectedby, setRejectedby] = useState("")
+    const [rejectedAt, setRejectedAt] = useState("")
 
-    function showRejectionReasonModal(reason) {
+
+    function showRejectionReasonModal(reason, reviewedBy, reviewedAt) {
         setShowRejectionModal(true)
         setRejectionReason(reason)
+        setRejectedby(reviewedBy)
+        setRejectedAt(reviewedAt)
     }
 
     function handleCloseRejectionReson() {
@@ -144,6 +149,9 @@ const RenderProfileInfo = ({ profileData, fetchTechnicianDetailbyId }) => {
                                 const fileUrl = value?.fileUrl;
                                 const id = value?._id;
                                 const reason = value?.rejectedReason
+                                const reviewedBy = value?.reviewedBy
+                                const reviewedAt = formatDate(value?.reviewedAt)
+
                                 return (
                                     <DocumentCard
                                         key={key}
@@ -154,7 +162,7 @@ const RenderProfileInfo = ({ profileData, fetchTechnicianDetailbyId }) => {
                                         status={status}
                                         onApprove={() => handleApprove(id)}
                                         onReject={() => handleReject(id)}
-                                        showReason={() => showRejectionReasonModal(reason)}
+                                        showReason={() => showRejectionReasonModal(reason, reviewedBy, reviewedAt)}
                                     />
                                 );
                             })}
@@ -173,7 +181,7 @@ const RenderProfileInfo = ({ profileData, fetchTechnicianDetailbyId }) => {
                             status={profileData.selfie.status?.toLowerCase()}
                             onApprove={() => handleApprove(profileData.selfie._id)}
                             onReject={() => handleReject(profileData.selfie._id)}
-                            showReason={() => showRejectionReasonModal(profileData?.selfie?.rejectedReason)}
+                            showReason={() => showRejectionReasonModal(profileData?.selfie?.rejectedReason,profileData?.selfie?.reviewedBy,profileData?.selfie?.reviewedAt)}
                         />
                     </div>
                 )}
@@ -189,7 +197,7 @@ const RenderProfileInfo = ({ profileData, fetchTechnicianDetailbyId }) => {
                             status={profileData.policeVerification.status?.toLowerCase()}
                             onApprove={() => handleApprove(profileData.policeVerification._id)}
                             onReject={() => handleReject(profileData.policeVerification._id)}
-                            showReason={() => showRejectionReasonModal(profileData?.policeVerification?.rejectedReason)}
+                            showReason={() => showRejectionReasonModal(profileData?.policeVerification?.rejectedReason,profileData?.policeVerification?.reviewedBy,profileData?.policeVerification?.reviewedAt)}
                         />
                     </div>
                 )}
@@ -271,6 +279,8 @@ const RenderProfileInfo = ({ profileData, fetchTechnicianDetailbyId }) => {
                                 const certName = cert.name || `Certificate_${index + 1}`;
                                 const id = cert?._id;
                                 const reason = cert?.rejectedReason;
+                                 const reviewedBy = cert?.reviewedBy
+                                const reviewedAt = formatDate(cert?.reviewedAt)
                                 return (
                                     <DocumentCard
                                         key={id}
@@ -281,7 +291,7 @@ const RenderProfileInfo = ({ profileData, fetchTechnicianDetailbyId }) => {
                                         status={status}
                                         onApprove={() => handleApprove(id)}
                                         onReject={() => setShowRejectModal(id)}
-                                        showReason={() => showRejectionReasonModal(reason)}
+                                        showReason={() => showRejectionReasonModal(reason,reviewedBy,reviewedAt)}
                                     />
                                 );
                             })}
@@ -296,6 +306,8 @@ const RenderProfileInfo = ({ profileData, fetchTechnicianDetailbyId }) => {
                 profileData={profileData}
                 onClose={handleCloseRejectionReson}
                 rejectionReason={rejectionReason}
+                rejectedby={rejectedby}
+                rejectedAt={rejectedAt}
                 name="document"
             />
             <RejectDocumentModal

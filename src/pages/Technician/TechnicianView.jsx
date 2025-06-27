@@ -30,6 +30,8 @@ const TechnicianView = () => {
     const [showRejectionModal, setShowRejectionModal] = useState(false);
     const [showRejectModal, setShowRejectModal] = useState(false);
     const [rejectionReason, setRejectionReason] = useState("")
+    const [rejectedby, setRejectedby] = useState("")
+    const [rejectedAt, setRejectedAt] = useState("")
 
     const handleDelete = () => {
         setIsModalOpen(true)
@@ -45,9 +47,11 @@ const TechnicianView = () => {
     const handleModalClose = () => {
         setIsModalOpen(false);
     };
-    function showRejectionReasonModal(reason) {
+    function showRejectionReasonModal(reason, reviewedBy, reviewedAt) {
         setShowRejectionModal(true)
         setRejectionReason(reason)
+        setRejectedby(reviewedBy)
+        setRejectedAt(reviewedAt)
     }
 
     function handleCloseRejectionReson() {
@@ -173,6 +177,9 @@ const TechnicianView = () => {
                                 const reviewStatus = profileData?.profileSummary?.profileReview?.status;
                                 const isActive = profileData?.profileSummary?.isActive;
                                 const reason = profileData?.profileSummary?.profileReview?.rejectedReason;
+                                const reviewedBy = profileData?.profileSummary?.profileReview?.reviewedBy
+                                const reviewedAt = formatDate(profileData?.profileSummary?.profileReview?.reviewedAt)
+                                console.log("reviewedAt",reviewedAt)
                                 {
                                     if (['SUBMITTED', 'UNDER_REVIEW'].includes(reviewStatus))
                                         return (
@@ -201,7 +208,7 @@ const TechnicianView = () => {
                                             <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                                                 <p className="text-red-500 font-medium text-sm sm:text-base">Rejected</p>
                                                 <button
-                                                    onClick={() => showRejectionReasonModal(reason)}
+                                                    onClick={() => showRejectionReasonModal(reason,reviewedBy,reviewedAt)}
                                                     className="text-blue-600 underline text-sm sm:text-base hover:text-blue-800"
                                                 >
                                                     See Why?
@@ -251,6 +258,8 @@ const TechnicianView = () => {
                 profileData={profileData}
                 onClose={handleCloseRejectionReson}
                 rejectionReason={rejectionReason}
+                rejectedby={rejectedby}
+                rejectedAt={rejectedAt}
                 name="technician"
             />
             <RejectDocumentModal
