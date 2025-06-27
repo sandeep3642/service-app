@@ -15,8 +15,8 @@ import { getMessageName } from '../../utilty/messageConstant';
 import RenderProfileInfo from './RenderProfileInfo';
 import RenderServiceHistory from './RenderServiceHistory';
 import RenderPerformanceMetrics from './RenderPerformanceMetrics';
-import RejectionReasonModal from './RejectionReasonModal';
-import RejectDocumentModal from './RejectDocumentModal';
+import RejectionReasonModal from '../../components/RejectionReasonModal';
+import RejectDocumentModal from '../../components/RejectDocumentModal';
 
 const TechnicianView = () => {
     const location = useLocation()
@@ -30,6 +30,8 @@ const TechnicianView = () => {
     const [showRejectionModal, setShowRejectionModal] = useState(false);
     const [showRejectModal, setShowRejectModal] = useState(false);
     const [rejectionReason, setRejectionReason] = useState("")
+    const [rejectedby, setRejectedby] = useState("")
+    const [rejectedAt, setRejectedAt] = useState("")
 
     const handleDelete = () => {
         setIsModalOpen(true)
@@ -45,9 +47,11 @@ const TechnicianView = () => {
     const handleModalClose = () => {
         setIsModalOpen(false);
     };
-    function showRejectionReasonModal(reason) {
+    function showRejectionReasonModal(reason, reviewedBy, reviewedAt) {
         setShowRejectionModal(true)
         setRejectionReason(reason)
+        setRejectedby(reviewedBy)
+        setRejectedAt(reviewedAt)
     }
 
     function handleCloseRejectionReson() {
@@ -173,12 +177,14 @@ const TechnicianView = () => {
                                 const reviewStatus = profileData?.profileSummary?.profileReview?.status;
                                 const isActive = profileData?.profileSummary?.isActive;
                                 const reason = profileData?.profileSummary?.profileReview?.rejectedReason;
-                                console.log(reason)
+                                const reviewedBy = profileData?.profileSummary?.profileReview?.reviewedBy
+                                const reviewedAt = formatDate(profileData?.profileSummary?.profileReview?.reviewedAt)
+                                console.log("reviewedAt",reviewedAt)
                                 {
                                     if (['SUBMITTED', 'UNDER_REVIEW'].includes(reviewStatus))
                                         return (
                                             <div className="flex flex-row flex-wrap gap-2 sm:gap-4">
-                                                <p className='text-black  px-3 sm:px-4 py-2 rounded text-sm sm:text-base'>{reviewStatus}</p>
+                                                <p className='text-black  px-3 sm:px-4 py-2 rounded text-sm sm:text-base'>{getMessageName(reviewStatus)}</p>
                                                 <button
                                                     onClick={handleApprove}
                                                     className="bg-green-600 text-white px-3 sm:px-4 py-2 rounded text-sm sm:text-base"
@@ -202,7 +208,7 @@ const TechnicianView = () => {
                                             <div className="flex flex-wrap items-center gap-2 sm:gap-4">
                                                 <p className="text-red-500 font-medium text-sm sm:text-base">Rejected</p>
                                                 <button
-                                                    onClick={() => showRejectionReasonModal(reason)}
+                                                    onClick={() => showRejectionReasonModal(reason,reviewedBy,reviewedAt)}
                                                     className="text-blue-600 underline text-sm sm:text-base hover:text-blue-800"
                                                 >
                                                     See Why?
@@ -252,6 +258,8 @@ const TechnicianView = () => {
                 profileData={profileData}
                 onClose={handleCloseRejectionReson}
                 rejectionReason={rejectionReason}
+                rejectedby={rejectedby}
+                rejectedAt={rejectedAt}
                 name="technician"
             />
             <RejectDocumentModal

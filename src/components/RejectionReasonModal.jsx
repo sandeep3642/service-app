@@ -1,10 +1,12 @@
 // components/RejectionReasonModal.jsx
 import React from "react";
-import showDoc from '../../assets/showdoc.png'
+import showDoc from '../assets/showdoc.png'
 import { X } from "lucide-react";
+import { useUser } from "../context/UserContext";
 
-const RejectionReasonModal = ({ isOpen, onClose, rejectionReason,name }) => {
+const RejectionReasonModal = ({ isOpen, onClose, rejectionReason,rejectedby,rejectedAt,name }) => {
   if (!isOpen) return null;
+  const { user } = useUser();
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -42,11 +44,14 @@ const RejectionReasonModal = ({ isOpen, onClose, rejectionReason,name }) => {
         <div className="mt-6 text-center">
           <button
             onClick={onClose}
-            className="border-gray-800 border text-black font-medium px-4 py-2 rounded "
+            className="border-gray-800 border text-black font-medium px-5 py-2 rounded-lg "
           >
             Cancel
           </button>
         </div>
+         <p className="text-sm text-center text-gray-600 mt-5">
+           Rejected by Admin  {user?.firstName} {user?.lastName} on {rejectedAt}
+          </p>
       </div>
     </div>
   );
