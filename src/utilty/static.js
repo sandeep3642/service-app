@@ -31,6 +31,7 @@ export const CONTROLLABLE_STATUSES = [
   "SERVICE_COMPLETED",
   "SERVICE_CANCELLED",
   "SERVICE_RESCHEDULED",
+  "Pending"
 ];
 
 export const TABS = [

@@ -3,7 +3,7 @@ import React from "react";
 import showDoc from '../../assets/showdoc.png'
 import { X } from "lucide-react";
 
-const RejectionReasonModal = ({ isOpen, onClose, rejectionReason }) => {
+const RejectionReasonModal = ({ isOpen, onClose, rejectionReason,name }) => {
   if (!isOpen) return null;
 
   return (
@@ -32,7 +32,7 @@ const RejectionReasonModal = ({ isOpen, onClose, rejectionReason }) => {
             className="w-16 h-16 mb-4"
           />
           <h2 className="text-lg font-semibold mb-2 text-center text-black">
-            Why was this document rejected?
+            Why was this {name} rejected?
           </h2>
           <p className="text-sm text-center text-gray-600">
             {rejectionReason}
