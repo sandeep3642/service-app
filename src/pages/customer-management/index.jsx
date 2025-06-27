@@ -7,6 +7,7 @@ import DeleteModal from "../../components/DeleteModal";
 import { getAllCustomerList } from "./customerService";
 import Loader from "../../utilty/Loader";
 import GlobalPagination from "../../components/GlobalPagination";
+import { useNavigate } from "react-router-dom";
 
 const customerHeaders = [
     { key: 'name', label: 'Name' },
@@ -29,6 +30,7 @@ const CustomerManagement = () => {
     const [currentPage, setCurrentPage] = useState(1);
     const [rowsPerPage, setRowsPerPage] = useState(10);
     const [totalItems, setTotalItems] = useState(0);
+    const navigate = useNavigate();
 
     const fetchCustomers = async (page = 1, limit = 10) => {
         try {
@@ -88,13 +90,17 @@ const CustomerManagement = () => {
                 // Handle inactive action
                 console.log('Setting customer inactive:', row);
                 break;
+            case 'View Detail':
+                // Handle inactive action
+                navigate("/customer-view", { state: row._id });
+                break;
 
             default:
                 console.log('Unknown action:', action);
         }
     };
 
-    if (loading) <Loader/>
+    if (loading) <Loader />
 
     if (error) {
         return (

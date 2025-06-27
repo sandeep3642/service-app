@@ -62,7 +62,16 @@ const ActivityLog = ({
         Estimated delivery: May 06, 2025
       </span> */}
       </div>
-
+      {hasMore && (
+        <div className="flex justify-center mt-6">
+          <button
+            onClick={loadMore}
+            className="px-6 py-2 text-sm font-medium bg-gray-100 text-blue-600 rounded-md hover:bg-gray-200"
+          >
+            Load Previous
+          </button>
+        </div>
+      )}
       {/* Timeline */}
       <div className="relative space-y-4 sm:space-y-6 mt-4 sm:mt-5 ml-1 sm:ml-2">
         {timelineData &&
@@ -75,8 +84,8 @@ const ActivityLog = ({
                     item?.performedBy?.type === "CUSTOMER"
                       ? CustomerIcon
                       : item?.performedBy?.type === "ADMIN"
-                      ? AdminIcon
-                      : TechnicianIcon
+                        ? AdminIcon
+                        : TechnicianIcon
                   }
                   alt=""
                   className="h-6 w-6 sm:h-8 sm:w-8"
@@ -100,16 +109,7 @@ const ActivityLog = ({
               </div>
             </div>
           ))}
-        {hasMore && (
-          <div className="flex justify-center mt-6">
-            <button
-              onClick={loadMore}
-              className="px-6 py-2 text-sm font-medium bg-gray-100 text-blue-600 rounded-md hover:bg-gray-200"
-            >
-              Load More
-            </button>
-          </div>
-        )}
+
       </div>
 
       {/* Add Internal Note Section */}

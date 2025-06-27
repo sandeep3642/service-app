@@ -85,7 +85,7 @@ const DataTable = ({
 
   // Render cell content with special handling for status, dates, and actions
   const renderCell = (value, key, row, index) => {
-    if (name === "Technician List" && key === "name") {
+    if ( key === "name") {
       return (
         <span
           className="text-blue-500 cursor-pointer hover:underline"
