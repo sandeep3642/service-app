@@ -8,6 +8,7 @@ import {
 import { getMessageName } from "../../utilty/messageConstant";
 import { getTimeToResponse } from "../../utilty/common";
 import { getStatusBadge } from "../../utilty/globalStatus";
+import { renderStars } from "../../components/StarRating";
 
 export default function TechnicianAllocationDialog({
   isOpen,
@@ -80,17 +81,7 @@ export default function TechnicianAllocationDialog({
       getTechniciansResponseList(id);
   }, [id]);
 
-  const renderStars = (rating) => {
-    return [...Array(5)].map((_, index) => (
-      <Star
-        key={index}
-        size={12}
-        className={`${
-          index < rating ? "fill-yellow-400 text-yellow-400" : "text-gray-300"
-        }`}
-      />
-    ));
-  };
+  
 
   if (!isOpen) return null;
 
