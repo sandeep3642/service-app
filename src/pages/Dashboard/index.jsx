@@ -9,7 +9,7 @@ import PendingIcon from "../../assets/pending.png";
 import CompletedIcon from "../../assets/completed.png";
 import CancelIcon from "../../assets/cancel.png";
 import ProgressBar from "./Progressbar";
-import StatsCard from "./StatsCard";
+import StatsCard from "../../components/StatsCard";
 import ServiceRequestTable from "./ServiceRequestTable";
 import TechnicianPerformance from "./TechnicianPerformance";
 
