@@ -15,8 +15,8 @@ import { getMessageName } from '../../utilty/messageConstant';
 import RenderProfileInfo from './RenderProfileInfo';
 import RenderServiceHistory from './RenderServiceHistory';
 import RenderPerformanceMetrics from './RenderPerformanceMetrics';
-import RejectionReasonModal from './RejectionReasonModal';
-import RejectDocumentModal from './RejectDocumentModal';
+import RejectionReasonModal from '../../components/RejectionReasonModal';
+import RejectDocumentModal from '../../components/RejectDocumentModal';
 
 const TechnicianView = () => {
     const location = useLocation()
@@ -173,12 +173,11 @@ const TechnicianView = () => {
                                 const reviewStatus = profileData?.profileSummary?.profileReview?.status;
                                 const isActive = profileData?.profileSummary?.isActive;
                                 const reason = profileData?.profileSummary?.profileReview?.rejectedReason;
-                                console.log(reason)
                                 {
                                     if (['SUBMITTED', 'UNDER_REVIEW'].includes(reviewStatus))
                                         return (
                                             <div className="flex flex-row flex-wrap gap-2 sm:gap-4">
-                                                <p className='text-black  px-3 sm:px-4 py-2 rounded text-sm sm:text-base'>{reviewStatus}</p>
+                                                <p className='text-black  px-3 sm:px-4 py-2 rounded text-sm sm:text-base'>{getMessageName(reviewStatus)}</p>
                                                 <button
                                                     onClick={handleApprove}
                                                     className="bg-green-600 text-white px-3 sm:px-4 py-2 rounded text-sm sm:text-base"

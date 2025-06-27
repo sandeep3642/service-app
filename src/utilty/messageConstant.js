@@ -95,7 +95,8 @@ export const getMessageName = (status) => {
     aadhaar_front: "Aadhar Card Front View",
 
     SERVICE_CONFIRMED:"Service Confirmed",
-    TECHNICIAN_ACCEPTED:"Technician Accepted"
+    TECHNICIAN_ACCEPTED:"Technician Accepted",
+    UNDER_REVIEW : "Under Review"
   };
 
   return messageName[status] || status;

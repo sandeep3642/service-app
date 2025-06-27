@@ -1,6 +1,6 @@
 // components/RejectionReasonModal.jsx
 import React from "react";
-import showDoc from '../../assets/showdoc.png'
+import showDoc from '../assets/showdoc.png'
 import { X } from "lucide-react";
 
 const RejectionReasonModal = ({ isOpen, onClose, rejectionReason,name }) => {
