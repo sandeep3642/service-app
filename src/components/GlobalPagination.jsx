@@ -5,7 +5,7 @@ export default function GlobalPagination({
   rowsPerPage,
   onRowsPerPageChange,
 }) {
-  const rowsPerPageOptions = [10, 20, 50];
+  const rowsPerPageOptions = [5, 10, 20, 50];
 
   return (
     <div className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:justify-between sm:items-center">

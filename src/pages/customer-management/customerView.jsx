@@ -1,47 +1,59 @@
-import { useState } from "react";
-import {
-  User,
-  CreditCard,
-  Settings,
-  MessageSquare,
-  Calendar,
-} from "lucide-react";
-import StatsCard from "../../components/StatsCard";
-import EarningIcon from "../../assets/tech.png";
-import JobsIcon from "../../assets/jobs.png";
-import TechIcon from "../../assets/config.png";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import CalendarIcon from "../../assets/calendar.png";
+import TechIcon from "../../assets/config.png";
+import JobsIcon from "../../assets/jobs.png";
+import EarningIcon from "../../assets/tech.png";
+import StatsCard from "../../components/StatsCard";
 import DataTable from "../../components/Table";
+import {
+  getCustomerDetails,
+  getCustomerRequestStats,
+  getCustomerServiceRequest,
+} from "./customerService";
+import { formatDate } from "../../utilty/common";
+import GlobalPagination from "../../components/GlobalPagination";
 
 const CustomerView = () => {
+  const location = useLocation();
+  const [customerId, setCustomerId] = useState(null);
+  const [customerDetails, setCustomerDetails] = useState(null);
+  const [customerServices, setCustomerServices] = useState([]);
   const [activeTab, setActiveTab] = useState("Overview");
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [customerServiceStats, setCustomerServiceStats] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [totalItems, setTotalItems] = useState(0);
   const stats = [
     {
       icon: EarningIcon,
       title: "Services Ordered",
-      value: "14",
+      value: customerServiceStats?.totalServiceRequests ?? "—",
       subtitle: "Till Date",
       subtitleColor: "green",
     },
     {
       icon: JobsIcon,
       title: "Total Amount Paid",
-      value: "₹12,300",
+      value:
+        customerServiceStats?.totalAmountPaid != null
+          ? `₹ ${customerServiceStats.totalAmountPaid}`
+          : "₹ 0",
       subtitle: "",
       subtitleColor: "",
     },
     {
       icon: TechIcon,
       title: "Active Requests",
-      value: "2",
+      value: customerServiceStats?.activeRequests ?? "—",
       subtitle: "In Progress",
       subtitleColor: "green",
     },
     {
       icon: CalendarIcon,
       title: "Last Service Date",
-      value: "May 12, 2025",
+      value: formatDate(customerServiceStats?.lastServiceDate),
       subtitle: "",
       subtitleColor: "",
     },
@@ -62,7 +74,7 @@ const CustomerView = () => {
           </label>
           <input
             type="text"
-            value="Prashant Kumar Singh"
+            value={customerDetails?.name}
             readOnly
             className="w-full p-3 border border-[#DDDDDD] rounded-lg text-gray-900"
           />
@@ -75,7 +87,7 @@ const CustomerView = () => {
             </label>
             <input
               type="email"
-              value="prashanttt@gmail.com"
+              value={customerDetails?.email}
               readOnly
               className="w-full p-3 border border-[#DDDDDD] rounded-lg  text-gray-900"
             />
@@ -87,7 +99,7 @@ const CustomerView = () => {
             </label>
             <input
               type="tel"
-              value="+91 8009396321"
+              value={`${customerDetails?.countryCode} ${customerDetails?.phoneNumber}`}
               readOnly
               className="w-full p-3 border border-[#DDDDDD] rounded-lg  text-gray-900"
             />
@@ -100,7 +112,7 @@ const CustomerView = () => {
           </label>
           <input
             type="text"
-            value="6/7 Vipul Square, Sector Road, Block B, Sushant Lok 1 ,Gurgaon, 122002, India"
+            value={customerDetails?.address}
             readOnly
             className="w-full p-3 border border-[#DDDDDD] rounded-lg  text-gray-900"
           />
@@ -114,50 +126,31 @@ const CustomerView = () => {
       <DataTable
         actionColumn={true}
         actionMenu={["View", "Edit", "Delete"]}
-        data={[
-          {
-            requestId: "REQ001",
-            requestDate: "2025-06-25",
-            product: "Washing Machine",
-            issue: "Not spinning",
-            technician: "Ramesh Kumar",
-            isActive: "Pending",
-            amountPaid: 500,
-            action: "View",
-          },
-          {
-            requestId: "REQ002",
-            requestDate: "2025-06-24",
-            product: "Refrigerator",
-            issue: "Cooling issue",
-            technician: "Suresh Singh",
-            isActive: "Completed",
-            amountPaid: 1200,
-            action: "Invoice",
-          },
-          {
-            requestId: "REQ003",
-            requestDate: "2025-06-23",
-            product: "Microwave Oven",
-            issue: "Power failure",
-            technician: "Anil Mehta",
-            isActive: "Active",
-            amountPaid: 800,
-            action: "Track",
-          },
-        ]}
+        data={customerServices}
         headers={[
-          { key: "requestId", label: "Request ID" },
+          { key: "caseId", label: "Case ID" },
           { key: "requestDate", label: "Request Date" },
-          { key: "product", label: "Product" },
-          { key: "issue", label: "Issue" },
-          { key: "technician", label: "Technician" },
-          { key: "isActive", label: "Status" },
+          { key: "productName", label: "Product" },
+          { key: "issueDescription", label: "Issue" },
+          { key: "technicianName", label: "Technician" },
+          { key: "status", label: "Status" },
           { key: "amountPaid", label: "Amount Paid" },
         ]}
         searchable={true}
         name={"Service Request"}
       />
+      <div className="px-3 md:px-0">
+        <GlobalPagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(totalItems / rowsPerPage)}
+          onPageChange={(page) => setCurrentPage(page)}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={(value) => {
+            setRowsPerPage(value);
+            setCurrentPage(1);
+          }}
+        />
+      </div>
     </div>
   );
 
@@ -244,8 +237,8 @@ const CustomerView = () => {
           { key: "rating", label: "Rating" },
           { key: "comments", label: "Comments" },
         ]}
-        searchable={true}
-        name={"Service Request"}
+        searchable={false}
+        
       />
     </div>
   );
@@ -264,6 +257,67 @@ const CustomerView = () => {
         return <OverviewComponent />;
     }
   };
+
+  async function fetchCustomerDetails(id = "68511ec27f4ac87dc669d0b2") {
+    try {
+      setIsLoading(true);
+      const response = await getCustomerDetails(id);
+      const { status, details } = response;
+      if (status.success && details?.customer) {
+        setCustomerDetails(details?.customer);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function fetchCustomerServices(id = "68511ec27f4ac87dc669d0b2") {
+    try {
+      setIsLoading(true);
+      const response = await getCustomerServiceRequest(
+        id,
+        currentPage,
+        rowsPerPage
+      );
+      const { status, details } = response;
+      if (status.success && details?.serviceRequests) {
+        setCustomerServices(details?.serviceRequests);
+        setTotalItems(details.pagination?.total || 0);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function fetchCustomerRequestStats(id = "68511ec27f4ac87dc669d0b2") {
+    try {
+      setIsLoading(true);
+      const response = await getCustomerRequestStats(id);
+      const { status, details } = response;
+      if (status.success && details?.stats) {
+        setCustomerServiceStats(details?.stats);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    if (location?.state) {
+      fetchCustomerDetails(location?.state);
+      fetchCustomerRequestStats(location?.state);
+    }
+  }, [location]);
+
+  useEffect(() => {
+    if (location?.state) fetchCustomerServices(location?.state);
+  }, [currentPage, rowsPerPage]);
 
   return (
     <div className="w-full p-6 bg-white">

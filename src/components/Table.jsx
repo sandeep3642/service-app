@@ -1,18 +1,9 @@
 import React, { useState } from "react";
-import {
-  ChevronUp,
-  ChevronDown,
-  Search,
-  Eye,
-  Edit,
-  Trash2,
-  MoreHorizontal,
-  MoreVertical,
-  Star,
-} from "lucide-react";
+import { MoreVertical } from "lucide-react";
 import SearchIcon from ".././assets/search.png";
-import { getStatusBadge } from "../utilty/globalStatus";
 import { formatDate } from "../utilty/common";
+import { getStatusBadge } from "../utilty/globalStatus";
+import { getMessageName } from "../utilty/messageConstant";
 import { renderStars } from "./StarRating";
 
 // Reusable Table Component
@@ -20,7 +11,6 @@ const DataTable = ({
   headers = [],
   data = [],
   searchable = true,
-  sortable = true,
   actionColumn = false,
   onRowAction = null,
   emptyMessage = "No data available",
@@ -85,7 +75,10 @@ const DataTable = ({
 
   // Render cell content with special handling for status, dates, and actions
   const renderCell = (value, key, row, index) => {
-    if (name === "Technician List" && key === "name") {
+    if (
+      name === "Technician List" ||
+      (name === "Customer List" && key === "name")
+    ) {
       return (
         <span
           className="text-blue-500 cursor-pointer hover:underline"
@@ -97,7 +90,7 @@ const DataTable = ({
     }
     if (key.includes("isActive")) {
       let displayValue = value;
-      // Handle boolean values
+
       if (typeof value === "boolean") {
         displayValue = value ? "Active" : "Inactive";
       }
@@ -121,7 +114,7 @@ const DataTable = ({
       return <div className="flex">{renderStars(value)}</div>;
     }
 
-    return value ?? "NA";
+    return getMessageName(value) ?? "NA";
   };
 
   // Mobile Card Component
@@ -177,28 +170,36 @@ const DataTable = ({
         className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}
       >
         {/* Header Section */}
-        <div className="px-4 sm:px-6 py-2 border-gray-200">
+        <div
+          className={`px-4 sm:px-6  ${
+            searchable || name ? "py-2" : ""
+          }`}
+        >
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
             {/* Left side - Title */}
-            <div className="flex items-center space-x-6">
-              <h1 className="text-lg font-medium text-gray-600">{name}</h1>
-            </div>
+            {name && (
+              <div className="flex items-center space-x-6">
+                <h1 className="text-lg font-medium text-gray-600">{name}</h1>
+              </div>
+            )}
 
             {/* Right side - Search Bar */}
-            <div className="relative">
-              <img
-                src={SearchIcon}
-                alt="search"
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"
-              />
-              <input
-                type="text"
-                placeholder="Search"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="text-[#656565] font-medium pl-12 pr-4 py-1 border border-[#DDDDDD] rounded-lg w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
+            {searchable && (
+              <div className="relative">
+                <img
+                  src={SearchIcon}
+                  alt="search"
+                  className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4"
+                />
+                <input
+                  type="text"
+                  placeholder="Search"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="text-[#656565] font-medium pl-12 pr-4 py-1 border border-[#DDDDDD] rounded-lg w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            )}
           </div>
         </div>
 

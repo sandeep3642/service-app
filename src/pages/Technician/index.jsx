@@ -68,7 +68,7 @@ const Technician = () => {
   }, [debouncedSearchTerm, currentPage, rowsPerPage]);
 
   const handleRowAction = (row, mode) => {
-    console.log(mode);
+   
     if (mode === "View Detail") {
       navigate("/technician-view", { state: row._id });
     }
