@@ -76,8 +76,8 @@ const DataTable = ({
   // Render cell content with special handling for status, dates, and actions
   const renderCell = (value, key, row, index) => {
     if (
-      name === "Technician List" ||
-      (name === "Customer List" && key === "name")
+      (name === "Technician List" || name === "Customer List") &&
+      key === "name"
     ) {
       return (
         <span
@@ -170,11 +170,7 @@ const DataTable = ({
         className={`bg-white rounded-lg shadow-sm border border-gray-200 ${className}`}
       >
         {/* Header Section */}
-        <div
-          className={`px-4 sm:px-6  ${
-            searchable || name ? "py-2" : ""
-          }`}
-        >
+        <div className={`px-4 sm:px-6  ${searchable || name ? "py-2" : ""}`}>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-3 sm:space-y-0">
             {/* Left side - Title */}
             {name && (
