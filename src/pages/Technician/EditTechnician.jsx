@@ -1,5 +1,5 @@
+import { X } from "lucide-react";
 import { useState } from "react";
-import { Edit3, Save, X } from "lucide-react";
 
 export default function EditTechnician({ onClose }) {
   const [isEditing, setIsEditing] = useState(false);

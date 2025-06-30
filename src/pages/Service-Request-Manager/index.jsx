@@ -113,7 +113,34 @@ export default function Index() {
     activeTab === "service" ? serviceRequestData : sparePartData;
 
   const renderCellContent = (header, value, rowIndex) => {
-    console.log("header", header);
+    if (header === "Product Issue") {
+      const isLongText = value?.length > 30;
+      const previewText = value?.slice(0, 30);
+
+      return (
+        <div className="text-xs md:text-sm text-gray-900">
+          {previewText}
+          {isLongText && (
+            <span
+
+              className="text-blue-600 cursor-default"
+              onClick={() => {
+                const id =
+                  activeTab === "service"
+                    ? serviceRequestData.rows[rowIndex]._id
+                    : null;
+                if (id) {
+                  navigate("/service-detail", { state: id });
+                }
+              }
+              }
+
+            >... Show more</span>
+          )}
+
+        </div>
+      );
+    }
     if (header === "Status") {
       return (
         <span
@@ -172,11 +199,11 @@ export default function Index() {
                       display:
                         serviceRequestData?.rows[rowIndex]?.status ===
                           "ACCEPTED_BY_TECHNICIAN" ||
-                        serviceRequestData?.rows[rowIndex]?.status ===
+                          serviceRequestData?.rows[rowIndex]?.status ===
                           "ASSIGNED_TO_TECHNICIAN" ||
-                        serviceRequestData?.rows[rowIndex]?.status ===
+                          serviceRequestData?.rows[rowIndex]?.status ===
                           "CONFIRMED" ||
-                        serviceRequestData?.rows[rowIndex]?.status ===
+                          serviceRequestData?.rows[rowIndex]?.status ===
                           "WAITING_FOR_ASSIGNMENT"
                           ? "inline-block"
                           : "none",
@@ -185,7 +212,7 @@ export default function Index() {
                   >
                     {serviceRequestData?.rows[rowIndex]?.status ===
                       "ACCEPTED_BY_TECHNICIAN" ||
-                    serviceRequestData?.rows[rowIndex]?.status ===
+                      serviceRequestData?.rows[rowIndex]?.status ===
                       "ASSIGNED_TO_TECHNICIAN"
                       ? "Track Technician"
                       : "Assign Technician"}
@@ -218,9 +245,8 @@ export default function Index() {
           }
           setOpenMenuIndex(null);
         }}
-        className={`text-xs md:text-sm ${
-          header === "Case ID" ? "text-blue-700 cursor-pointer" : "text-gray-900"
-        }`}
+        className={`text-xs md:text-sm ${header === "Case ID" ? "text-blue-700 cursor-pointer" : "text-gray-900"
+          }`}
       >
         {value ? value : "NA"}
       </span>
@@ -304,16 +330,16 @@ export default function Index() {
                           style={{
                             display:
                               row.status === "ACCEPTED_BY_TECHNICIAN" ||
-                              row.status === "ASSIGNED_TO_TECHNICIAN" ||
-                              row.status === "CONFIRMED" ||
-                              row.status === "WAITING_FOR_ASSIGNMENT"
+                                row.status === "ASSIGNED_TO_TECHNICIAN" ||
+                                row.status === "CONFIRMED" ||
+                                row.status === "WAITING_FOR_ASSIGNMENT"
                                 ? "block"
                                 : "none",
                           }}
                           className="block w-full px-4 py-2 hover:bg-gray-100 text-left text-xs"
                         >
                           {row.status === "ACCEPTED_BY_TECHNICIAN" ||
-                          row.status === "ASSIGNED_TO_TECHNICIAN"
+                            row.status === "ASSIGNED_TO_TECHNICIAN"
                             ? "Track Technician"
                             : "Assign Technician"}
                         </button>
@@ -438,21 +464,19 @@ export default function Index() {
         <div className="flex w-full md:w-auto">
           <button
             onClick={() => setActiveTab("service")}
-            className={`flex-1 md:flex-none px-3 md:px-4 py-2 font-medium text-xs md:text-sm border-b-2 cursor-pointer transition-colors ${
-              activeTab === "service"
-                ? "border-[#267596] text-[#267596] bg-[#F6F6F6]"
-                : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
+            className={`flex-1 md:flex-none px-3 md:px-4 py-2 font-medium text-xs md:text-sm border-b-2 cursor-pointer transition-colors ${activeTab === "service"
+              ? "border-[#267596] text-[#267596] bg-[#F6F6F6]"
+              : "border-transparent text-gray-500 hover:text-gray-700"
+              }`}
           >
             Service Request
           </button>
           <button
             onClick={() => setActiveTab("spare")}
-            className={`flex-1 md:flex-none px-3 md:px-4 py-2 font-medium text-xs md:text-sm border-b-2 cursor-pointer transition-colors ${
-              activeTab === "spare"
-                ? "border-[#267596] text-[#267596] bg-[#F6F6F6]"
-                : "border-transparent text-gray-500 hover:text-gray-700"
-            }`}
+            className={`flex-1 md:flex-none px-3 md:px-4 py-2 font-medium text-xs md:text-sm border-b-2 cursor-pointer transition-colors ${activeTab === "spare"
+              ? "border-[#267596] text-[#267596] bg-[#F6F6F6]"
+              : "border-transparent text-gray-500 hover:text-gray-700"
+              }`}
           >
             Spare Part Request
           </button>
@@ -510,8 +534,8 @@ export default function Index() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {currentData &&
-              currentData.rows &&
-              currentData.rows.length > 0 ? (
+                currentData.rows &&
+                currentData.rows.length > 0 ? (
                 currentData.rows.map((row, rowIndex) => (
                   <tr
                     key={rowIndex}

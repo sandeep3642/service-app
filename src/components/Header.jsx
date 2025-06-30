@@ -5,7 +5,10 @@ import { useUser } from "../context/UserContext";
 
 const Header = ({ sidebarOpen, setSidebarOpen }) => {
   const { user } = useUser();
-
+  const hanleLogout = () => {
+    localStorage.clear()
+    window.location.reload()
+  }
   return (
     <div className="bg-white px-4 lg:px-6 py-3 lg:py-4 flex items-center justify-between  min-w-0">
       {/* Left section with hamburger and search */}
@@ -55,7 +58,7 @@ const Header = ({ sidebarOpen, setSidebarOpen }) => {
             <div className="text-gray-500 text-xs truncate">{user?.email}</div>
           </div>
 
-          <ChevronDown className="w-4 h-4 lg:w-6 lg:h-6 text-gray-800 flex-shrink-0" />
+          <ChevronDown onClick={hanleLogout} className="w-4 h-4 lg:w-6 lg:h-6 text-gray-800 flex-shrink-0" />
         </div>
       </div>
     </div>
