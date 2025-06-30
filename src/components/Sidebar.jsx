@@ -9,7 +9,7 @@ import ServiceRequestIcon from "../assets/service-req.png";
 import ComplaintIcon from "../assets/complaint.png";
 import EarningIcons from "../assets/earning.png";
 import SettingsIcon from "../assets/setting.png";
-import LogoIcon from "../assets/logo.png";
+import LogoIcon from "../assets/Logo.png";
 
 const Sidebar = ({
   activeItem,

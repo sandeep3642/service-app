@@ -134,7 +134,34 @@ export default function Index() {
     activeTab === "service" ? serviceRequestData : sparePartData;
 
   const renderCellContent = (header, value, rowIndex) => {
-    console.log("header", header);
+    if (header === "Product Issue") {
+      const isLongText = value?.length > 30;
+      const previewText = value?.slice(0, 30);
+
+      return (
+        <div className="text-xs md:text-sm text-gray-900">
+          {previewText}
+          {isLongText && (
+            <span
+
+              className="text-blue-600 cursor-default"
+              onClick={() => {
+                const id =
+                  activeTab === "service"
+                    ? serviceRequestData.rows[rowIndex]._id
+                    : null;
+                if (id) {
+                  navigate("/service-detail", { state: id });
+                }
+              }
+              }
+
+            >... Show more</span>
+          )}
+
+        </div>
+      );
+    }
     if (header === "Status") {
       return (
         <span
@@ -195,11 +222,11 @@ export default function Index() {
                       display:
                         serviceRequestData?.rows[rowIndex]?.status ===
                           "ACCEPTED_BY_TECHNICIAN" ||
-                        serviceRequestData?.rows[rowIndex]?.status ===
+                          serviceRequestData?.rows[rowIndex]?.status ===
                           "ASSIGNED_TO_TECHNICIAN" ||
-                        serviceRequestData?.rows[rowIndex]?.status ===
+                          serviceRequestData?.rows[rowIndex]?.status ===
                           "CONFIRMED" ||
-                        serviceRequestData?.rows[rowIndex]?.status ===
+                          serviceRequestData?.rows[rowIndex]?.status ===
                           "WAITING_FOR_ASSIGNMENT"
                           ? "inline-block"
                           : "none",
@@ -208,7 +235,7 @@ export default function Index() {
                   >
                     {serviceRequestData?.rows[rowIndex]?.status ===
                       "ACCEPTED_BY_TECHNICIAN" ||
-                    serviceRequestData?.rows[rowIndex]?.status ===
+                      serviceRequestData?.rows[rowIndex]?.status ===
                       "ASSIGNED_TO_TECHNICIAN"
                       ? "Track Technician"
                       : "Assign Technician"}
@@ -369,16 +396,16 @@ export default function Index() {
                           style={{
                             display:
                               row.status === "ACCEPTED_BY_TECHNICIAN" ||
-                              row.status === "ASSIGNED_TO_TECHNICIAN" ||
-                              row.status === "CONFIRMED" ||
-                              row.status === "WAITING_FOR_ASSIGNMENT"
+                                row.status === "ASSIGNED_TO_TECHNICIAN" ||
+                                row.status === "CONFIRMED" ||
+                                row.status === "WAITING_FOR_ASSIGNMENT"
                                 ? "block"
                                 : "none",
                           }}
                           className="block w-full px-4 py-2 hover:bg-gray-100 text-left text-xs"
                         >
                           {row.status === "ACCEPTED_BY_TECHNICIAN" ||
-                          row.status === "ASSIGNED_TO_TECHNICIAN"
+                            row.status === "ASSIGNED_TO_TECHNICIAN"
                             ? "Track Technician"
                             : "Assign Technician"}
                         </button>
@@ -632,8 +659,8 @@ export default function Index() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {currentData &&
-              currentData.rows &&
-              currentData.rows.length > 0 ? (
+                currentData.rows &&
+                currentData.rows.length > 0 ? (
                 currentData.rows.map((row, rowIndex) => (
                   <tr
                     key={rowIndex}

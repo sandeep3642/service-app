@@ -1,10 +1,10 @@
-import React, { useState } from "react";
-import HeroImage from "../../assets/hero.png";
-import LogoImage from "../../assets/logo.png";
-import { loginUser } from "./loginService";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import HeroImage from "../../assets/hero.png";
+import LogoImage from "../../assets/Logo.png";
 import Loader from "../../utilty/Loader";
+import { loginUser } from "./loginService";
 
 const Login = () => {
   const navigate = useNavigate();
