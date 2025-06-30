@@ -2,7 +2,10 @@ import React, { useState, useEffect, useRef, act } from "react";
 import { Search, Eye, MoreVertical, Menu, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import TechnicianAllocationDialog from "./TechnicianAllocationDialog";
-import { fetchServiceRequestList } from "./serviceRequestService";
+import {
+  fetchServiceRequestList,
+  fetchSparePartsRequest,
+} from "./serviceRequestService";
 import { toast } from "react-toastify";
 import Loader from "../../utilty/Loader";
 import GlobalPagination from "../../components/GlobalPagination";
@@ -35,13 +38,13 @@ export default function Index() {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
 
-  const [search, setSearch] = useState(null);
+  const [search, setSearch] = useState("");
   const debouncedSearchTerm = useDebounce(search, 500);
 
   const [currentRequestId, setCurrentRequestId] = useState(null);
   const [currentRequestStatus, setCurrentRequestStatus] = useState(null);
 
-  const sparePartData = {
+  const [sparePartData, setSparePartData] = useState({
     headers: [
       { key: "Request ID", label: "Request ID" },
       { key: "Service ID", label: "Service ID" },
@@ -52,44 +55,30 @@ export default function Index() {
       { key: "Request Date", label: "Request Date" },
       { key: "Action", label: "Action" },
     ],
-    rows: [
-      {
-        "Request ID": "#SR-1232",
-        "Service ID": "#SR-1232",
-        Technician: "Rajesh K",
-        Qty: "1",
-        Product: "Notebook",
-        "Part Requested": "Display Cable",
-        "Request Date": "May 09 2025, 2:40 PM",
-      },
-      {
-        "Request ID": "#SR-1233",
-        "Service ID": "#SR-1233",
-        Technician: "Mike T.",
-        Qty: "1",
-        Product: "Printer",
-        "Part Requested": "Paper feed loader",
-        "Request Date": "May 09 2025, 2:40 PM",
-      },
-      {
-        "Request ID": "#SR-1234",
-        "Service ID": "#SR-1234",
-        Technician: "David R.",
-        Qty: "1",
-        Product: "AC",
-        "Part Requested": "Compressor",
-        "Request Date": "May 09 2025, 2:40 PM",
-      },
-      {
-        "Request ID": "#SR-1235",
-        "Service ID": "#SR-1235",
-        Technician: "Sajit A.",
-        Qty: "1",
-        Product: "Desktop",
-        "Part Requested": "Display Cable",
-        "Request Date": "May 09 2025, 2:40 PM",
-      },
-    ],
+    rows: [],
+  });
+
+  // Function to reset all filters and pagination
+  const resetFiltersAndPagination = () => {
+    setCurrentPage(1);
+    setRowsPerPage(10);
+    setSearch("");
+    setTotalItems(0);
+    setOpenMenuIndex(null);
+    setCurrentRequestId(null);
+    setCurrentRequestStatus(null);
+  };
+
+  // Handle tab change with reset
+  const handleTabChange = (tab) => {
+    if (tab !== activeTab) {
+      setActiveTab(tab);
+      resetFiltersAndPagination();
+
+      // Clear data for both tabs to ensure fresh data load
+      setServiceRequestData((prev) => ({ ...prev, rows: [] }));
+      setSparePartData((prev) => ({ ...prev, rows: [] }));
+    }
   };
 
   const formatServiceData = (apiData) => {
@@ -107,6 +96,38 @@ export default function Index() {
       isPriority: item.isPriority ? "Yes" : "No",
       Action: "View",
     }));
+  };
+
+  // Format spare part data - flattens nested spare parts into individual rows
+  const formatSparePartData = (apiData) => {
+    const formattedData = [];
+
+    apiData.forEach((request) => {
+      // Calculate total quantity from all spare parts
+      const totalQty = request.spareParts.reduce(
+        (sum, part) => sum + (part.quantity || 0),
+        0
+      );
+
+      // Extract all models from spare parts and join them
+      const partModels = request.spareParts
+        .map((part) => part.model)
+        .join(", ");
+
+      formattedData.push({
+        _id: request._id,
+        "Request ID": request.hardwareRequestId,
+        "Service ID": request.serviceRequest?.serviceRequestId || "",
+        Technician: request.technician?.name || "",
+        Qty: totalQty,
+        Product: request.serviceRequest?.productName || "",
+        "Part Requested": partModels,
+        "Request Date": formatDate(request.createdAt, true),
+        Action: "View",
+      });
+    });
+
+    return formattedData;
   };
 
   const currentData =
@@ -128,7 +149,9 @@ export default function Index() {
 
     if (header === "Action") {
       const id =
-        activeTab === "service" ? serviceRequestData.rows[rowIndex]._id : null;
+        activeTab === "service"
+          ? serviceRequestData.rows[rowIndex]._id
+          : sparePartData.rows[rowIndex]._id;
 
       if (activeTab === "service") {
         return (
@@ -200,10 +223,28 @@ export default function Index() {
           <Eye
             size={16}
             className="cursor-pointer"
-            onClick={() => navigate("/spare-part-detail")}
+            onClick={() =>
+              navigate("/spare-part-detail", {
+                state: sparePartData.rows[rowIndex]._id,
+              })
+            }
           />
         );
       }
+    }
+
+    if (header === "Product Issue") {
+      const isLongText = value?.length > 30;
+      const previewText = value?.slice(0, 30);
+
+      return (
+        <div className="text-xs md:text-sm text-gray-900">
+          {previewText}
+          {isLongText && (
+            <span className="text-blue-600 cursor-default">... Show more</span>
+          )}
+        </div>
+      );
     }
 
     return (
@@ -212,14 +253,20 @@ export default function Index() {
           const id =
             activeTab === "service"
               ? serviceRequestData.rows[rowIndex]._id
-              : null;
+              : sparePartData.rows[rowIndex]._id;
           if (id) {
-            navigate("/service-detail", { state: id });
+            if (activeTab === "service") {
+              navigate("/service-detail", { state: id });
+            } else {
+              navigate("/spare-part-detail", { state: id });
+            }
           }
           setOpenMenuIndex(null);
         }}
         className={`text-xs md:text-sm ${
-          header === "Case ID" ? "text-blue-700 cursor-pointer" : "text-gray-900"
+          header === "Case ID" || header === "Request ID"
+            ? "text-blue-700 cursor-pointer"
+            : "text-gray-900"
         }`}
       >
         {value ? value : "NA"}
@@ -228,7 +275,7 @@ export default function Index() {
   };
 
   const renderMobileCard = (row, rowIndex) => {
-    const id = activeTab === "service" ? row._id : null;
+    const id = activeTab === "service" ? row._id : row._id;
 
     return (
       <div
@@ -241,8 +288,8 @@ export default function Index() {
             onClick={() => {
               if (activeTab === "service" && id) {
                 navigate("/service-detail", { state: id });
-              } else if (activeTab === "spare") {
-                navigate("/spare-part-detail");
+              } else if (activeTab === "spare" && id) {
+                navigate("/spare-part-detail", { state: id });
               }
               setOpenMenuIndex(null);
             }}
@@ -263,6 +310,24 @@ export default function Index() {
               >
                 {getMessageName(row.status)}
               </span>
+            )}
+            {activeTab === "spare" && (
+              <div className="flex flex-col items-end space-y-1">
+                <span
+                  className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(
+                    row.status
+                  )}`}
+                >
+                  {getMessageName(row.status)}
+                </span>
+                <span
+                  className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(
+                    row.customerApprovalStatus
+                  )}`}
+                >
+                  {row.customerApprovalStatus}
+                </span>
+              </div>
             )}
             <div
               className="relative"
@@ -319,6 +384,18 @@ export default function Index() {
                         </button>
                       </>
                     )}
+                    {activeTab === "spare" && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate("/spare-part-detail", { state: id });
+                          setOpenMenuIndex(null);
+                        }}
+                        className="block w-full px-4 py-2 hover:bg-gray-100 text-left text-xs"
+                      >
+                        View Details
+                      </button>
+                    )}
                   </div>
                 </div>
               )}
@@ -351,6 +428,12 @@ export default function Index() {
           ) : (
             <>
               <div className="flex justify-between">
+                <span className="text-xs text-gray-500">Service ID:</span>
+                <span className="text-xs text-gray-900 font-medium">
+                  {row["Service ID"] || "-"}
+                </span>
+              </div>
+              <div className="flex justify-between">
                 <span className="text-xs text-gray-500">Technician:</span>
                 <span className="text-xs text-gray-900 font-medium">
                   {row.Technician || "-"}
@@ -372,6 +455,18 @@ export default function Index() {
                 <span className="text-xs text-gray-500">Qty:</span>
                 <span className="text-xs text-gray-900 font-medium">
                   {row.Qty || "-"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-xs text-gray-500">Availability:</span>
+                <span
+                  className={`text-xs font-medium ${
+                    row.availability === "AVAILABLE"
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {row.availability || "-"}
                 </span>
               </div>
             </>
@@ -404,9 +499,37 @@ export default function Index() {
     }
   }
 
+  async function getSparePartRequestList(page = 1, limit = 10, search) {
+    try {
+      setIsLoading(true);
+      const response = await fetchSparePartsRequest(page, limit, search);
+      const { details, status } = response;
+
+      if (status.success && Array.isArray(details.hardwareRequests)) {
+        const formatted = formatSparePartData(details.hardwareRequests);
+
+        setSparePartData((prev) => ({
+          ...prev,
+          rows: formatted,
+        }));
+
+        setTotalItems(details.pagination?.total || 0);
+      }
+    } catch (error) {
+      console.log(error, "error");
+      toast.error("Failed to fetch spare part requests");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   useEffect(() => {
-    getServiceRequestList(currentPage, rowsPerPage, debouncedSearchTerm);
-  }, [currentPage, rowsPerPage, debouncedSearchTerm]);
+    if (activeTab === "service") {
+      getServiceRequestList(currentPage, rowsPerPage, debouncedSearchTerm);
+    } else {
+      getSparePartRequestList(currentPage, rowsPerPage, debouncedSearchTerm);
+    }
+  }, [currentPage, rowsPerPage, debouncedSearchTerm, activeTab]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -437,7 +560,7 @@ export default function Index() {
         {/* Tab Navigation */}
         <div className="flex w-full md:w-auto">
           <button
-            onClick={() => setActiveTab("service")}
+            onClick={() => handleTabChange("service")}
             className={`flex-1 md:flex-none px-3 md:px-4 py-2 font-medium text-xs md:text-sm border-b-2 cursor-pointer transition-colors ${
               activeTab === "service"
                 ? "border-[#267596] text-[#267596] bg-[#F6F6F6]"
@@ -447,7 +570,7 @@ export default function Index() {
             Service Request
           </button>
           <button
-            onClick={() => setActiveTab("spare")}
+            onClick={() => handleTabChange("spare")}
             className={`flex-1 md:flex-none px-3 md:px-4 py-2 font-medium text-xs md:text-sm border-b-2 cursor-pointer transition-colors ${
               activeTab === "spare"
                 ? "border-[#267596] text-[#267596] bg-[#F6F6F6]"
@@ -491,7 +614,6 @@ export default function Index() {
         )}
       </div>
 
-      {/* Desktop View - Table Layout */}
       {/* Desktop View - Table Layout */}
       <div className="hidden md:block bg-white">
         <div className="overflow-x-auto w-full">

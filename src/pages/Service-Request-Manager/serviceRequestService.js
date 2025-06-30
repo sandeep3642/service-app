@@ -16,8 +16,10 @@ export const fetchServiceRequestById = async (id) => {
   return res.data;
 };
 
-export const fetchServiceActivities = async (id,page) => {
-  const res = await api.get(`/api/v1/user/serviceRequests/${id}/activities?page=${page}&limit=5`);
+export const fetchServiceActivities = async (id, page) => {
+  const res = await api.get(
+    `/api/v1/user/serviceRequests/${id}/activities?page=${page}&limit=5`
+  );
   return res.data;
 };
 
@@ -58,5 +60,17 @@ export const addServiceNote = async (payload) => {
       note: payload?.notes,
     }
   );
+  return res.data;
+};
+
+export const fetchSparePartsRequest = async (page = 1, limit = 10, search) => {
+  // /
+  const res = await api.get(`/api/v1/hardware-request/list/all`);
+  return res.data;
+};
+
+export const fetchSparePartRequestDetail = async (id) => {
+  // /
+  const res = await api.get(`/api/v1/hardware-request/details/${id}`);
   return res.data;
 };
