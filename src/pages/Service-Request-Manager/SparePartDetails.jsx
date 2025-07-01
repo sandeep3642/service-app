@@ -1,13 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { fetchSparePartRequestDetail } from "./serviceRequestService";
+import {
+  createSparePartEstimation,
+  fetchEstimationList,
+  fetchSparePartRequestDetail,
+  modifySparePartEstimation,
+} from "./serviceRequestService";
 import { formatDate } from "../../utilty/common";
+import Loader from "../../utilty/Loader";
 
 const SparePartDetails = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [sparePartRequestDto, setSparePartRequestDto] = useState(null);
+  const [estimationList, setEstimationList] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [estimateCreated, setEstimateCreated] = useState(false);
+  const [adminNotes, setAdminNotes] = useState("");
+  const [estimationDetails, setEstimationDetails] = useState([]);
 
   async function getSparePartRequestDataById(id) {
     try {
@@ -16,8 +26,9 @@ const SparePartDetails = () => {
       const { status, details } = response;
       if (status.success && details) {
         setSparePartRequestDto(details);
-
-        setCurrentStatus(details?.serviceDetails?.status);
+        setEstimationList(details?.hardwareRequest?.spareParts);
+        // Initialize estimation details state
+        initializeEstimationDetails(details?.hardwareRequest?.spareParts);
       }
     } catch (error) {
     } finally {
@@ -25,14 +36,87 @@ const SparePartDetails = () => {
     }
   }
 
+  async function getEstimationList(id) {
+    try {
+      setIsLoading(true);
+      const response = await fetchEstimationList(id);
+      const { status, details } = response;
+      if (status.success && details) {
+        setEstimationList(details?.spareParts);
+        setEstimateCreated(true);
+        // Initialize estimation details state
+        initializeEstimationDetails(details);
+      }
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  const initializeEstimationDetails = (spareParts) => {
+    if (spareParts && spareParts.length > 0) {
+      const initialDetails = spareParts.map((part) => ({
+        sparePartId: part._id,
+        unitPrice: part.unitPrice,
+        availability: part.availability,
+        estimatedDeliveryDays: part.estimatedDeliveryDays,
+        supplierInfo: part.supplierInfo || "",
+      }));
+      setEstimationDetails(initialDetails);
+    }
+  };
+
+  const handleEstimationDetailChange = (index, field, value) => {
+    setEstimationDetails((prev) => {
+      const updated = [...prev];
+      updated[index] = {
+        ...updated[index],
+        [field]: field === "unitPrice" ? value : "",
+      };
+      return updated;
+    });
+  };
+
+  const handleSubmit = async () => {
+    const payload = {
+      hardwareRequestId: sparePartRequestDto?.hardwareRequest?._id,
+      estimationDetails: estimationDetails,
+      adminNotes: adminNotes,
+    };
+
+    setIsLoading(true);
+    console.log(payload, "payload");
+    try {
+      let response;
+      if (estimateCreated) {
+        response = await modifySparePartEstimation(
+          payload,
+          sparePartRequestDto?.hardwareRequest?._id
+        );
+      } else {
+        response = await createSparePartEstimation(payload);
+      }
+      const { status, details } = response;
+      if (status.success && details) {
+        // window.location.reload();
+        getEstimationList(sparePartRequestDto?.hardwareRequest?._id);
+      }
+    } catch (error) {
+      console.error("Error submitting estimation:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    console.log(location);
     if (location && location.state) {
       getSparePartRequestDataById(location?.state);
+      getEstimationList(location?.state);
     }
   }, [location]);
 
-  console.log("sparePartRequestDto", sparePartRequestDto);
+  if (isLoading) return <Loader />;
+
   return (
     <div className="mx-auto p-8">
       <div className="flex justify-between">
@@ -46,7 +130,7 @@ const SparePartDetails = () => {
       </div>
 
       <div className="border-b border-gray-200 mb-1">
-        <p className={`font-sm text-md  text-gray-500`}>Request Overiew</p>
+        <p className={`font-sm text-md  text-gray-500`}>Request Overview</p>
       </div>
 
       {
@@ -72,7 +156,6 @@ const SparePartDetails = () => {
                 label: "Requested By",
                 value: sparePartRequestDto?.hardwareRequest?.customer?.name,
               },
-              ,
             ].map((item, idx) => (
               <div key={idx} className="flex  rounded-md gap-x-4 items-start">
                 <p className="text-md font-[400] text-[#121212] w-[200px]">
@@ -102,34 +185,40 @@ const SparePartDetails = () => {
                 </tr>
               </thead>
               <tbody>
-                {sparePartRequestDto?.hardwareRequest?.spareParts &&
-                  sparePartRequestDto?.hardwareRequest?.spareParts.map(
-                    (val) => (
-                      <tr>
-                        <td className="py-2 px-1">{val.partName}</td>
-                        <td className="py-2 px-1">{val?.quantity}</td>
-                        <td className="py-2 px-1">
-                          <input
-                            type="number"
-                            value={val.unitPrice}
-                            // onChange={(e) => handleUnitPriceChange(e, index)}
-                            className="w-50 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          />
-                        </td>
-                        <td className="py-2 px-1">₹{val?.totalPrice}</td>
-                      </tr>
-                    )
-                  )}
+                {estimationList &&
+                  Array.isArray(estimationList) &&
+                  estimationList.length > 0 &&
+                  estimationList.map((val, index) => (
+                    <tr key={val._id}>
+                      <td className="py-2 px-1">{val.partName}</td>
+                      <td className="py-2 px-1">{val?.quantity}</td>
+                      <td className="py-2 px-1">
+                        <input
+                          type="text"
+                          value={estimationDetails[index]?.unitPrice}
+                          onChange={(e) => {
+                            const onlyDigits = e.target.value.replace(
+                              /\D/g,
+                              ""
+                            ); // Remove non-digits
+                            handleEstimationDetailChange(
+                              index,
+                              "unitPrice",
+                              onlyDigits
+                            );
+                          }}
+                          className="w-50 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        />
+                      </td>
+                      <td className="py-2 px-1">
+                        ₹
+                        {(estimationDetails[index]?.unitPrice || 0) *
+                          (val?.quantity || 1)}
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </table>
-          </div>
-          <div className="flex justify-end mt-3 sm:mt-4 ">
-            <button
-              className="px-6 py-3 sm:py-4 w-full sm:w-50 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium cursor-pointer"
-              // onClick={addNote}
-            >
-              Add Estimation{" "}
-            </button>
           </div>
 
           {/* Add Internal Note */}
@@ -141,13 +230,15 @@ const SparePartDetails = () => {
               className="w-full text-black p-3 border-2 border-[#DDDDDD] rounded-md  text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
               rows="4"
               placeholder="Add admin note"
+              value={adminNotes}
+              onChange={(e) => setAdminNotes(e.target.value)}
             />
             <div className="flex justify-end mt-3 sm:mt-4">
               <button
-                className="px-6 py-3 sm:py-4 w-full sm:w-40 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium cursor-pointer"
-                // onClick={addNote}
+                className="px-6 py-3 sm:py-4 w-full sm:w-50 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium cursor-pointer"
+                onClick={handleSubmit}
               >
-                Add Note
+                {estimateCreated ? "Modify Estimation" : "Create Estimation"}
               </button>
             </div>
           </div>

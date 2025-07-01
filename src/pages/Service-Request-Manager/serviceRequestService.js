@@ -74,3 +74,25 @@ export const fetchSparePartRequestDetail = async (id) => {
   const res = await api.get(`/api/v1/hardware-request/details/${id}`);
   return res.data;
 };
+
+export const fetchEstimationList = async (id) => {
+  // /
+  const res = await api.get(`/api/v1/hardware-request/estimation/${id}`);
+  return res.data;
+};
+
+export const createSparePartEstimation = async (payload) => {
+  const res = await api.post(
+    "/api/v1/hardware-request/createEstimation",
+    payload
+  );
+  return res.data;
+};
+
+export const modifySparePartEstimation = async (payload, id) => {
+  const res = await api.put(
+    `/api/v1/hardware-request/updateEstimation/${id}`,
+    payload
+  );
+  return res.data;
+};
