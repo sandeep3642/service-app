@@ -20,6 +20,7 @@ const Layout = () => {
       "service-detail": "service",
       "spare-part-detail": "service",
       "add-new-technician": "technician",
+      "subadmin-view":"sub-admin",
       activityLog: "service",
       // Add more mappings as needed
     };
@@ -38,6 +39,7 @@ const Layout = () => {
 
         // List of valid parent routes (should match your sidebar items)
         const validParents = [
+          "sub-admin",
           "customer",
           "technician",
           "dashboard",

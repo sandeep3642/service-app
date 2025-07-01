@@ -1,8 +1,12 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import GlobalPagination from "../../components/GlobalPagination";
 import DataTable from "../../components/Table";
-import { data } from "autoprefixer";
 import { useDebounce } from "../../hooks";
+import Loader from "../../utilty/Loader";
 import AddSubAdmin from "./AddSubAdmin";
+import { getAllUserList } from "./subadminService";
 
 const headers = [
   { key: "name", label: "Name" },
@@ -13,39 +17,65 @@ const headers = [
   { key: "joinedOn", label: "Joined On" },
 ];
 
-const users = [
-  {
-    name: "Abhishek Negi",
-    email: "abhishek.negi@example.com",
-    role: "Admin",
-    isActive: true,
-    lastLogin: "2025-06-22T10:25:00Z",
-    joinedOn: "2023-03-15T14:00:00Z",
-  },
-  {
-    name: "Priya Sharma",
-    email: "priya.sharma@example.com",
-    role: "Technician",
-    isActive: true,
-    lastLogin: "2025-06-21T17:42:00Z",
-    joinedOn: "2024-01-10T09:30:00Z",
-  },
-  {
-    name: "Rohit Verma",
-    email: "rohit.verma@example.com",
-    role: "Customer",
-    isActive: false,
-    lastLogin: "2025-05-30T12:10:00Z",
-    joinedOn: "2022-08-20T11:00:00Z",
-  },
-];
-
 const Index = () => {
+  const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const debouncedSearchTerm = useDebounce(search, 500);
   const [isOpen, setIsOpen] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
+  const actionMenu = ["View Detail"];
+
+
+  const handleRowAction = (row, action) => {
+    console.log("Action:", action, "Row:", row);
+
+    switch (action) {
+      case "View Detail":
+        navigate("/subadmin-view", { state: row._id });
+
+      default:
+        console.log("Unknown action:", action);
+    }
+  };
+
+  const fetchUsers = async (page = 1, limit = 10) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await getAllUserList(page, limit);
+      
+      console.log(response);
+      const { details, status } = response;
+      if (status.success && Array.isArray(details.users)) {
+        const formattedUsers = details.users.map((user) => ({
+          ...user,
+          name: `${user.firstName} ${user.lastName}`,
+          role: user.role?.displayName || user.role?.name || "NA",
+          joinedOn: user.createdAt,
+          lastLogin: user.updatedAt,
+        }));
+        setUsers(formattedUsers);
+        setTotalItems(details.pagination?.total || 0);
+      }
+    } catch (error) {
+      toast.error("Failed to fetch service requests");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const handleClose = () => setIsOpen(false);
+  if (loading) <Loader />;
 
   return (
     <div>
@@ -63,15 +93,29 @@ const Index = () => {
       <DataTable
         headers={headers}
         data={users}
-        name="Sub- Admin List"
-        emptyMessage={
-          data.length === 0 ? "No Sub Admin found" : "No data available"
-        }
+        name="Sub-Admin List"
+        emptyMessage={users.length === 0 ? "No Sub Admin found" : "No data available"}
         search={search}
         setSearch={setSearch}
+        onRowAction={handleRowAction}
       />
 
+
       {isOpen && <AddSubAdmin isOpen={isOpen} onClose={handleClose} />}
+
+      {/* Pagination */}
+      <div className="px-3 md:px-0">
+        <GlobalPagination
+          currentPage={currentPage}
+          totalPages={Math.ceil(totalItems / rowsPerPage)}
+          onPageChange={(page) => setCurrentPage(page)}
+          rowsPerPage={rowsPerPage}
+          onRowsPerPageChange={(value) => {
+            setRowsPerPage(value);
+            setCurrentPage(1);
+          }}
+        />
+      </div>
     </div>
   );
 };

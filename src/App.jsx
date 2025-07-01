@@ -30,6 +30,7 @@ import PublicRoute from "./utilty/PublicRoute";
 import AdminAccountSettings from "./pages/Admin-Account-Setting";
 import ComplaintsTabs from "./pages/complaints";
 import { UserProvider } from "./context/UserContext";
+import SubAdminView from "./pages/sub-admin/SubAdminView";
 
 function App() {
   return (
@@ -70,6 +71,8 @@ function App() {
                 <Route path="complaint" element={<ComplaintsTabs />} />
                 <Route path="*" element={<NotFoundPage />} />
                 <Route path="sub-admin" element={<SubAdmin />} />
+                <Route path="subadmin-view" element={<SubAdminView />} />
+
               </Route>
             </Route>
           </Routes>

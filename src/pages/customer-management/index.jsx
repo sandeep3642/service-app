@@ -97,7 +97,7 @@ const CustomerManagement = () => {
     }
   };
 
-  if (loading) <Loader />;
+  if (loading) <Loader/>;
 
   if (error) {
     return (

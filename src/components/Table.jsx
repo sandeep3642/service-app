@@ -76,7 +76,7 @@ const DataTable = ({
   // Render cell content with special handling for status, dates, and actions
   const renderCell = (value, key, row, index) => {
     if (
-      (name === "Technician List" || name === "Customer List") &&
+      (name === "Technician List" || name === "Customer List" ||  name ==="Sub-Admin List") &&
       key === "name"
     ) {
       return (
