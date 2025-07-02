@@ -49,16 +49,17 @@ export default function Index() {
       { key: "Request ID", label: "Request ID" },
       { key: "Service ID", label: "Service ID" },
       { key: "Technician", label: "Technician" },
-      { key: "Qty", label: "Qty" },
+      { key: "Customer", label: "Customer" },
       { key: "Product", label: "Product" },
-      { key: "Part Requested", label: "Part Requested" },
+      // { key: "Item", label: "Item" },
+      { key: "Quantity", label: "Quantity" },
+      { key: "Status", label: "Status" },
       { key: "Request Date", label: "Request Date" },
       { key: "Action", label: "Action" },
     ],
     rows: [],
   });
 
-  // Function to reset all filters and pagination
   const resetFiltersAndPagination = () => {
     setCurrentPage(1);
     setRowsPerPage(10);
@@ -114,15 +115,19 @@ export default function Index() {
         .map((part) => part.model)
         .join(", ");
 
+      console.log("request", request);
+
       formattedData.push({
         _id: request._id,
-        "Request ID": request.hardwareRequestId,
-        "Service ID": request.serviceRequest?.serviceRequestId || "",
-        Technician: request.technician?.name || "",
-        Qty: totalQty,
+        "Request ID": request?.hardwareRequestId,
+        "Service ID": request?.serviceRequest?.serviceRequestId || "",
+        Technician: request?.technician?.name || "",
+        Customer: request?.customer?.name,
         Product: request.serviceRequest?.productName || "",
+        Quantity: totalQty,
         "Part Requested": partModels,
         "Request Date": formatDate(request.createdAt, true),
+        Status: getMessageName(request?.status),
         Action: "View",
       });
     });
@@ -143,7 +148,6 @@ export default function Index() {
           {previewText}
           {isLongText && (
             <span
-
               className="text-blue-600 cursor-default"
               onClick={() => {
                 const id =
@@ -153,12 +157,11 @@ export default function Index() {
                 if (id) {
                   navigate("/service-detail", { state: id });
                 }
-              }
-              }
-
-            >... Show more</span>
+              }}
+            >
+              ... Show more
+            </span>
           )}
-
         </div>
       );
     }
@@ -222,11 +225,11 @@ export default function Index() {
                       display:
                         serviceRequestData?.rows[rowIndex]?.status ===
                           "ACCEPTED_BY_TECHNICIAN" ||
-                          serviceRequestData?.rows[rowIndex]?.status ===
+                        serviceRequestData?.rows[rowIndex]?.status ===
                           "ASSIGNED_TO_TECHNICIAN" ||
-                          serviceRequestData?.rows[rowIndex]?.status ===
+                        serviceRequestData?.rows[rowIndex]?.status ===
                           "CONFIRMED" ||
-                          serviceRequestData?.rows[rowIndex]?.status ===
+                        serviceRequestData?.rows[rowIndex]?.status ===
                           "WAITING_FOR_ASSIGNMENT"
                           ? "inline-block"
                           : "none",
@@ -235,7 +238,7 @@ export default function Index() {
                   >
                     {serviceRequestData?.rows[rowIndex]?.status ===
                       "ACCEPTED_BY_TECHNICIAN" ||
-                      serviceRequestData?.rows[rowIndex]?.status ===
+                    serviceRequestData?.rows[rowIndex]?.status ===
                       "ASSIGNED_TO_TECHNICIAN"
                       ? "Track Technician"
                       : "Assign Technician"}
@@ -396,16 +399,16 @@ export default function Index() {
                           style={{
                             display:
                               row.status === "ACCEPTED_BY_TECHNICIAN" ||
-                                row.status === "ASSIGNED_TO_TECHNICIAN" ||
-                                row.status === "CONFIRMED" ||
-                                row.status === "WAITING_FOR_ASSIGNMENT"
+                              row.status === "ASSIGNED_TO_TECHNICIAN" ||
+                              row.status === "CONFIRMED" ||
+                              row.status === "WAITING_FOR_ASSIGNMENT"
                                 ? "block"
                                 : "none",
                           }}
                           className="block w-full px-4 py-2 hover:bg-gray-100 text-left text-xs"
                         >
                           {row.status === "ACCEPTED_BY_TECHNICIAN" ||
-                            row.status === "ASSIGNED_TO_TECHNICIAN"
+                          row.status === "ASSIGNED_TO_TECHNICIAN"
                             ? "Track Technician"
                             : "Assign Technician"}
                         </button>
@@ -659,8 +662,8 @@ export default function Index() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {currentData &&
-                currentData.rows &&
-                currentData.rows.length > 0 ? (
+              currentData.rows &&
+              currentData.rows.length > 0 ? (
                 currentData.rows.map((row, rowIndex) => (
                   <tr
                     key={rowIndex}

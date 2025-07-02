@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import {
   createSparePartEstimation,
   fetchEstimationList,
   fetchSparePartRequestDetail,
   modifySparePartEstimation,
 } from "./serviceRequestService";
-import { formatDate } from "../../utilty/common";
+
 import Loader from "../../utilty/Loader";
+import { getMessageName } from "../../utilty/messageConstant";
+import EstimationModal from "./EstimationModal";
 
 const SparePartDetails = () => {
-  const navigate = useNavigate();
   const location = useLocation();
   const [sparePartRequestDto, setSparePartRequestDto] = useState(null);
   const [estimationList, setEstimationList] = useState([]);
@@ -18,6 +19,7 @@ const SparePartDetails = () => {
   const [estimateCreated, setEstimateCreated] = useState(false);
   const [adminNotes, setAdminNotes] = useState("");
   const [estimationDetails, setEstimationDetails] = useState([]);
+  const [openEstimationModal, setOpenEstimationModal] = useState(false);
 
   async function getSparePartRequestDataById(id) {
     try {
@@ -85,7 +87,7 @@ const SparePartDetails = () => {
     };
 
     setIsLoading(true);
-    console.log(payload, "payload");
+
     try {
       let response;
       if (estimateCreated) {
@@ -98,13 +100,13 @@ const SparePartDetails = () => {
       }
       const { status, details } = response;
       if (status.success && details) {
-        // window.location.reload();
         getEstimationList(sparePartRequestDto?.hardwareRequest?._id);
       }
     } catch (error) {
       console.error("Error submitting estimation:", error);
     } finally {
       setIsLoading(false);
+      setOpenEstimationModal(false);
     }
   };
 
@@ -118,132 +120,311 @@ const SparePartDetails = () => {
   if (isLoading) return <Loader />;
 
   return (
-    <div className="mx-auto p-8">
-      <div className="flex justify-between">
-        <h1 className="text-xl font-medium mb-3 text-gray-800">Details Tab</h1>
-        <p
-          className="underline text-[#267596]"
-          onClick={() => navigate("/activityLog")}
+    <div className="mx-auto p-4 sm:p-8">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+        <h1 className="text-lg sm:text-xl font-medium text-gray-800">
+          Details Tab
+        </h1>
+        <button
+          onClick={() => setOpenEstimationModal(true)}
+          className="px-4 sm:px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium cursor-pointer text-sm sm:text-base w-full sm:w-auto"
         >
-          View Activity Log
+          {estimateCreated ? "Modify Estimation" : "Create Estimation"}
+        </button>
+      </div>
+
+      <div className="border-b border-gray-200 mb-4">
+        <p className="font-medium text-sm sm:text-md text-gray-500 pb-2">
+          Request Overview
         </p>
       </div>
 
-      <div className="border-b border-gray-200 mb-1">
-        <p className={`font-sm text-md  text-gray-500`}>Request Overview</p>
-      </div>
+      <div className="p-0">
+        <div className="grid grid-cols-1 lg:grid-cols-2 mt-5 gap-y-4 sm:gap-y-6 gap-x-8">
+          {[
+            {
+              label: "Request Id",
+              value: sparePartRequestDto?.hardwareRequest?.hardwareRequestId,
+            },
+            {
+              label: "⁠Spare Parts Count",
+              value: sparePartRequestDto?.hardwareRequest?.sparePartsCount,
+            },
+            {
+              label: "Estimated Amount",
+              value: `₹ ${sparePartRequestDto?.hardwareRequest?.totalEstimatedCost}`,
+            },
 
-      {
-        <div className="p-0">
-          <div className="grid grid-cols-2 mt-5 mb-8  gap-y-6">
-            {[
-              {
-                label: "Invoice No",
-                value: sparePartRequestDto?.hardwareRequest?.invoice,
-              },
-              {
-                label: "Service ID",
-                value: sparePartRequestDto?.hardwareRequest?.hardwareRequestId,
-              },
-              {
-                label: "Date",
-                value: formatDate(
-                  sparePartRequestDto?.hardwareRequest?.createdAt,
-                  true
-                ),
-              },
-              {
-                label: "Requested By",
-                value: sparePartRequestDto?.hardwareRequest?.customer?.name,
-              },
-            ].map((item, idx) => (
-              <div key={idx} className="flex  rounded-md gap-x-4 items-start">
-                <p className="text-md font-[400] text-[#121212] w-[200px]">
-                  {item.label}
-                </p>
-                <p className="text-md font-[400] text-[#121212]">
-                  {item.value}
-                </p>
-              </div>
-            ))}
+            {
+              label: "⁠Quotation Amount",
+              value: `₹ ${sparePartRequestDto?.hardwareRequest?.quotationAmount}`,
+            },
+            {
+              label: "⁠Payment Status",
+              value: getMessageName(
+                sparePartRequestDto?.hardwareRequest?.paymentStatus
+              ),
+            },
+            {
+              label: "⁠Payment Reference Number",
+              value: sparePartRequestDto?.hardwareRequest?.customer?.name,
+            },
+          ].map((item, idx) => (
+            <div
+              key={idx}
+              className="flex flex-col sm:flex-row rounded-md gap-2 sm:gap-x-4 items-start"
+            >
+              <p className="text-sm sm:text-md font-medium text-gray-600 sm:w-[200px] min-w-0">
+                {item.label}
+              </p>
+              <p className="text-sm sm:text-md font-normal text-[#121212] break-words">
+                {item.value}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div className="border-b border-gray-200 mb-4 mt-8">
+          <p className="font-medium text-sm sm:text-md text-gray-500 pb-2">
+            Service Request Details:
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 mt-3 mb-8 gap-y-4 sm:gap-y-6 gap-x-8">
+          {[
+            {
+              label: "Case Id",
+              value:
+                sparePartRequestDto?.hardwareRequest?.serviceRequest?.caseId,
+            },
+            {
+              label: "⁠Product",
+              value:
+                sparePartRequestDto?.hardwareRequest?.serviceRequest?.product
+                  ?.name,
+            },
+            {
+              label: "⁠⁠Issue Description",
+              value:
+                sparePartRequestDto?.hardwareRequest?.serviceRequest
+                  ?.issueDescription,
+            },
+            {
+              label: "⁠Status",
+              value: getMessageName(
+                sparePartRequestDto?.hardwareRequest?.serviceRequest?.status
+              ),
+            },
+          ].map((item, idx) => (
+            <div
+              key={idx}
+              className="flex flex-col sm:flex-row rounded-md gap-2 sm:gap-x-4 items-start"
+            >
+              <p className="text-sm sm:text-md font-medium text-gray-600 sm:w-[200px] min-w-0">
+                {item.label}
+              </p>
+              <p className="text-sm sm:text-md font-normal text-[#121212] break-words">
+                {item.value}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div className="border-b border-gray-200 mb-4">
+          <p className="font-medium text-sm sm:text-md text-gray-500 pb-2">
+            Customer Details:
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 mt-3 mb-8 gap-y-4 sm:gap-y-6 gap-x-8">
+          {[
+            {
+              label: "Customer Name",
+              value: sparePartRequestDto?.hardwareRequest?.customer?.name,
+            },
+            {
+              label: "Email",
+              value: sparePartRequestDto?.hardwareRequest?.customer?.email,
+            },
+            {
+              label: "⁠⁠⁠Phone Number",
+              value:
+                sparePartRequestDto?.hardwareRequest?.customer?.phoneNumber,
+            },
+            {
+              label: "⁠Address",
+              value:
+                sparePartRequestDto?.hardwareRequest?.customer?.address || "-",
+            },
+          ].map((item, idx) => (
+            <div
+              key={idx}
+              className="flex flex-col sm:flex-row rounded-md gap-2 sm:gap-x-4 items-start"
+            >
+              <p className="text-sm sm:text-md font-medium text-gray-600 sm:w-[200px] min-w-0">
+                {item.label}
+              </p>
+              <p className="text-sm sm:text-md font-normal text-[#121212] break-words">
+                {item.value}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div className="border-b border-gray-200 mb-4">
+          <p className="font-medium text-sm sm:text-md text-gray-500 pb-2">
+            Technician Details:
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 mt-3 mb-8 gap-y-4 sm:gap-y-6 gap-x-8">
+          {[
+            {
+              label: "Technician Name",
+              value: sparePartRequestDto?.hardwareRequest?.technician?.name,
+            },
+            {
+              label: "Email",
+              value: sparePartRequestDto?.hardwareRequest?.technician?.email,
+            },
+            {
+              label: "⁠⁠⁠Phone Number",
+              value:
+                sparePartRequestDto?.hardwareRequest?.technician?.phoneNumber,
+            },
+          ].map((item, idx) => (
+            <div
+              key={idx}
+              className="flex flex-col sm:flex-row rounded-md gap-2 sm:gap-x-4 items-start"
+            >
+              <p className="text-sm sm:text-md font-medium text-gray-600 sm:w-[200px] min-w-0">
+                {item.label}
+              </p>
+              <p className="text-sm sm:text-md font-normal text-[#121212] break-words">
+                {item.value}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div>
+          <div className="border-b border-gray-200 mb-5">
+            <span className="font-medium text-sm sm:text-md text-gray-500 pb-2 block">
+              Spare Parts
+            </span>
           </div>
 
-          {/* Customer Info */}
-          <div>
-            <div className="border-b border-gray-200 mb-5">
-              <span className={`font-sm text-md  text-gray-500`}>
-                Part Replacement Request
-              </span>
-            </div>
-            <table className="min-w-full  text-left text-black">
+          {/* Desktop Table */}
+          <div className="hidden md:block overflow-x-auto">
+            <table className="min-w-full text-left text-black">
               <thead>
                 <tr>
-                  <th className="font-light  text-md">Part Name</th>
-                  <th className="font-light  text-md">Qty</th>
-                  <th className="font-light  text-md">Unit Price</th>
-                  <th className="font-light  text-md">Total</th>
+                  <th className="font-medium text-sm sm:text-md text-gray-600 pb-3">
+                    Part Name
+                  </th>
+                  <th className="font-medium text-sm sm:text-md text-gray-600 pb-3">
+                    Brand
+                  </th>
+                  <th className="font-medium text-sm sm:text-md text-gray-600 pb-3">
+                    ⁠Model
+                  </th>
+                  <th className="font-medium text-sm sm:text-md text-gray-600 pb-3">
+                    ⁠Specification
+                  </th>
+                  <th className="font-medium text-sm sm:text-md text-gray-600 pb-3">
+                    ⁠Quantity
+                  </th>
+                  <th className="font-medium text-sm sm:text-md text-gray-600 pb-3">
+                    Status
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {estimationList &&
-                  Array.isArray(estimationList) &&
-                  estimationList.length > 0 &&
-                  estimationList.map((val, index) => (
-                    <tr key={val._id}>
-                      <td className="py-2 px-1">{val.partName}</td>
-                      <td className="py-2 px-1">{val?.quantity}</td>
-                      <td className="py-2 px-1">
-                        <input
-                          type="text"
-                          value={estimationDetails[index]?.unitPrice}
-                          onChange={(e) => {
-                            const onlyDigits = e.target.value.replace(
-                              /\D/g,
-                              ""
-                            ); // Remove non-digits
-                            handleEstimationDetailChange(
-                              index,
-                              "unitPrice",
-                              onlyDigits
-                            );
-                          }}
-                          className="w-50 px-2 py-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                      </td>
-                      <td className="py-2 px-1">
-                        ₹
-                        {(estimationDetails[index]?.unitPrice || 0) *
-                          (val?.quantity || 1)}
-                      </td>
-                    </tr>
-                  ))}
+                {sparePartRequestDto?.hardwareRequest?.spareParts &&
+                  Array.isArray(
+                    sparePartRequestDto?.hardwareRequest?.spareParts
+                  ) &&
+                  sparePartRequestDto?.hardwareRequest?.spareParts.length > 0 &&
+                  sparePartRequestDto?.hardwareRequest?.spareParts.map(
+                    (val, index) => (
+                      <tr key={val._id} className="border-b border-gray-100">
+                        <td className="py-3 px-1 text-sm">{val.partName}</td>
+                        <td className="py-3 px-1 text-sm">{val?.brand}</td>
+                        <td className="py-3 px-1 text-sm">{val?.model}</td>
+                        <td className="py-3 px-1 text-sm">
+                          {val?.specifications}
+                        </td>
+                        <td className="py-3 px-1 text-sm">{val?.quantity}</td>
+                        <td className="py-3 px-1 text-sm">
+                          {getMessageName(val?.availability)}
+                        </td>
+                      </tr>
+                    )
+                  )}
               </tbody>
             </table>
           </div>
 
-          {/* Add Internal Note */}
-          <div className="mt-10">
-            <h3 className="text-base font-medium text-[#606060] mb-1 pb-2">
-              Add Admin Note
-            </h3>
-            <textarea
-              className="w-full text-black p-3 border-2 border-[#DDDDDD] rounded-md  text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-              rows="4"
-              placeholder="Add admin note"
-              value={adminNotes}
-              onChange={(e) => setAdminNotes(e.target.value)}
-            />
-            <div className="flex justify-end mt-3 sm:mt-4">
-              <button
-                className="px-6 py-3 sm:py-4 w-full sm:w-50 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium cursor-pointer"
-                onClick={handleSubmit}
-              >
-                {estimateCreated ? "Modify Estimation" : "Create Estimation"}
-              </button>
-            </div>
+          {/* Mobile Cards */}
+          <div className="md:hidden space-y-4">
+            {sparePartRequestDto?.hardwareRequest?.spareParts &&
+              Array.isArray(sparePartRequestDto?.hardwareRequest?.spareParts) &&
+              sparePartRequestDto?.hardwareRequest?.spareParts.length > 0 &&
+              sparePartRequestDto?.hardwareRequest?.spareParts.map(
+                (val, index) => (
+                  <div
+                    key={val._id}
+                    className="bg-gray-50 rounded-lg p-4 space-y-3"
+                  >
+                    <div className="flex justify-between items-start">
+                      <h4 className="font-medium text-sm text-gray-900">
+                        {val.partName}
+                      </h4>
+                      <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded">
+                        {getMessageName(val?.availability)}
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-xs">
+                      <div>
+                        <span className="text-gray-500">Brand:</span>
+                        <span className="ml-1 text-gray-900">{val?.brand}</span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Model:</span>
+                        <span className="ml-1 text-gray-900">{val?.model}</span>
+                      </div>
+                      <div className="col-span-2">
+                        <span className="text-gray-500">Specification:</span>
+                        <span className="ml-1 text-gray-900">
+                          {val?.specifications}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-gray-500">Quantity:</span>
+                        <span className="ml-1 text-gray-900">
+                          {val?.quantity}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )
+              )}
           </div>
         </div>
-      }
+        {/* Add Internal Note */}
+      </div>
+
+      <EstimationModal
+        isOpen={openEstimationModal}
+        onClose={() => setOpenEstimationModal(false)}
+        estimationList={estimationList}
+        estimationDetails={estimationDetails}
+        handleEstimationDetailChange={handleEstimationDetailChange}
+        adminNotes={adminNotes}
+        setAdminNotes={setAdminNotes}
+        handleSubmit={handleSubmit}
+        estimateCreated={estimateCreated}
+      />
     </div>
   );
 };
