@@ -1,110 +1,70 @@
-import { ChevronDown, Eye, EyeOff } from 'lucide-react';
+import { ChevronDown, Eye, EyeOff, Shield, Check, X } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { getUserDetailsById } from './subadminService';
+import { getUserDetailsById, getUserRoles, updateUser } from './subadminService';
 import Loader from '../../utilty/Loader';
+import { getStatusBadge } from '../../utilty/globalStatus';
 
 const SubAdminView = () => {
   const location = useLocation();
   const [userDetails, setUserDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const [roles, setRoles] = useState([]);
+  const [initialRoleId, setInitialRoleId] = useState('');
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
     phoneNumber: '',
     password: '',
+    roleId: '',
     role: '',
-    permissions: {
-      dashboard: false,
-      subAdmin: false,
-      funds: false,
-      customer: false
-    }
+    permissions: []
   });
 
-  // Mock function to simulate API call - replace with your actual API call
-  const getUserDetails = async (id) => {
-    try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Using the provided JSON structure
-      const mockResponse = {
-        status: {
-          success: true,
-          code: 1,
-          message: "User retrieved successfully"
-        },
-        details: {
-          user: {
-            _id: "68636412a426052540e7b258",
-            firstName: "Chandra",
-            lastName: "Jha",
-            email: "chandra.jha@kushalinfosystems.co.in",
-            phoneNumber: "7369000778",
-            role: {
-              _id: "68635a78d67574f14ea36e86",
-              name: "admin",
-              displayName: "Administrator",
-              description: "System administrator with most permissions"
-            },
-            isActive: true,
-            createdAt: "2025-07-01T04:29:06.861Z",
-            updatedAt: "2025-07-01T04:29:06.861Z"
-          },
-          permissions: {
-            read: true,
-            update: true,
-            delete: true
-          }
-        }
-      };
-      
-      return mockResponse;
-    } catch (error) {
-      console.error('Error fetching user details:', error);
-      throw error;
-    }
-  };
-
   useEffect(() => {
-    const fetchUserDetails = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
+        
+        // Fetch roles first
+        const rolesResponse = await getUserRoles();
+        if (rolesResponse.status.success) {
+          setRoles(rolesResponse.details.roles);
+        }
+
+        // Fetch user details
         const userId = location.state;
-        console.log(userId,"userId")
+        console.log(userId, "userId");
+        
         if (userId) {
           const response = await getUserDetailsById(userId);
           
           if (response.status.success) {
             const user = response.details.user;
             setUserDetails(user);
+            setInitialRoleId(user.role._id);
             setFormData({
               firstName: user.firstName,
               lastName: user.lastName,
               email: user.email,
               phoneNumber: user.phoneNumber,
               password: '••••••••••••',
+              roleId: user.role._id,
               role: user.role.displayName,
-              permissions: {
-                dashboard: true, // Based on the mock data structure
-                subAdmin: true,
-                funds: false,
-                customer: true
-              }
+              permissions: user.role.permissions || []
             });
           }
         }
       } catch (error) {
-        console.error('Failed to fetch user details:', error);
+        console.error('Failed to fetch data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUserDetails();
+    fetchData();
   }, [location]);
 
   const handleInputChange = (e) => {
@@ -115,28 +75,77 @@ const SubAdminView = () => {
     }));
   };
 
-  const handlePermissionChange = (permission) => {
-    setFormData(prev => ({
-      ...prev,
-      permissions: {
-        ...prev.permissions,
-        [permission]: !prev.permissions[permission]
-      }
-    }));
+  const handleRoleChange = (e) => {
+    const { value } = e.target;
+    const selectedRole = roles.find(role => role._id === value);
+    
+    if (selectedRole) {
+      setFormData(prev => ({
+        ...prev,
+        roleId: value,
+        role: selectedRole.displayName,
+        permissions: selectedRole.permissions || []
+      }));
+    }
   };
 
-  const handleSubmit = (e) => {
+  const capitalizeModule = (module) => {
+    return module.split('_').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+  };
+
+  const capitalizeAction = (action) => {
+    return action.charAt(0).toUpperCase() + action.slice(1);
+  };
+
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Add your update logic here
+    
+    try {
+      setLoading(true);
+      
+      // Prepare payload for update
+      const payload = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phoneNumber: formData.phoneNumber,
+        roleId: formData.roleId
+      };
+
+      // Only include password if it's been changed (not the masked version)
+      if (formData.password && formData.password !== '••••••••••••') {
+        payload.password = formData.password;
+      }
+
+      const userId = location.state;
+      const response = await updateUser(payload, userId);
+      
+      if (response.status.success) {
+        console.log('User updated successfully:', response);
+        // You can add success notification here
+        alert('User updated successfully!');
+      } else {
+        console.error('Failed to update user:', response);
+        alert('Failed to update user. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+      alert('An error occurred while updating the user.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (loading) {
-    <Loader/>
+    return <Loader/>;
   }
 
   return (
-    <div className=" p-6 bg-white">
+    <div className="p-6 bg-white">
       <h1 className="text-2xl font-semibold text-gray-800 mb-8">Sub Admin Info</h1>
       
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -157,8 +166,8 @@ const SubAdminView = () => {
                 lastName: names.slice(1).join(' ') || ''
               }));
             }}
-            className=" text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Syntax Error"
+            className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            placeholder="Enter full name"
           />
         </div>
 
@@ -173,7 +182,7 @@ const SubAdminView = () => {
             value={formData.email}
             onChange={handleInputChange}
             className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="Anoob@gmail.com"
+            placeholder="Enter email address"
           />
         </div>
 
@@ -188,7 +197,7 @@ const SubAdminView = () => {
             value={formData.phoneNumber}
             onChange={handleInputChange}
             className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            placeholder="+91 75548 52945"
+            placeholder="Enter mobile number"
           />
         </div>
 
@@ -216,6 +225,7 @@ const SubAdminView = () => {
           </div>
           <button
             type="button"
+            onClick={() => setFormData(prev => ({ ...prev, password: '' }))}
             className="text-sm text-blue-600 hover:text-blue-800 mt-1"
           >
             Change password
@@ -229,54 +239,70 @@ const SubAdminView = () => {
           </label>
           <div className="relative">
             <select
-              name="role"
-              value={formData.role}
-              onChange={handleInputChange}
+              name="roleId"
+              value={formData.roleId}
+              onChange={handleRoleChange}
               className="text-gray-700 w-full px-3 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
             >
-              <option value="Administrator">Administrator</option>
-              <option value="Sub Admin">Sub Admin</option>
-              <option value="Accountant">Accountant</option>
+              <option value="">Select a role</option>
+              {roles.map((role) => (
+                <option key={role._id} value={role._id}>
+                  {role.displayName}
+                </option>
+              ))}
             </select>
             <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none" size={20} />
           </div>
+          <p className="text-xs text-gray-500 mt-1">Permissions will update based on selected role</p>
         </div>
 
-        {/* Set Permissions */}
+        {/* Permissions - Read Only */}
         <div>
-          <h3 className="text-lg font-medium text-gray-800 mb-4">Set permissions</h3>
-          <div className="space-y-3">
-            {[
-              { key: 'dashboard', label: 'Dashboard' },
-              { key: 'subAdmin', label: 'Sub - Admin' },
-              { key: 'funds', label: 'Funds' },
-              { key: 'customer', label: 'Customer' }
-            ].map((permission) => (
-              <div key={permission.key} className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700">
-                  {permission.label}
-                </span>
-                <label className="relative inline-flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={formData.permissions[permission.key]}
-                    onChange={() => handlePermissionChange(permission.key)}
-                    className="sr-only"
-                  />
-                  <div className={`w-11 h-6 rounded-full transition-colors ${
-                    formData.permissions[permission.key] 
-                      ? 'bg-blue-600' 
-                      : 'bg-gray-200'
-                  }`}>
-                    <div className={`w-5 h-5 rounded-full bg-white transition-transform ${
-                      formData.permissions[permission.key] 
-                        ? 'translate-x-5' 
-                        : 'translate-x-0.5'
-                    } mt-0.5`}></div>
+          <div className="flex items-center gap-2 mb-4">
+            <Shield className="text-gray-600" size={20} />
+            <h3 className="text-lg font-medium text-gray-800">Assigned Permissions</h3>
+            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">Read Only</span>
+          </div>
+          
+          {formData.permissions.length > 0 ? (
+            <div className="space-y-4">
+              {formData.permissions.map((permission, index) => (
+                <div key={permission._id || index} className="border border-gray-200 rounded-lg p-4 bg-gray-50">
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="font-medium text-gray-800 capitalize">
+                      {capitalizeModule(permission.module)}
+                    </h4>
+                    <span className="text-xs text-gray-500">
+                      {permission.actions.length} permission{permission.actions.length !== 1 ? 's' : ''}
+                    </span>
                   </div>
-                </label>
-              </div>
-            ))}
+                  
+                  <div className="flex flex-wrap gap-2">
+                    {permission.actions.map((action, actionIndex) => (
+                      <span
+                        key={actionIndex}
+                        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${getStatusBadge(action)}`}
+                      >
+                        <Check size={12} />
+                        {capitalizeAction(action)}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="border border-gray-200 rounded-lg p-6 bg-gray-50 text-center">
+              <X className="mx-auto text-gray-400 mb-2" size={32} />
+              <p className="text-gray-600">No permissions assigned</p>
+            </div>
+          )}
+          
+          <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+            <p className="text-sm text-blue-800">
+              <strong>Note:</strong> Permissions are automatically assigned based on the selected role. 
+              Change the role above to see different permission sets.
+            </p>
           </div>
         </div>
 
@@ -284,9 +310,10 @@ const SubAdminView = () => {
         <div className="pt-6">
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+            disabled={loading}
+            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Update Sub Admin
+            {loading ? 'Updating...' : 'Update Sub Admin'}
           </button>
         </div>
       </form>

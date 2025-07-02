@@ -7,7 +7,20 @@ export const getAllUserList = async (page = 1, limit = 10) => {
   return res.data;
 };
 
-export const getUserDetailsById = async (id = "68511ec27f4ac87dc669d0b2") => {
-  const res = await api.get(`/api/v1/user/list/${id}`);
+export const getUserDetailsById = async (id) => {
+  const res = await api.get(`/api/v1/user/getById/${id}`);
+  return res.data;
+};
+
+export const getUserRoles = async () => {
+  const res = await api.get(`/api/v1/user/role/list`);
+  return res.data;
+};
+
+export const updateUser = async (payload, id) => {
+  const res = await api.put(
+    `/api/v1/user/update/${id}`,
+    payload
+  );
   return res.data;
 };
