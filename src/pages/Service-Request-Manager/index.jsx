@@ -6,15 +6,17 @@ import {
   fetchServiceRequestList,
   fetchSparePartsRequest,
 } from "./serviceRequestService";
-import { toast } from "react-toastify";
+
 import Loader from "../../utilty/Loader";
 import GlobalPagination from "../../components/GlobalPagination";
 import { formatDate } from "../../utilty/common";
 import { useDebounce } from "../../hooks";
 import { getStatusBadge } from "../../utilty/globalStatus";
 import { getMessageName } from "../../utilty/messageConstant";
+import { useToast } from "../../hooks/useToast";
 
 export default function Index() {
+  const { toast } = useToast();
   const navigate = useNavigate();
   const menuRefs = useRef({});
   const menuRefsMobile = useRef({});

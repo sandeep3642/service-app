@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 import HeroImage from "../../assets/hero.png";
 import LogoImage from "../../assets/Logo.png";
 import Loader from "../../utilty/Loader";
 import { loginUser } from "./loginService";
+import { useToast } from "../../hooks/useToast";
 
 const Login = () => {
+  const { toast } = useToast();
   const navigate = useNavigate();
   const [email, setEmail] = useState("diwakar@qicapp.com");
   const [password, setPassword] = useState("Diwakar@1991");

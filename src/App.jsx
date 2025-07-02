@@ -1,6 +1,5 @@
 import React, { Suspense, lazy } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Layout from "./components/Layout";
 import Loader from "./utilty/Loader";
@@ -31,53 +30,52 @@ import AdminAccountSettings from "./pages/Admin-Account-Setting";
 import ComplaintsTabs from "./pages/complaints";
 import { UserProvider } from "./context/UserContext";
 import SubAdminView from "./pages/sub-admin/SubAdminView";
+import { ToastProvider } from "./hooks/useToast";
+import CustomToastContainer from "./components/CustomToastContainer";
 
 function App() {
   return (
     <UserProvider>
-      <Router>
-        <Suspense fallback={<Loader />}>
-          <ToastContainer
-            position="top-right"
-            autoClose={3000}
-            theme="colored"
-          />
-          <Routes>
-            {/* Public Route */}
-            <Route element={<PublicRoute />}>
-              <Route path="/" element={<Login />} />
-            </Route>
-
-            {/* Private Routes */}
-            <Route element={<PrivateRoute />}>
-              <Route element={<Layout />}>
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="customer" element={<CustomerManagement />} />
-                <Route path="customer-view" element={<CustomerView />} />
-                <Route path="technician" element={<Technician />} />
-                <Route path="technician-view" element={<TechnicianView />} />
-                <Route path="service" element={<ServiceRequestManager />} />
-                <Route path="service-detail" element={<ServiceDetails />} />
-                <Route
-                  path="spare-part-detail"
-                  element={<SparePartDetails />}
-                />
-                <Route
-                  path="add-new-technician"
-                  element={<AddTechnicianForm />}
-                />
-                <Route path="activityLog" element={<ActivityLog />} />
-                <Route path="account" element={<AdminAccountSettings />} />
-                <Route path="complaint" element={<ComplaintsTabs />} />
-                <Route path="*" element={<NotFoundPage />} />
-                <Route path="sub-admin" element={<SubAdmin />} />
-                <Route path="subadmin-view" element={<SubAdminView />} />
-
+      <ToastProvider>
+        <Router>
+          <Suspense fallback={<Loader />}>
+            <CustomToastContainer />
+            <Routes>
+              {/* Public Route */}
+              <Route element={<PublicRoute />}>
+                <Route path="/" element={<Login />} />
               </Route>
-            </Route>
-          </Routes>
-        </Suspense>
-      </Router>
+
+              {/* Private Routes */}
+              <Route element={<PrivateRoute />}>
+                <Route element={<Layout />}>
+                  <Route path="dashboard" element={<Dashboard />} />
+                  <Route path="customer" element={<CustomerManagement />} />
+                  <Route path="customer-view" element={<CustomerView />} />
+                  <Route path="technician" element={<Technician />} />
+                  <Route path="technician-view" element={<TechnicianView />} />
+                  <Route path="service" element={<ServiceRequestManager />} />
+                  <Route path="service-detail" element={<ServiceDetails />} />
+                  <Route
+                    path="spare-part-detail"
+                    element={<SparePartDetails />}
+                  />
+                  <Route
+                    path="add-new-technician"
+                    element={<AddTechnicianForm />}
+                  />
+                  <Route path="activityLog" element={<ActivityLog />} />
+                  <Route path="account" element={<AdminAccountSettings />} />
+                  <Route path="complaint" element={<ComplaintsTabs />} />
+                  <Route path="*" element={<NotFoundPage />} />
+                  <Route path="sub-admin" element={<SubAdmin />} />
+                  <Route path="subadmin-view" element={<SubAdminView />} />
+                </Route>
+              </Route>
+            </Routes>
+          </Suspense>
+        </Router>
+      </ToastProvider>
     </UserProvider>
   );
 }

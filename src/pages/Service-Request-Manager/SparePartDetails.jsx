@@ -10,6 +10,7 @@ import {
 import Loader from "../../utilty/Loader";
 import { getMessageName } from "../../utilty/messageConstant";
 import EstimationModal from "./EstimationModal";
+import DeleteModal from "../../components/DeleteModal";
 
 const SparePartDetails = () => {
   const location = useLocation();
@@ -20,6 +21,7 @@ const SparePartDetails = () => {
   const [adminNotes, setAdminNotes] = useState("");
   const [estimationDetails, setEstimationDetails] = useState([]);
   const [openEstimationModal, setOpenEstimationModal] = useState(false);
+  const [openConfirmationModa, setOpenConfirmationModa] = useState(false);
 
   async function getSparePartRequestDataById(id) {
     try {
@@ -101,12 +103,14 @@ const SparePartDetails = () => {
       const { status, details } = response;
       if (status.success && details) {
         getEstimationList(sparePartRequestDto?.hardwareRequest?._id);
+        setOpenEstimationModal(false);
+        setOpenConfirmationModa(false);
+        setAdminNotes("");
       }
     } catch (error) {
       console.error("Error submitting estimation:", error);
     } finally {
       setIsLoading(false);
-      setOpenEstimationModal(false);
     }
   };
 
@@ -316,53 +320,43 @@ const SparePartDetails = () => {
 
           {/* Desktop Table */}
           <div className="hidden md:block overflow-x-auto">
-            <table className="min-w-full text-left text-black">
-              <thead>
-                <tr>
-                  <th className="font-medium text-sm sm:text-md text-gray-600 pb-3">
-                    Part Name
-                  </th>
-                  <th className="font-medium text-sm sm:text-md text-gray-600 pb-3">
-                    Brand
-                  </th>
-                  <th className="font-medium text-sm sm:text-md text-gray-600 pb-3">
-                    ⁠Model
-                  </th>
-                  <th className="font-medium text-sm sm:text-md text-gray-600 pb-3">
-                    ⁠Specification
-                  </th>
-                  <th className="font-medium text-sm sm:text-md text-gray-600 pb-3">
-                    ⁠Quantity
-                  </th>
-                  <th className="font-medium text-sm sm:text-md text-gray-600 pb-3">
-                    Status
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {sparePartRequestDto?.hardwareRequest?.spareParts &&
-                  Array.isArray(
-                    sparePartRequestDto?.hardwareRequest?.spareParts
-                  ) &&
-                  sparePartRequestDto?.hardwareRequest?.spareParts.length > 0 &&
-                  sparePartRequestDto?.hardwareRequest?.spareParts.map(
-                    (val, index) => (
-                      <tr key={val._id} className="border-b border-gray-100">
-                        <td className="py-3 px-1 text-sm">{val.partName}</td>
-                        <td className="py-3 px-1 text-sm">{val?.brand}</td>
-                        <td className="py-3 px-1 text-sm">{val?.model}</td>
-                        <td className="py-3 px-1 text-sm">
-                          {val?.specifications}
-                        </td>
-                        <td className="py-3 px-1 text-sm">{val?.quantity}</td>
-                        <td className="py-3 px-1 text-sm">
-                          {getMessageName(val?.availability)}
-                        </td>
-                      </tr>
-                    )
-                  )}
-              </tbody>
-            </table>
+            <div className="bg-white rounded-lg shadow-md overflow-x-auto">
+              <table className="min-w-full text-left text-sm border border-gray-200">
+                <thead className="bg-gray-100 text-gray-700">
+                  <tr>
+                    <th className="px-4 py-3 font-medium">Part Name</th>
+                    <th className="px-4 py-3 font-medium">Brand</th>
+                    <th className="px-4 py-3 font-medium">Model</th>
+                    <th className="px-4 py-3 font-medium">Specification</th>
+                    <th className="px-4 py-3 font-medium">Quantity</th>
+                    <th className="px-4 py-3 font-medium">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="text-black">
+                  {sparePartRequestDto?.hardwareRequest?.spareParts?.length >
+                    0 &&
+                    sparePartRequestDto.hardwareRequest.spareParts.map(
+                      (val, index) => (
+                        <tr
+                          key={val._id || index}
+                          className="border-b border-gray-100 hover:bg-gray-50 transition"
+                        >
+                          <td className="px-4 py-3">{val.partName}</td>
+                          <td className="px-4 py-3">{val?.brand || "-"}</td>
+                          <td className="px-4 py-3">{val?.model || "-"}</td>
+                          <td className="px-4 py-3">
+                            {val?.specifications || "-"}
+                          </td>
+                          <td className="px-4 py-3">{val?.quantity || 0}</td>
+                          <td className="px-4 py-3">
+                            {getMessageName(val?.availability) || "-"}
+                          </td>
+                        </tr>
+                      )
+                    )}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* Mobile Cards */}
@@ -416,14 +410,26 @@ const SparePartDetails = () => {
 
       <EstimationModal
         isOpen={openEstimationModal}
-        onClose={() => setOpenEstimationModal(false)}
+        onClose={() => {
+          setAdminNotes("");
+          setOpenEstimationModal(false);
+        }}
         estimationList={estimationList}
         estimationDetails={estimationDetails}
         handleEstimationDetailChange={handleEstimationDetailChange}
         adminNotes={adminNotes}
         setAdminNotes={setAdminNotes}
-        handleSubmit={handleSubmit}
+        handleSubmit={() => setOpenConfirmationModa(true)}
         estimateCreated={estimateCreated}
+      />
+
+      <DeleteModal
+        isOpen={openConfirmationModa}
+        onClose={() => {
+          setOpenConfirmationModa(false);
+        }}
+        onConfirm={handleSubmit}
+        isSparePart={true}
       />
     </div>
   );

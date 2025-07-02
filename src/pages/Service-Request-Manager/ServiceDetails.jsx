@@ -7,14 +7,15 @@ import {
   fetchServiceRequestById,
   updateServiceRequestStatus,
 } from "./serviceRequestService";
-import { toast } from "react-toastify";
 import { formatDate } from "../../utilty/common";
 import { getMessageName } from "../../utilty/messageConstant";
 import ActivityLog from "./ActivityLog";
 import DiamondIcon from "../../assets/diamond.png";
 import { CONTROLLABLE_STATUSES } from "../../utilty/static";
+import { useToast } from "../../hooks/useToast";
 
 const ServiceDetails = () => {
+  const { toast } = useToast();
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [servieRequestDto, setServiceRequestDto] = useState(null);
@@ -244,7 +245,7 @@ const ServiceDetails = () => {
               { label: "Product", value: servieRequestDto?.product?.name },
               {
                 label: "Issue Type",
-                value: servieRequestDto?.serviceDetails?.issueDescription,
+                value: servieRequestDto?.serviceOptions?.[0]?.name || "N/A",
               },
               {
                 label: "Current Status",

@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
 import GlobalPagination from "../../components/GlobalPagination";
 import DataTable from "../../components/Table";
 import { useDebounce } from "../../hooks";
 import Loader from "../../utilty/Loader";
 import AddSubAdmin from "./AddSubAdmin";
 import { getAllUserList } from "./subadminService";
+import { useToast } from "../../hooks/useToast";
 
 const headers = [
   { key: "name", label: "Name" },
@@ -18,6 +18,7 @@ const headers = [
 ];
 
 const Index = () => {
+  const { toast } = useToast();
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const debouncedSearchTerm = useDebounce(search, 500);
@@ -29,7 +30,6 @@ const Index = () => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
   const actionMenu = ["View Detail"];
-
 
   const handleRowAction = (row, action) => {
     console.log("Action:", action, "Row:", row);
@@ -48,7 +48,7 @@ const Index = () => {
       setLoading(true);
       setError(null);
       const response = await getAllUserList(page, limit);
-      
+
       console.log(response);
       const { details, status } = response;
       if (status.success && Array.isArray(details.users)) {
@@ -69,12 +69,14 @@ const Index = () => {
     }
   };
 
-
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  const handleClose = () => setIsOpen(false);
+  const handleClose = () => {
+    setIsOpen(false);
+    fetchUsers();
+  };
   if (loading) <Loader />;
 
   return (
@@ -94,12 +96,13 @@ const Index = () => {
         headers={headers}
         data={users}
         name="Sub-Admin List"
-        emptyMessage={users.length === 0 ? "No Sub Admin found" : "No data available"}
+        emptyMessage={
+          users.length === 0 ? "No Sub Admin found" : "No data available"
+        }
         search={search}
         setSearch={setSearch}
         onRowAction={handleRowAction}
       />
-
 
       {isOpen && <AddSubAdmin isOpen={isOpen} onClose={handleClose} />}
 

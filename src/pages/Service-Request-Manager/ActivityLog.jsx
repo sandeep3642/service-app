@@ -5,8 +5,8 @@ import { formatDate } from "../../utilty/common";
 import CustomerIcon from "../../assets/customer1.png";
 import AdminIcon from "../../assets/admin.png";
 import TechnicianIcon from "../../assets/technician.png";
-import { toast } from "react-toastify";
 import { addServiceNote } from "./serviceRequestService";
+import { useToast } from "../../hooks/useToast";
 const ActivityLog = ({
   timelineData,
   serviceRequestId,
@@ -18,7 +18,7 @@ const ActivityLog = ({
   // const timelineData =
   //   timelineData &&
   //   timelineData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
+  const { toast } = useToast();
   const [notes, setNotes] = useState("");
 
   async function addNote() {
@@ -84,8 +84,8 @@ const ActivityLog = ({
                     item?.performedBy?.type === "CUSTOMER"
                       ? CustomerIcon
                       : item?.performedBy?.type === "ADMIN"
-                        ? AdminIcon
-                        : TechnicianIcon
+                      ? AdminIcon
+                      : TechnicianIcon
                   }
                   alt=""
                   className="h-6 w-6 sm:h-8 sm:w-8"
@@ -109,7 +109,6 @@ const ActivityLog = ({
               </div>
             </div>
           ))}
-
       </div>
 
       {/* Add Internal Note Section */}
