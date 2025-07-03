@@ -7,10 +7,10 @@ import RejectionReasonModal from "../../components/RejectionReasonModal";
 import RejectDocumentModal from "../../components/RejectDocumentModal";
 import { approveRejectDocument } from "./technician";
 import DocumentCard from "../../components/DocumentCard";
-import { useToast } from "../../hooks/useToast";
+import { toast } from "react-toastify";
 
 const RenderProfileInfo = ({ profileData, fetchTechnicianDetailbyId }) => {
-  const { toast } = useToast();
+
   const [showRejectionModal, setShowRejectionModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [documentId, setDocumetId] = useState("");

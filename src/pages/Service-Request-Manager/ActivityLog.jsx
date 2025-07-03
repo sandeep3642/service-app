@@ -6,7 +6,8 @@ import CustomerIcon from "../../assets/customer1.png";
 import AdminIcon from "../../assets/admin.png";
 import TechnicianIcon from "../../assets/technician.png";
 import { addServiceNote } from "./serviceRequestService";
-import { useToast } from "../../hooks/useToast";
+import { toast } from "react-toastify";
+
 const ActivityLog = ({
   timelineData,
   serviceRequestId,
@@ -18,7 +19,7 @@ const ActivityLog = ({
   // const timelineData =
   //   timelineData &&
   //   timelineData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-  const { toast } = useToast();
+
   const [notes, setNotes] = useState("");
 
   async function addNote() {

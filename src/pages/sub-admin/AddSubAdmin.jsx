@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { ChevronDown, Edit3, Save, X } from "lucide-react";
 import { createUser, getUserRoles } from "./subadminService";
 import PermissionList from "../../components/PermissionList";
-import { useToast } from "../../hooks/useToast";
+import { toast } from "react-toastify";
+
 
 const initialData = {
   id: null,
@@ -16,13 +17,13 @@ const initialData = {
 };
 
 export default function AddSubAdmin({ onClose }) {
-  const { toast } = useToast();
   const [formData, setFormData] = useState(initialData);
   const [editData, setEditData] = useState({ ...formData });
   const [open, setOpen] = useState(false);
   const [roles, setRoles] = useState([]);
   const [permissions, setPermissions] = useState([]);
   const [passwordMismatch, setPasswordMismatch] = useState(false);
+  const [errors, setErrors] = useState({});
 
   const handleCancel = () => {
     if (open) setOpen(false);
@@ -54,10 +55,40 @@ export default function AddSubAdmin({ onClose }) {
     }
   };
 
+  const validateFormData = (data) => {
+    const errors = {};
+
+    if (!data.firstName?.trim()) {
+      errors.firstName = true;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(data.email)) {
+      errors.email = true;
+    }
+
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(data.mobile)) {
+      errors.mobile = true;
+    }
+
+    if (!data.password || data.password.length < 6) {
+      errors.password = true;
+    }
+
+    if (data.password !== data.confirmPassword) {
+      errors.confirmPassword = true;
+    }
+
+    return errors;
+  };
+
   const handleSave = () => {
     if (!open) {
-      if (passwordMismatch) {
-        toast.error("Password and Confirm Password must match");
+      const validationErrors = validateFormData(editData);
+      setErrors(validationErrors);
+      if (Object.keys(validationErrors).length > 0) {
+        toast.error("Please correct the highlighted fields");
         return;
       }
       setFormData({ ...editData });
@@ -69,13 +100,53 @@ export default function AddSubAdmin({ onClose }) {
 
   const handleInputChange = (field, value) => {
     const updatedData = { ...editData, [field]: value };
-
+  
     if (field === "password" || field === "confirmPassword") {
-      setPasswordMismatch(updatedData.password !== updatedData.confirmPassword);
+      const mismatch = updatedData.password !== updatedData.confirmPassword;
+      setPasswordMismatch(mismatch);
+  
+      setErrors((prev) => ({
+        ...prev,
+        confirmPassword: mismatch ? "Passwords do not match" : "",
+      }));
     }
-
+  
+    // Validate current field
+    let error = "";
+  
+    if (field === "firstName" && !value.trim()) {
+      error = "First name is required";
+    }
+  
+    if (field === "email") {
+      if (!value.trim()) {
+        error = "Email is required";
+      } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+        error = "Invalid email format";
+      }
+    }
+  
+    if (field === "mobile") {
+      if (!value.trim()) {
+        error = "Mobile number is required";
+      } else if (!/^\d{10}$/.test(value)) {
+        error = "Enter a valid 10-digit mobile number";
+      }
+    }
+  
+    if (field === "password" && !value.trim()) {
+      error = "Password is required";
+    }
+  
     setEditData(updatedData);
+  
+    // Set or clear field-specific error
+    setErrors((prev) => ({
+      ...prev,
+      [field]: error,
+    }));
   };
+  
 
   const fetchData = async () => {
     try {
@@ -124,41 +195,42 @@ export default function AddSubAdmin({ onClose }) {
         </button>
         {!open ? (
           <>
-            {/* ID and Name Row */}
+            {/* First Name */}
             <div className="mb-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-2">
-                  First Name
-                </label>
-
-                <input
-                  type="text"
-                  value={editData.firstName}
-                  onChange={(e) =>
-                    handleInputChange("firstName", e.target.value)
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 text-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+              <label className="block text-sm font-medium text-gray-600 mb-2">
+                First Name
+              </label>
+              <input
+                type="text"
+                value={editData.firstName}
+                onChange={(e) => handleInputChange("firstName", e.target.value)}
+                className={`w-full px-3 py-2 border rounded-md text-gray-600 focus:outline-none focus:ring-2 ${
+                  errors?.firstName
+                    ? "border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:ring-blue-500"
+                }`}
+              />
+              {errors?.firstName && (
+                <p className="text-red-500 text-xs mt-1">
+                  First name is required.
+                </p>
+              )}
             </div>
 
+            {/* Last Name */}
             <div className="mb-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-600 mb-2">
-                  Last Name
-                </label>
-
-                <input
-                  type="text"
-                  value={editData.lastName}
-                  onChange={(e) =>
-                    handleInputChange("lastName", e.target.value)
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 text-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
+              <label className="block text-sm font-medium text-gray-600 mb-2">
+                Last Name
+              </label>
+              <input
+                type="text"
+                value={editData.lastName}
+                onChange={(e) => handleInputChange("lastName", e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 text-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
             </div>
-            {/* Email Address */}
+
+            {/* Email */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-600 mb-2">
                 Email Address
@@ -167,11 +239,20 @@ export default function AddSubAdmin({ onClose }) {
                 type="email"
                 value={editData.email}
                 onChange={(e) => handleInputChange("email", e.target.value)}
-                className="w-full px-3 py-2 border text-gray-600 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-3 py-2 border rounded-md text-gray-600 focus:outline-none focus:ring-2 ${
+                  errors?.email
+                    ? "border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:ring-blue-500"
+                }`}
               />
+              {errors?.email && (
+                <p className="text-red-500 text-xs mt-1">
+                  Please enter a valid email.
+                </p>
+              )}
             </div>
 
-            {/* Mobile Number */}
+            {/* Mobile */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-600 mb-2">
                 Mobile Number
@@ -180,8 +261,17 @@ export default function AddSubAdmin({ onClose }) {
                 type="tel"
                 value={editData.mobile}
                 onChange={(e) => handleInputChange("mobile", e.target.value)}
-                className="w-full px-3 py-2 border text-gray-600 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-3 py-2 border rounded-md text-gray-600 focus:outline-none focus:ring-2 ${
+                  errors?.mobile
+                    ? "border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:ring-blue-500"
+                }`}
               />
+              {errors?.mobile && (
+                <p className="text-red-500 text-xs mt-1">
+                  Enter a valid 10-digit number.
+                </p>
+              )}
             </div>
 
             {/* Password */}
@@ -193,12 +283,20 @@ export default function AddSubAdmin({ onClose }) {
                 type="password"
                 value={editData.password}
                 onChange={(e) => handleInputChange("password", e.target.value)}
-                className="w-full px-3 py-2 border text-gray-600 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={`w-full px-3 py-2 border rounded-md text-gray-600 focus:outline-none focus:ring-2 ${
+                  errors?.password
+                    ? "border-red-500 focus:ring-red-500"
+                    : "border-gray-300 focus:ring-blue-500"
+                }`}
               />
+              {errors?.password && (
+                <p className="text-red-500 text-xs mt-1">
+                  Password must be at least 6 characters.
+                </p>
+              )}
             </div>
 
             {/* Confirm Password */}
-
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-600 mb-2">
                 Confirm Password
@@ -209,15 +307,15 @@ export default function AddSubAdmin({ onClose }) {
                 onChange={(e) =>
                   handleInputChange("confirmPassword", e.target.value)
                 }
-                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:border ${
-                  passwordMismatch
+                className={`w-full px-3 py-2 border rounded-md text-gray-600 focus:outline-none focus:ring-2 ${
+                  errors?.confirmPassword || passwordMismatch
                     ? "border-red-500 focus:ring-red-500"
-                    : "border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                } text-gray-600`}
+                    : "border-gray-300 focus:ring-blue-500"
+                }`}
               />
-              {passwordMismatch && (
+              {(errors?.confirmPassword || passwordMismatch) && (
                 <p className="text-red-500 text-xs mt-1">
-                  Password and Confirm Password do not match.
+                  Passwords do not match.
                 </p>
               )}
             </div>

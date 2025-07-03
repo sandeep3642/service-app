@@ -13,10 +13,11 @@ import { formatDate } from "../../utilty/common";
 import { useDebounce } from "../../hooks";
 import { getStatusBadge } from "../../utilty/globalStatus";
 import { getMessageName } from "../../utilty/messageConstant";
-import { useToast } from "../../hooks/useToast";
+import { toast } from "react-toastify";
+
 
 export default function Index() {
-  const { toast } = useToast();
+
   const navigate = useNavigate();
   const menuRefs = useRef({});
   const menuRefsMobile = useRef({});

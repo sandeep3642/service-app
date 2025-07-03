@@ -6,7 +6,8 @@ import { useDebounce } from "../../hooks";
 import Loader from "../../utilty/Loader";
 import AddSubAdmin from "./AddSubAdmin";
 import { getAllUserList } from "./subadminService";
-import { useToast } from "../../hooks/useToast";
+import { toast } from "react-toastify";
+
 
 const headers = [
   { key: "name", label: "Name" },
@@ -18,7 +19,7 @@ const headers = [
 ];
 
 const Index = () => {
-  const { toast } = useToast();
+
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const debouncedSearchTerm = useDebounce(search, 500);

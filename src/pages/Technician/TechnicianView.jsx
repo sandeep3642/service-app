@@ -32,10 +32,11 @@ import RenderServiceHistory from "./RenderServiceHistory";
 import RenderPerformanceMetrics from "./RenderPerformanceMetrics";
 import RejectionReasonModal from "../../components/RejectionReasonModal";
 import RejectDocumentModal from "../../components/RejectDocumentModal";
-import { useToast } from "../../hooks/useToast";
+import { toast } from "react-toastify";
+
 
 const TechnicianView = () => {
-  const { toast } = useToast();
+
   const location = useLocation();
   const [activeTab, setActiveTab] = useState("Profile Info");
   const [isLoading, setIsLoading] = useState(false);

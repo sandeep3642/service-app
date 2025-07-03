@@ -12,10 +12,11 @@ import { getMessageName } from "../../utilty/messageConstant";
 import ActivityLog from "./ActivityLog";
 import DiamondIcon from "../../assets/diamond.png";
 import { CONTROLLABLE_STATUSES } from "../../utilty/static";
-import { useToast } from "../../hooks/useToast";
+import { toast } from "react-toastify";
+
 
 const ServiceDetails = () => {
-  const { toast } = useToast();
+
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [servieRequestDto, setServiceRequestDto] = useState(null);
