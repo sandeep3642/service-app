@@ -7,7 +7,9 @@ import {
   getUserDetailsById,
   getUserRoles,
   updateUser,
+  updateUserPassword,
 } from "./subadminService";
+import ChangePasswordModal from "../../components/ChangePasswordModal";
 
 const SubAdminView = () => {
   const location = useLocation();
@@ -16,6 +18,8 @@ const SubAdminView = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [roles, setRoles] = useState([]);
   const [initialRoleId, setInitialRoleId] = useState("");
+  const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
+
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -93,7 +97,29 @@ const SubAdminView = () => {
     }
   };
 
-  
+  const handleChangePassword = async (passwordData, resetForm) => {
+    try {
+      const userId = location.state;
+      const payload = {
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword
+      };
+      console.log(passwordData, "passwordData")
+
+      const response = await updateUserPassword(payload, userId);
+
+      if (response.status.success) {
+        console.log('Password changed successfully');
+        resetForm()
+        setIsChangePasswordModalOpen(false)
+      } else {
+        throw new Error(response.message || 'Failed to change password');
+      }
+    } catch (error) {
+      console.error('Error changing password:', error);
+      throw error;
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -221,7 +247,7 @@ const SubAdminView = () => {
           </div>
           <button
             type="button"
-            onClick={() => setFormData((prev) => ({ ...prev, password: "" }))}
+            onClick={() => setIsChangePasswordModalOpen(true)}
             className="text-sm text-blue-600 hover:text-blue-800 mt-1"
           >
             Change password
@@ -271,6 +297,13 @@ const SubAdminView = () => {
           </button>
         </div>
       </form>
+      {/* Change Password Modal */}
+      <ChangePasswordModal
+        isOpen={isChangePasswordModalOpen}
+        onClose={() => setIsChangePasswordModalOpen(false)}
+        onSubmit={handleChangePassword}
+        handleChangePassword={handleChangePassword}
+      />
     </div>
   );
 };

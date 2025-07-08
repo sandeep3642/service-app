@@ -24,3 +24,8 @@ export const updateUser = async (payload, id) => {
   const res = await api.put(`/api/v1/user/update/${id}`, payload);
   return res.data;
 };
+
+export const updateUserPassword = async (payload, id) => {
+  const res = await api.put(`/api/v1/user/update/${id}/updatePassword`, payload);
+  return res.data;
+};
