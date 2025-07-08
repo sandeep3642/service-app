@@ -42,7 +42,7 @@ export default function TechnicianAllocationDialog({
     try {
       const response = await fetchTechniciansResponseList(id);
       const { status, details } = response;
-      console.log("response", response);
+
       if (status.success && details.responses) {
         setResponseTracking(details.responses);
       }
@@ -80,8 +80,6 @@ export default function TechnicianAllocationDialog({
     )
       getTechniciansResponseList(id);
   }, [id]);
-
-  
 
   if (!isOpen) return null;
 
@@ -176,56 +174,52 @@ export default function TechnicianAllocationDialog({
             )}
 
           {/* Response Tracking Table */}
-          {status == "ASSIGNED_TO_TECHNICIAN" ||
-            (status == "ACCEPTED_BY_TECHNICIAN" && (
-              <div className="bg-white rounded-lg border-2 border-[#DDDDDD] overflow-auto my-5">
-                <div className="bg-gray-50 rounded-lg overflow-auto">
-                  <h2 className="text-lg font-medium text-[#393939] p-4">
-                    Response Tracking Panel
-                  </h2>
+          {(status == "ASSIGNED_TO_TECHNICIAN" ||
+            status == "ACCEPTED_BY_TECHNICIAN") && (
+            <div className="bg-white rounded-lg border-2 border-[#DDDDDD] overflow-auto my-5">
+              <div className="bg-gray-50 rounded-lg overflow-auto">
+                <h2 className="text-lg font-medium text-[#393939] p-4">
+                  Response Tracking Panel
+                </h2>
 
-                  <table className="min-w-full bg-white text-md  text-left text-[#121212]">
-                    <thead className="bg-[#F8F8F8] border-b border-[#DDDDDD] ">
-                      <tr>
-                        <th className="px-4 py-3 font-[400]">
-                          Technician name
-                        </th>
-                        <th className="px-4 py-3 font-[400]">Status</th>
-                        <th className="px-4 py-3 font-[400]">
-                          Time to Respond
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {responseTracking &&
-                        responseTracking.length > 0 &&
-                        responseTracking.map((response, index) => (
-                          <tr
-                            key={index}
-                            className="border-b border-[#DDDDDD] hover:bg-gray-50 transition-colors"
-                          >
-                            <td className="px-4 py-3 font-medium text-gray-900">
-                              {response?.technicianName}
-                            </td>
-                            <td className={`px-4 py-3 font-medium `}>
-                              <span
-                                className={`${getStatusBadge(
-                                  getMessageName(response?.response)
-                                )}`}
-                              >
-                                {getMessageName(response?.response)}
-                              </span>
-                            </td>
-                            <td className="px-4 py-3 text-gray-600">
-                              {response?.responseTime?.formatted || "NA"}
-                            </td>
-                          </tr>
-                        ))}
-                    </tbody>
-                  </table>
-                </div>
+                <table className="min-w-full bg-white text-md  text-left text-[#121212]">
+                  <thead className="bg-[#F8F8F8] border-b border-[#DDDDDD] ">
+                    <tr>
+                      <th className="px-4 py-3 font-[400]">Technician name</th>
+                      <th className="px-4 py-3 font-[400]">Status</th>
+                      <th className="px-4 py-3 font-[400]">Time to Respond</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {responseTracking &&
+                      responseTracking.length > 0 &&
+                      responseTracking.map((response, index) => (
+                        <tr
+                          key={index}
+                          className="border-b border-[#DDDDDD] hover:bg-gray-50 transition-colors"
+                        >
+                          <td className="px-4 py-3 font-medium text-gray-900">
+                            {response?.technicianName}
+                          </td>
+                          <td className={`px-4 py-3 font-medium `}>
+                            <span
+                              className={`${getStatusBadge(
+                                getMessageName(response?.response)
+                              )}`}
+                            >
+                              {getMessageName(response?.response)}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 text-gray-600">
+                            {response?.responseTime?.formatted || "NA"}
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
               </div>
-            ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
