@@ -117,6 +117,7 @@ const ServiceDetails = () => {
 
   useEffect(() => {
     if (location && location.state) {
+      console.log("location.state",location.state)
       if (location.state && location.state.includes("Status")) {
         setActiveTab("status");
       }
