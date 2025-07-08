@@ -59,7 +59,6 @@ export default function Index() {
       { key: "Status", label: "Status" },
       { key: "Request Date", label: "Request Date" },
       { key: "Action", label: "Action" },
-      { key: "serviceRequestId", label: "Service Request" }
     ],
     rows: [],
   });
