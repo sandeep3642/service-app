@@ -1,6 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Search } from "lucide-react";
-import { Calendar, CheckCircle } from "lucide-react";
 import EarningIcon from "../../assets/earning1.png";
 import JobsIcon from "../../assets/jobs.png";
 import TechIcon from "../../assets/tech-online.png";
@@ -12,21 +11,124 @@ import ProgressBar from "./Progressbar";
 import StatsCard from "../../components/StatsCard";
 import ServiceRequestTable from "./ServiceRequestTable";
 import TechnicianPerformance from "./TechnicianPerformance";
+import { toast } from "react-toastify";
+import {
+  getCaseResolutionTimeSummary,
+  getDashboardSummary,
+  getRecentServiceRequestsSummary,
+  getRecentTechnicianPerformanceSummary,
+  getTechnicianAssigmentTimeSummary,
+} from "./DashboardServices";
+
+const getColorByLabel = (label) => {
+  switch (label) {
+    case "<15 mins":
+      return "blue";
+    case "15-30 mins":
+      return "purple";
+    case "30-60 mins":
+      return "green";
+    case "60-120 mins":
+      return "gray";
+    case ">120 mins":
+      return "red";
+    default:
+      return "blue";
+  }
+};
 
 const Dashboard = () => {
+  const [dashboardData, setDashboardData] = useState(null);
+  const [assignmentTimeData, setAssignmentTimeData] = useState([]);
+  const [caseResolutionTimeData, setCaseResolutionTimeData] = useState([]);
+  const [recentServiceRequestData, setRecentServiceRequestData] = useState([]);
+  const [technicianPerformanceData, setTechnicianPerformanceData] = useState(
+    []
+  );
+
+  const fetchDashboardSummaryData = async () => {
+    try {
+      const response = await getDashboardSummary();
+      const { details, status } = response;
+      if (status.success && details) {
+        setDashboardData(details);
+      }
+    } catch (error) {
+      toast.error("Failed to fetch dashboard summary data");
+    }
+  };
+
+  const fetchTechnicianAssigmentTimeSummary = async () => {
+    try {
+      const response = await getTechnicianAssigmentTimeSummary();
+      const { details, status } = response;
+      if (status.success && details.assignmentTimeDistribution) {
+        setAssignmentTimeData(details.assignmentTimeDistribution || []);
+      }
+    } catch (error) {
+      toast.error("Failed to fetch technician time summary");
+    }
+  };
+
+  const fetchCaseResolutionTimeSummary = async () => {
+    try {
+      const response = await getCaseResolutionTimeSummary();
+      const { details, status } = response;
+      if (status.success && details.result) {
+        setCaseResolutionTimeData(details.result || []);
+      }
+    } catch (error) {
+      toast.error("Failed to fetch case resolution summary");
+    }
+  };
+
+  const fetchRecentServiceRequestsSummary = async () => {
+    try {
+      const response = await getRecentServiceRequestsSummary();
+      const { details, status } = response;
+      if (status.success && details.recentServiceRequests) {
+        setRecentServiceRequestData(details.recentServiceRequests || []);
+      }
+    } catch (error) {
+      toast.error("Failed to fetch service requests summary");
+    }
+  };
+
+  const fetchRecentTechnicianPerformanceSummary = async () => {
+    try {
+      const response = await getRecentTechnicianPerformanceSummary();
+      const { details, status } = response;
+      if (status.success && details.topTechnicians) {
+        setTechnicianPerformanceData(details.topTechnicians || []);
+      }
+    } catch (error) {
+      toast.error("Failed to fetch technicians performance summary");
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardSummaryData();
+    fetchTechnicianAssigmentTimeSummary();
+    fetchCaseResolutionTimeSummary();
+    fetchRecentServiceRequestsSummary();
+    fetchRecentTechnicianPerformanceSummary();
+  }, []);
+
   return (
     <div className="p-3 sm:p-4 lg:p-6 space-y-4 lg:space-y-6">
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 lg:mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Dashboard</h1>
-        <div className="relative w-full sm:w-auto">
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+          Dashboard
+        </h1>
+        {/* <div className="relative w-full sm:w-auto">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
           <input
             type="text"
             placeholder="Search"
             className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
           />
-        </div>
+        </div> */}
       </div>
 
       {/* Stats Cards */}
@@ -34,29 +136,34 @@ const Dashboard = () => {
         <StatsCard
           src={UserIcon}
           title="Service Request"
-          value="62"
-          change="+12%"
+          value={dashboardData?.serviceRequests?.count ?? "-"}
+          change={`+${dashboardData?.serviceRequests?.percentChange ?? 0}%`}
           color="blue"
         />
+
         <StatsCard
           src={JobsIcon}
           title="Ongoing Jobs"
-          value="18"
-          change="3 awaiting's tech.."
+          value={dashboardData?.ongoingJobs?.count ?? "-"}
+          change={`${
+            dashboardData?.ongoingJobs?.awaitingTechnician ?? 0
+          } awaiting tech`}
           color="green"
         />
+
         <StatsCard
           src={TechIcon}
           title="Technician Online"
-          value="24"
-          change="out if 36 total"
+          value={dashboardData?.techniciansOnline?.count ?? "-"}
+          change={`out of ${dashboardData?.techniciansOnline?.total ?? "-"}`}
           color="orange"
         />
+
         <StatsCard
           src={EarningIcon}
           title="Earnings Today"
-          value="₹1248"
-          change="+18%"
+          value={`₹${dashboardData?.earningsToday?.amount ?? 0}`}
+          change={`+${dashboardData?.earningsToday?.percentChange ?? 0}%`}
           color="purple"
         />
       </div>
@@ -65,77 +172,96 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
         <div className="bg-white p-3 sm:p-4 rounded-lg border border-gray-200 flex items-center justify-between">
           <div className="flex items-center space-x-2 sm:space-x-3">
-            <img src={PendingIcon} className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0" />
-            <span className="text-sm sm:text-md text-[#667085]">Pending Request</span>
+            <img
+              src={PendingIcon}
+              className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0"
+            />
+            <span className="text-sm sm:text-md text-[#667085]">
+              Pending Request
+            </span>
           </div>
-          <span className="text-2xl sm:text-3xl font-bold text-gray-900">12</span>
+          <span className="text-2xl sm:text-3xl font-bold text-gray-900">
+            {dashboardData?.pendingRequests}
+          </span>
         </div>
 
         <div className="bg-white p-3 sm:p-4 rounded-lg border border-gray-200 flex items-center justify-between">
           <div className="flex items-center space-x-2 sm:space-x-3">
-            <img src={CompletedIcon} className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0" />
+            <img
+              src={CompletedIcon}
+              className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0"
+            />
             <span className="text-sm sm:text-md text-[#667085]">Completed</span>
           </div>
-          <span className="text-2xl sm:text-3xl font-bold text-gray-900">30</span>
+          <span className="text-2xl sm:text-3xl font-bold text-gray-900">
+            {dashboardData?.completedRequests}
+          </span>
         </div>
 
         <div className="bg-white p-3 sm:p-4 rounded-lg border border-gray-200 flex items-center justify-between sm:col-span-2 lg:col-span-1">
           <div className="flex items-center space-x-2 sm:space-x-3">
-            <img src={CancelIcon} className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0" />
+            <img
+              src={CancelIcon}
+              className="w-8 h-8 sm:w-10 sm:h-10 flex-shrink-0"
+            />
             <span className="text-sm sm:text-md text-[#667085]">Cancelled</span>
           </div>
-          <span className="text-2xl sm:text-3xl font-bold text-gray-900">02</span>
+          <span className="text-2xl sm:text-3xl font-bold text-gray-900">
+            {dashboardData?.cancelledRequests}
+          </span>
         </div>
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
-        <div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 items-stretch">
+        <div className="flex flex-col">
           <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
             Technician Assignment Time
           </h3>
-          <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200">
-            <ProgressBar label="<15 mins" percentage={55} color="blue" />
-            <ProgressBar label="15-30 mins" percentage={40} color="purple" />
-            <ProgressBar label="30-60 mins" percentage={15} color="green" />
-            <ProgressBar label="60-120 mins" percentage={8} color="gray" />
+          <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200 flex flex-col min-h-[250px] h-full">
+            {assignmentTimeData?.length > 0 ? (
+              assignmentTimeData.map((item, index) => (
+                <ProgressBar
+                  key={index}
+                  label={item.label}
+                  percentage={item.percent}
+                  color={getColorByLabel(item.label)}
+                />
+              ))
+            ) : (
+              <span className="text-gray-400 text-sm">No data available</span>
+            )}
           </div>
         </div>
 
-        <div>
+        <div className="flex flex-col">
           <h3 className="text-base sm:text-lg font-semibold text-gray-900 mb-3 sm:mb-4">
             Case Resolution Time
           </h3>
-          <div className="bg-white p-3 sm:p-4 rounded-lg border border-gray-200">
-            <ProgressBar
-              label="Completed within same day"
-              percentage={65}
-              color="blue"
-              labelInside={false}
-              height="h-3"
-            />
-            <ProgressBar
-              label="Completed within two day"
-              percentage={30}
-              color="purple"
-              labelInside={false}
-              height="h-3"
-            />
-            <ProgressBar
-              label="Completed within one week"
-              percentage={10}
-              color="purple"
-              labelInside={false}
-              height="h-3"
-            />
+          <div className="bg-white p-4 sm:p-6 rounded-lg border border-gray-200 flex flex-col min-h-[250px] h-full">
+            {caseResolutionTimeData?.length > 0 ? (
+              caseResolutionTimeData.map((item, index) => (
+                <ProgressBar
+                  key={index}
+                  label={item.label}
+                  percentage={item.percent}
+                  color={getColorByLabel(item.label)}
+                  labelInside={false}
+                  height="h-3"
+                />
+              ))
+            ) : (
+              <span className="text-gray-400 text-sm">No data available</span>
+            )}
           </div>
         </div>
       </div>
 
       {/* Tables Row */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
-        <ServiceRequestTable />
-        <TechnicianPerformance />
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6 items-stretch">
+        <ServiceRequestTable data={recentServiceRequestData} />
+        <TechnicianPerformance data={technicianPerformanceData} />
       </div>
     </div>
   );

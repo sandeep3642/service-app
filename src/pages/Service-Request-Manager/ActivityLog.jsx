@@ -2,9 +2,9 @@ import React, { useState } from "react";
 // import Icon from "../../assets/icon.png";
 import { getMessageName } from "../../utilty/messageConstant";
 import { formatDate } from "../../utilty/common";
-import CustomerIcon from "../../assets/customer1.png";
-import AdminIcon from "../../assets/admin.png";
-import TechnicianIcon from "../../assets/technician.png";
+import CustomerIcon from "../../assets/Customer.png";
+import AdminIcon from "../../assets/Admin.png";
+import TechnicianIcon from "../../assets/Technician.png";
 import { addServiceNote } from "./serviceRequestService";
 import { toast } from "react-toastify";
 
@@ -67,7 +67,8 @@ const ActivityLog = ({
         <div className="flex justify-center mt-6">
           <button
             onClick={loadMore}
-            className="px-6 py-2 text-sm font-medium bg-gray-100 text-blue-600 rounded-md hover:bg-gray-200"
+            className="px-6 py-2 text-sm font-bold bg-white text-[#0C94D2] rounded-xl
+            border-2 border-[#0C94D2]"
           >
             Load Previous
           </button>
@@ -89,7 +90,7 @@ const ActivityLog = ({
                       : TechnicianIcon
                   }
                   alt=""
-                  className="h-6 w-6 sm:h-8 sm:w-8"
+                  className="h-10 w-10 sm:h-10 sm:w-10"
                 />
               </div>
               <div className="flex flex-col sm:flex-row w-full sm:justify-between sm:items-center gap-2 sm:gap-4">
@@ -113,7 +114,7 @@ const ActivityLog = ({
       </div>
 
       {/* Add Internal Note Section */}
-      <div className="mt-8 sm:mt-10 px-4 sm:px-0 w-full max-w-full">
+      {/* <div className="mt-8 sm:mt-10 px-4 sm:px-0 w-full max-w-full">
         <h3 className="text-sm sm:text-base font-medium text-[#606060] mb-2 sm:mb-3 pb-1">
           Add Internal Note (Admin only)
         </h3>
@@ -132,7 +133,7 @@ const ActivityLog = ({
             Add Note
           </button>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

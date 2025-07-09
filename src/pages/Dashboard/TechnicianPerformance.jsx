@@ -1,25 +1,9 @@
 import { EllipsisVertical } from "lucide-react";
 import UserImage from "../../assets/user.png";
 
-const TechnicianPerformance = () => {
-  const technicians = [
-    { name: "Mike T.", type: "AC Repair", jobs: 24, color: "bg-purple-500" },
-    {
-      name: "David R.",
-      type: "Desktop Repair",
-      jobs: 21,
-      color: "bg-blue-500",
-    },
-    {
-      name: "Pradeesh L.",
-      type: "Laptop Repair",
-      jobs: 19,
-      color: "bg-green-500",
-    },
-    { name: "Suji A.", type: "AC Repair", jobs: 15, color: "bg-orange-500" },
-  ];
-
-  const maxJobs = Math.max(...technicians.map((tech) => tech.jobs));
+const TechnicianPerformance = ({ data }) => {
+  const maxJobs =
+    data && data.length > 0 && Math.max(...data.map((tech) => tech.jobs));
 
   return (
     <div>
@@ -31,10 +15,10 @@ const TechnicianPerformance = () => {
           <h3 className="text-sm sm:text-md font-sm text-[#121212]">
             Top 5 technicians by completed jobs
           </h3>
-          <EllipsisVertical className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 cursor-pointer hover:text-gray-600 flex-shrink-0" />
+          {/* <EllipsisVertical className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 cursor-pointer hover:text-gray-600 flex-shrink-0" /> */}
         </div>
-        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
-          {technicians.map((tech, index) => (
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6  max-h-[330px] overflow-auto ">
+          {data.map((tech, index) => (
             <div key={index} className="space-y-2 sm:space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3 sm:space-x-4 flex-1 min-w-0">
@@ -47,15 +31,15 @@ const TechnicianPerformance = () => {
                   </div>
                   <div className="flex flex-col sm:flex-row sm:items-center flex-1 min-w-0 gap-1 sm:gap-4">
                     <p className="text-sm sm:text-base font-medium text-gray-900 truncate">
-                      {tech.name}
+                      {tech?.name}
                     </p>
                     <span className="text-xs sm:text-sm text-gray-500 truncate">
-                      {tech.type}
+                      {tech?.specialization}
                     </span>
                   </div>
                 </div>
                 <span className="text-sm sm:text-base font-semibold text-gray-900 flex-shrink-0 ml-2">
-                  {tech.jobs} jobs
+                  {tech?.completedJobs} jobs
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">

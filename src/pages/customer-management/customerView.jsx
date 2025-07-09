@@ -10,6 +10,7 @@ import {
   getCustomerDetails,
   getCustomerRequestStats,
   getCustomerServiceRequest,
+  getCustomerSparePartsRequest,
 } from "./customerService";
 import { formatDate } from "../../utilty/common";
 import GlobalPagination from "../../components/GlobalPagination";
@@ -53,7 +54,9 @@ const CustomerView = () => {
     {
       icon: CalendarIcon,
       title: "Last Service Date",
-      value: formatDate(customerServiceStats?.lastServiceDate),
+      value: customerServiceStats?.lastServiceDate
+        ? formatDate(customerServiceStats?.lastServiceDate)
+        : "_",
       subtitle: "",
       subtitleColor: "",
     },
@@ -238,7 +241,6 @@ const CustomerView = () => {
           { key: "comments", label: "Comments" },
         ]}
         searchable={false}
-        
       />
     </div>
   );
@@ -258,7 +260,7 @@ const CustomerView = () => {
     }
   };
 
-  async function fetchCustomerDetails(id = "68511ec27f4ac87dc669d0b2") {
+  async function fetchCustomerDetails(id) {
     try {
       setIsLoading(true);
       const response = await getCustomerDetails(id);
@@ -273,7 +275,7 @@ const CustomerView = () => {
     }
   }
 
-  async function fetchCustomerServices(id = "68511ec27f4ac87dc669d0b2") {
+  async function fetchCustomerServices(id) {
     try {
       setIsLoading(true);
       const response = await getCustomerServiceRequest(
@@ -293,7 +295,7 @@ const CustomerView = () => {
     }
   }
 
-  async function fetchCustomerRequestStats(id = "68511ec27f4ac87dc669d0b2") {
+  async function fetchCustomerRequestStats(id) {
     try {
       setIsLoading(true);
       const response = await getCustomerRequestStats(id);
@@ -308,10 +310,26 @@ const CustomerView = () => {
     }
   }
 
+  async function fetchCustomerSparePartsRequest(id) {
+    try {
+      setIsLoading(true);
+      const response = await getCustomerSparePartsRequest(id);
+      const { status, details } = response;
+      if (status.success && details?.stats) {
+        // setCustomerServiceStats(details?.stats);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
   useEffect(() => {
     if (location?.state) {
       fetchCustomerDetails(location?.state);
       fetchCustomerRequestStats(location?.state);
+      fetchCustomerSparePartsRequest(location?.state);
     }
   }, [location]);
 
