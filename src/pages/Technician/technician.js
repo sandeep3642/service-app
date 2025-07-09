@@ -14,7 +14,7 @@ export const fetchTechnicianDetail = async (id) => {
   return res.data;
 };
 
-export const approveRejectDocument = async (payload,id) => {
+export const approveRejectDocument = async (payload, id) => {
   const res = await api.post(
     `/api/v1/user/technicians/documents/${id}/approveReject`,
     payload
@@ -22,7 +22,7 @@ export const approveRejectDocument = async (payload,id) => {
   return res.data;
 };
 
-export const blockUnblock = async (payload,id) => {
+export const blockUnblock = async (payload, id) => {
   const res = await api.post(
     `/api/v1/user/technicians/profile/${id}/blockUnblock`,
     payload
@@ -30,10 +30,20 @@ export const blockUnblock = async (payload,id) => {
   return res.data;
 };
 
-export const approveRejectProfile = async (payload,id) => {
+export const approveRejectProfile = async (payload, id) => {
   const res = await api.post(
     `/api/v1/user/technicians/profile/${id}/approveReject`,
     payload
   );
+  return res.data;
+};
+
+export const technicianStats = async (id) => {
+  const res = await api.get(`/api/v1/user/technicians/stats/${id}`);
+  return res.data;
+};
+
+export const fetchServiceRequests = async (payload) => {
+  const res = await api.post('/api/v1/user/serviceRequests', payload);
   return res.data;
 };
