@@ -22,6 +22,7 @@ import {
   approveRejectProfile,
   blockUnblock,
   fetchTechnicianDetail,
+  technicianStats,
 } from "./technician";
 import Loader from "../../utilty/Loader";
 import { getStatusBadge } from "../../utilty/globalStatus";
@@ -44,6 +45,8 @@ const TechnicianView = () => {
   const tabs = ["Profile Info", "Service History", "Performance Metrics"];
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [profileData, setProfileData] = useState(null);
+  const [statsData, setStatsData] = useState(null);
+
   const navigate = useNavigate();
   const [showRejectionModal, setShowRejectionModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
@@ -62,9 +65,6 @@ const TechnicianView = () => {
     setIsModalOpen(false);
   };
 
-  const handleModalClose = () => {
-    setIsModalOpen(false);
-  };
   function showRejectionReasonModal(reason, reviewedBy, reviewedAt) {
     setShowRejectionModal(true);
     setRejectionReason(reason);
@@ -105,6 +105,23 @@ const TechnicianView = () => {
       if (status.success && details) {
         toast.success(status.message);
         setProfileData(details);
+      }
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function fetchTechnicianStats(id) {
+    try {
+      setIsLoading(true);
+      const response = await technicianStats(id);
+
+      const { status, details } = response;
+
+      if (status.success && details) {
+        toast.success(status.message);
+        setStatsData(details);
       }
     } catch (error) {
     } finally {
@@ -153,6 +170,7 @@ const TechnicianView = () => {
   useEffect(() => {
     if (location && location.state) {
       fetchTechnicianDetailbyId(location.state);
+      fetchTechnicianStats(location.state);
     }
   }, [location]);
 
@@ -179,11 +197,10 @@ const TechnicianView = () => {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm sm:text-base whitespace-nowrap flex-shrink-0 ${
-                    activeTab === tab
+                  className={`py-2 px-1 border-b-2 font-medium text-sm sm:text-base whitespace-nowrap flex-shrink-0 ${activeTab === tab
                       ? "border-blue-500 text-blue-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                  }`}
+                    }`}
                 >
                   {tab}
                 </button>
@@ -281,14 +298,12 @@ const TechnicianView = () => {
             fetchTechnicianDetailbyId={fetchTechnicianDetailbyId}
           />
         )}
-        {activeTab === "Service History" && <RenderServiceHistory />}
+        {activeTab === "Service History" && <RenderServiceHistory
+          statsData={statsData}
+          id={location?.state}
+        />}
         {activeTab === "Performance Metrics" && <RenderPerformanceMetrics />}
 
-        <TechnicianEarningsModal
-          isOpen={isModalOpen}
-          onClose={handleModalClose}
-          onConfirm={handleDeleteConfirm}
-        />
       </div>
 
       {/* Rejection Modal - Responsive */}
