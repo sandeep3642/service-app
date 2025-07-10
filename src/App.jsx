@@ -1,13 +1,13 @@
-import React, { Suspense, lazy } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Suspense, lazy } from "react";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Layout from "./components/Layout";
-import Loader from "./utilty/Loader";
-import NotFoundPage from "./utilty/NotFoundPage";
 import CustomerView from "./pages/customer-management/customerView";
 import ServiceDetails from "./pages/Service-Request-Manager/ServiceDetails";
 import AddTechnicianForm from "./pages/Technician/AddTechnician";
+import Loader from "./utilty/Loader";
+import NotFoundPage from "./utilty/NotFoundPage";
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const CustomerManagement = lazy(() => import("./pages/customer-management"));
 const Technician = lazy(() => import("./pages/Technician"));
@@ -25,17 +25,20 @@ const Login = lazy(() => import("./pages/Login"));
 const SubAdmin = lazy(() => import("./pages/sub-admin"));
 
 import "./App.css";
-import PrivateRoute from "./utilty/PrivateRoute";
-import PublicRoute from "./utilty/PublicRoute";
+import { UserProvider } from "./context/UserContext";
 import AdminAccountSettings from "./pages/Admin-Account-Setting";
 import ComplaintsTabs from "./pages/complaints";
-import { UserProvider } from "./context/UserContext";
 import SubAdminView from "./pages/sub-admin/SubAdminView";
+import PrivateRoute from "./utilty/PrivateRoute";
+import PublicRoute from "./utilty/PublicRoute";
+import TokenHandler from "./utilty/TokenHandler";
 
 function App() {
   return (
     <UserProvider>
       <Router>
+        <TokenHandler /> {/* 👈 Add this before <Suspense> */}
+
         <Suspense fallback={<Loader />}>
           <ToastContainer
             position="top-right"
