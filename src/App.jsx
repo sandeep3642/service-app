@@ -32,13 +32,13 @@ import SubAdminView from "./pages/sub-admin/SubAdminView";
 import PrivateRoute from "./utilty/PrivateRoute";
 import PublicRoute from "./utilty/PublicRoute";
 import TokenHandler from "./utilty/TokenHandler";
+import RedirectToExternal from "./components/RedirectToExternal";
 
 function App() {
   return (
     <UserProvider>
       <Router>
         <TokenHandler /> {/* 👈 Add this before <Suspense> */}
-
         <Suspense fallback={<Loader />}>
           <ToastContainer
             position="top-right"
@@ -48,7 +48,7 @@ function App() {
           <Routes>
             {/* Public Route */}
             <Route element={<PublicRoute />}>
-              <Route path="/" element={<Login />} />
+              <Route path="/" element={<RedirectToExternal />} />
             </Route>
 
             {/* Private Routes */}
@@ -75,7 +75,6 @@ function App() {
                 <Route path="*" element={<NotFoundPage />} />
                 <Route path="sub-admin" element={<SubAdmin />} />
                 <Route path="subadmin-view" element={<SubAdminView />} />
-
               </Route>
             </Route>
           </Routes>
