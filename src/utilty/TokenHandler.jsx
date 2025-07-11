@@ -15,7 +15,6 @@ const TokenHandler = () => {
     const token = queryParams.get("token");
 
     if (token) {
-      console.log(token, "token");
       localStorage.setItem("token", token);
       api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 

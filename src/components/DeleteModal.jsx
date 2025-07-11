@@ -19,7 +19,6 @@ const DeleteModal = ({
 
   const handleCancel = () => {
     if (onClose) {
-      console.log("hello Cancel ");
       onClose();
     }
   };

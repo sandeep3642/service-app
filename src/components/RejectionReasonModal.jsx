@@ -14,7 +14,6 @@ const RejectionReasonModal = ({
   name,
   modifyEstimation,
 }) => {
-  console.log("isOpen",isOpen)
   if (!isOpen) return null;
   const { user } = useUser();
 

@@ -24,6 +24,7 @@ const SparePartDetails = () => {
   const [openEstimationModal, setOpenEstimationModal] = useState(false);
   const [openConfirmationModa, setOpenConfirmationModa] = useState(false);
   const [showRejectionModal, setShowRejectionModal] = useState(false);
+  const [tag, setCurrenttag] = useState("estimation");
 
   async function getSparePartRequestDataById(id) {
     try {
@@ -370,6 +371,18 @@ const SparePartDetails = () => {
                     )}
                 </tbody>
               </table>
+
+              <div
+                className="flex justify-end"
+                onClick={() => {
+                  setCurrenttag("spare");
+                  setOpenEstimationModal(true);
+                }}
+              >
+                <span className="text-[#267596] cursor-pointer underline ">
+                  View More
+                </span>
+              </div>
             </div>
           </div>
 
@@ -425,10 +438,16 @@ const SparePartDetails = () => {
       <EstimationModal
         isOpen={openEstimationModal}
         onClose={() => {
+          setCurrenttag("estimation");
           setAdminNotes("");
           setOpenEstimationModal(false);
         }}
-        estimationList={estimationList}
+        estimationList={
+          tag == "estimation"
+            ? estimationList
+            : sparePartRequestDto?.hardwareRequest?.spareParts
+        }
+        tag={tag}
         estimationDetails={estimationDetails}
         handleEstimationDetailChange={handleEstimationDetailChange}
         adminNotes={adminNotes}
