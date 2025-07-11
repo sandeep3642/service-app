@@ -11,6 +11,7 @@ import Loader from "../../utilty/Loader";
 import { getMessageName } from "../../utilty/messageConstant";
 import EstimationModal from "./EstimationModal";
 import DeleteModal from "../../components/DeleteModal";
+import RejectionReasonModal from "../../components/RejectionReasonModal";
 
 const SparePartDetails = () => {
   const location = useLocation();
@@ -22,6 +23,7 @@ const SparePartDetails = () => {
   const [estimationDetails, setEstimationDetails] = useState([]);
   const [openEstimationModal, setOpenEstimationModal] = useState(false);
   const [openConfirmationModa, setOpenConfirmationModa] = useState(false);
+  const [showRejectionModal, setShowRejectionModal] = useState(false);
 
   async function getSparePartRequestDataById(id) {
     try {
@@ -218,6 +220,9 @@ const SparePartDetails = () => {
               value: getMessageName(
                 sparePartRequestDto?.hardwareRequest?.serviceRequest?.status
               ),
+              isRejected:
+                sparePartRequestDto?.hardwareRequest?.serviceRequest?.status ===
+                "REJECTED_BY_CUSTOMER",
             },
           ].map((item, idx) => (
             <div
@@ -227,7 +232,16 @@ const SparePartDetails = () => {
               <p className="text-sm sm:text-md font-medium text-gray-600 sm:w-[200px] min-w-0">
                 {item.label}
               </p>
-              <p className="text-sm sm:text-md font-normal text-[#121212] break-words">
+              <p
+                className={`text-sm sm:text-md font-normal break-words ${
+                  item.isRejected
+                    ? "text-red-600 cursor-pointer"
+                    : "text-[#121212]"
+                }`}
+                onClick={() => {
+                  if (item.isRejected) setShowRejectionModal(true);
+                }}
+              >
                 {item.value}
               </p>
             </div>
@@ -431,6 +445,18 @@ const SparePartDetails = () => {
         onConfirm={handleSubmit}
         isSparePart={true}
       />
+
+      {showRejectionModal && (
+        <RejectionReasonModal
+          rejectionReason={
+            sparePartRequestDto?.hardwareRequest?.rejectionReason
+          }
+          isOpen={showRejectionModal}
+          name={"customer"}
+          onClose={() => setShowRejectionModal(false)}
+          modifyEstimation={() => setOpenEstimationModal(true)}
+        />
+      )}
     </div>
   );
 };

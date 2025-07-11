@@ -18,8 +18,8 @@ export const UserProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     localStorage.removeItem("user");
-    localStorage.removeItem("token")
-    window.location.href="https://sol-dice.vercel.app/"
+    localStorage.removeItem("token");
+    window.location.href = "https://sol-dice.vercel.app/";
   };
 
   return (
