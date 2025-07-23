@@ -99,6 +99,7 @@ export const getMessageName = (status) => {
     UNDER_REVIEW: "Under Review",
 
     QUOTATION_SENT: "Quotation Sent",
+    PAYMENT_INITIATED: "Payment Initiated"
   };
 
   return messageName[status] || status;

@@ -6,7 +6,6 @@ import SubAdminIcon from "../assets/subadmin.png";
 import CustomerIcon from "../assets/customer2.png";
 import TechIcon from "../assets/tech.png";
 import ServiceRequestIcon from "../assets/service-req.png";
-import ComplaintIcon from "../assets/complaint.png";
 import EarningIcons from "../assets/earning.png";
 import SettingsIcon from "../assets/setting.png";
 import LogoIcon from "../assets/Logo.png";
@@ -49,12 +48,6 @@ const Sidebar = ({
       icon: ServiceRequestIcon,
       label: "Service Request Manager",
       path: "/service",
-    },
-    {
-      id: "complaint",
-      icon: ComplaintIcon,
-      label: "Complaint & Feedback",
-      path: "/complaint",
     },
     {
       id: "earnings",

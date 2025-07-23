@@ -16,33 +16,6 @@ const ActivityLog = ({
   loadMore,
   getServiceRequestActivities,
 }) => {
-  // const timelineData =
-  //   timelineData &&
-  //   timelineData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-  const [notes, setNotes] = useState("");
-
-  async function addNote() {
-    try {
-      setIsLoading(true);
-
-      const payload = {
-        serviceRequestId: serviceRequestId,
-        notes: notes,
-      };
-
-      const response = await addServiceNote(payload);
-      const { status, details } = response;
-      if (status.success && details) {
-        toast.success(status.message);
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
-      getServiceRequestActivities(serviceRequestId);
-    }
-  }
 
   return (
     <div className="w-11/12">
@@ -54,14 +27,6 @@ const ActivityLog = ({
         {/* Service ID: <span className="font-medium text-black">#SR123456</span> */}
       </div>
       <div className="text-sm text-gray-600 mb-0 w-full flex justify-between">
-        {/* <span>
-        Order date:{" "}
-        <span className="font-medium text-black">02 May 2025</span>
-      </span> */}
-        {/* <span className="text-[#0C94D2] text-[16px] flex gap-5">
-        <img src={Icon} alt="icon" className="h-5 w-5" />
-        Estimated delivery: May 06, 2025
-      </span> */}
       </div>
       {hasMore && (
         <div className="flex justify-center mt-6">
@@ -78,7 +43,7 @@ const ActivityLog = ({
       <div className="relative space-y-4 sm:space-y-6 mt-4 sm:mt-5 ml-1 sm:ml-2">
         {timelineData &&
           timelineData.length > 0 &&
-          timelineData.reverse().map((item, index) => (
+           [...timelineData].reverse().map((item, index) => (
             <div key={index} className="flex gap-3 sm:gap-5">
               <div className="flex-shrink-0">
                 <img
@@ -112,28 +77,6 @@ const ActivityLog = ({
             </div>
           ))}
       </div>
-
-      {/* Add Internal Note Section */}
-      {/* <div className="mt-8 sm:mt-10 px-4 sm:px-0 w-full max-w-full">
-        <h3 className="text-sm sm:text-base font-medium text-[#606060] mb-2 sm:mb-3 pb-1">
-          Add Internal Note (Admin only)
-        </h3>
-        <textarea
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          className="w-full text-black p-3 border-2 border-[#DDDDDD] rounded-md text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
-          rows="4"
-          placeholder="Add internal note for admin"
-        />
-        <div className="flex justify-start sm:justify-end mt-3 sm:mt-4">
-          <button
-            className="w-full sm:w-auto px-4 sm:px-6 py-3 sm:py-4 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium cursor-pointer text-sm sm:text-base"
-            onClick={addNote}
-          >
-            Add Note
-          </button>
-        </div>
-      </div> */}
     </div>
   );
 };

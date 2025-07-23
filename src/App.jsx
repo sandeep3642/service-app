@@ -12,6 +12,8 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const CustomerManagement = lazy(() => import("./pages/customer-management"));
 const Technician = lazy(() => import("./pages/Technician"));
 const TechnicianView = lazy(() => import("./pages/Technician/TechnicianView"));
+const Earnings = lazy(() => import("./pages/earnings"));
+
 const ServiceRequestManager = lazy(() =>
   import("./pages/Service-Request-Manager")
 );
@@ -75,6 +77,7 @@ function App() {
                 <Route path="*" element={<NotFoundPage />} />
                 <Route path="sub-admin" element={<SubAdmin />} />
                 <Route path="subadmin-view" element={<SubAdminView />} />
+                <Route path="earnings" element={<Earnings />} />
               </Route>
             </Route>
           </Routes>
