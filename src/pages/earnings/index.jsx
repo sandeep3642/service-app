@@ -1,6 +1,4 @@
 import React, { useState } from 'react'
-import { CheckCircle, FileText, Clock } from 'lucide-react'
-import UserIcon from "../../assets/user1.png";
 import StatsCard from '../../components/StatsCard';
 import Rupee from '../../assets/rupee.png'
 import rightCheck from '../../assets/rightCheck.png'
