@@ -35,6 +35,7 @@ import PrivateRoute from "./utilty/PrivateRoute";
 import PublicRoute from "./utilty/PublicRoute";
 import TokenHandler from "./utilty/TokenHandler";
 import RedirectToExternal from "./components/RedirectToExternal";
+import EarningsRequestDetail from "./pages/earnings/EarningsRequestDetail";
 
 function App() {
   return (
@@ -78,6 +79,10 @@ function App() {
                 <Route path="sub-admin" element={<SubAdmin />} />
                 <Route path="subadmin-view" element={<SubAdminView />} />
                 <Route path="earnings" element={<Earnings />} />
+                <Route
+                  path="earnings-detail"
+                  element={<EarningsRequestDetail />}
+                />
               </Route>
             </Route>
           </Routes>

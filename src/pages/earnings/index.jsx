@@ -7,8 +7,10 @@ import companyProfit from "../../assets/companyProfit.png";
 import DataTable from "../../components/Table";
 import GlobalPagination from "../../components/GlobalPagination";
 import { getEarningsStats, getPaymentHistory } from "./EarningServices";
+import { useNavigate } from "react-router-dom";
 
 const index = () => {
+  const navigate = useNavigate();
   const [earningsStats, setEarningsStats] = useState(null);
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [activeTab, setActiveTab] = useState("earnings");
@@ -23,6 +25,7 @@ const index = () => {
     { id: "payouts", label: "Payouts" },
   ];
   const earningServiceHeaders = [
+    { label: "Razorpay Order Id", key: "razorpayOrderId" },
     { label: "Date", key: "paymentDate" },
     // { label: "Service ID", key: "serviceId" },
     // { label: "Hardware ID", key: "hardwareId" },
@@ -77,6 +80,13 @@ const index = () => {
       value: earningsStats?.installationCharges,
     }, // 0
   ];
+
+  const handleRowAction = (row, mode) => {
+ 
+    navigate("/earnings-detail", {
+      state: row?._id,
+    });
+  };
 
   return (
     <div>
@@ -209,6 +219,7 @@ const index = () => {
                 ? "No earnings  found"
                 : "No data available"
             }
+            onRowAction={handleRowAction}
           />
         </div>
       </div>
