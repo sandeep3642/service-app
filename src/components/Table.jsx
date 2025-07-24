@@ -209,7 +209,7 @@ const DataTable = ({
                     key={header.key}
                     className="px-4 lg:px-6 py-3 text-left text-sm font-medium text-[#121212] tracking-wider"
                   >
-                    <div className="flex items-center space-x-1">
+                    <div className="flex items-center space-x-1 justify-center">
                       <span>{header.label}</span>
                     </div>
                   </th>
