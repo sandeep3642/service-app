@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import StatsCard from '../../components/StatsCard';
 import Rupee from '../../assets/rupee.png'
-import rightCheck from '../../assets/rightCheck.png'
+import rightCheck from '../../assets/rightcheck.png'
 import pendingPayment from '../../assets/pendingPayment.png'
 import companyProfit from '../../assets/companyProfit.png'
 import DataTable from '../../components/Table';
