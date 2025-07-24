@@ -25,6 +25,23 @@ export const getCustomerRequestStats = async (id) => {
 };
 
 export const getCustomerSparePartsRequest = async (id, page = 1, limit = 5) => {
-  const res = await api.post(`/api/v1/user/hardware-request/service/${id}`);
+  const res = await api.get(
+    `/api/v1/user/customers/${id}/hardwareRequests?page=${page}&limit=${limit}`
+  );
+  return res.data;
+};
+
+// /api/v1/user/customers/6844236403cd24804f821634/reviewsGivenBy?page=1&limit=5
+export const getReviewGivenByCustomer = async (id, page = 1, limit = 5) => {
+  const res = await api.get(
+    `/api/v1/user/customers/${id}/reviewsGivenBy?page=${page}&limit=${limit}`
+  );
+  return res.data;
+};
+
+export const getReviewGivenToCustomer = async (id, page = 1, limit = 5) => {
+  const res = await api.get(
+    `/api/v1/user/customers/${id}/reviewsGivenTo?page=${page}&limit=${limit}`
+  );
   return res.data;
 };

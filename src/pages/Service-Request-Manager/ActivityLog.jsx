@@ -16,7 +16,6 @@ const ActivityLog = ({
   loadMore,
   getServiceRequestActivities,
 }) => {
-
   return (
     <div className="w-11/12">
       {/* Header */}
@@ -26,8 +25,7 @@ const ActivityLog = ({
       <div className="text-sm text-gray-600 mb-0">
         {/* Service ID: <span className="font-medium text-black">#SR123456</span> */}
       </div>
-      <div className="text-sm text-gray-600 mb-0 w-full flex justify-between">
-      </div>
+      <div className="text-sm text-gray-600 mb-0 w-full flex justify-between"></div>
       {hasMore && (
         <div className="flex justify-center mt-6">
           <button
@@ -43,7 +41,7 @@ const ActivityLog = ({
       <div className="relative space-y-4 sm:space-y-6 mt-4 sm:mt-5 ml-1 sm:ml-2">
         {timelineData &&
           timelineData.length > 0 &&
-           [...timelineData].reverse().map((item, index) => (
+          [...timelineData].reverse().map((item, index) => (
             <div key={index} className="flex gap-3 sm:gap-5">
               <div className="flex-shrink-0">
                 <img

@@ -11,9 +11,12 @@ import {
   getCustomerRequestStats,
   getCustomerServiceRequest,
   getCustomerSparePartsRequest,
+  getReviewGivenByCustomer,
+  getReviewGivenToCustomer,
 } from "./customerService";
 import { formatDate } from "../../utilty/common";
 import GlobalPagination from "../../components/GlobalPagination";
+import { MapPin, Home, Briefcase, Star } from "lucide-react";
 
 const CustomerView = () => {
   const location = useLocation();
@@ -23,9 +26,38 @@ const CustomerView = () => {
   const [activeTab, setActiveTab] = useState("Overview");
   const [isLoading, setIsLoading] = useState(false);
   const [customerServiceStats, setCustomerServiceStats] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const [totalItems, setTotalItems] = useState(0);
+
+  // Separate pagination states for each section
+  const [servicesPagination, setServicesPagination] = useState({
+    currentPage: 1,
+    rowsPerPage: 5,
+    totalItems: 0,
+  });
+
+  const [sparePartsPagination, setSparePartsPagination] = useState({
+    currentPage: 1,
+    rowsPerPage: 5,
+    totalItems: 0,
+  });
+
+  const [reviewsByCustomerPagination, setReviewsByCustomerPagination] =
+    useState({
+      currentPage: 1,
+      rowsPerPage: 5,
+      totalItems: 0,
+    });
+
+  const [reviewsToCustomerPagination, setReviewsToCustomerPagination] =
+    useState({
+      currentPage: 1,
+      rowsPerPage: 5,
+      totalItems: 0,
+    });
+
+  const [spareParts, setSpareParts] = useState([]);
+  const [reviewsByCustomer, setReviewsByCustomer] = useState([]);
+  const [reviewsToCustomer, setReviewsToCustomer] = useState([]);
+
   const stats = [
     {
       icon: EarningIcon,
@@ -62,67 +94,194 @@ const CustomerView = () => {
     },
   ];
 
-  const tabs = ["Overview", "Services", "Spare Parts", "Feedback"];
+  const tabs = [
+    "Overview",
+    "Services",
+    "Spare Parts",
+    "Review Given by Customer",
+    "Review Given to Customer",
+  ];
 
-  const OverviewComponent = () => (
-    <div className="mt-8">
-      <h3 className="text-lg font-medium text-[#606060] mb-6">
-        Personal Information
-      </h3>
+  const AddressCard = ({ address }) => {
+    const getAddressIcon = (type) => {
+      switch (type.toLowerCase()) {
+        case "home":
+          return <Home className="w-5 h-5 text-blue-600" />;
+        case "work":
+          return <Briefcase className="w-5 h-5 text-green-600" />;
+        default:
+          return <MapPin className="w-5 h-5 text-gray-600" />;
+      }
+    };
 
-      <div className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Full Name
-          </label>
-          <input
-            type="text"
-            value={customerDetails?.name}
-            readOnly
-            className="w-full p-3 border border-[#DDDDDD] rounded-lg text-gray-900"
-          />
-        </div>
+    const getAddressTypeColor = (type) => {
+      switch (type.toLowerCase()) {
+        case "home":
+          return "bg-blue-50 text-blue-700 border-blue-200";
+        case "work":
+          return "bg-green-50 text-green-700 border-green-200";
+        default:
+          return "bg-gray-50 text-gray-700 border-gray-200";
+      }
+    };
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email address
-            </label>
-            <input
-              type="email"
-              value={customerDetails?.email}
-              readOnly
-              className="w-full p-3 border border-[#DDDDDD] rounded-lg  text-gray-900"
-            />
+    return (
+      <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            {getAddressIcon(address.addressType)}
+            <span className="font-semibold text-gray-900 capitalize">
+              {address.addressType} Address
+            </span>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Mobile Number
-            </label>
-            <input
-              type="tel"
-              value={`${customerDetails?.countryCode} ${customerDetails?.phoneNumber}`}
-              readOnly
-              className="w-full p-3 border border-[#DDDDDD] rounded-lg  text-gray-900"
-            />
+          <div className="flex items-center gap-2">
+            {address.isDefault && (
+              <div className="flex items-center gap-1 bg-amber-50 text-amber-700 px-2 py-1 rounded-full text-xs border border-amber-200">
+                <Star className="w-3 h-3 fill-current" />
+                Default
+              </div>
+            )}
+            <div
+              className={`px-3 py-1 rounded-full text-xs font-medium border ${getAddressTypeColor(
+                address.addressType
+              )}`}
+            >
+              {address.addressType}
+            </div>
           </div>
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Address
-          </label>
-          <input
-            type="text"
-            value={customerDetails?.address}
-            readOnly
-            className="w-full p-3 border border-[#DDDDDD] rounded-lg  text-gray-900"
-          />
+        {/* Address Details */}
+        <div className="space-y-3">
+          <div>
+            <div className="text-sm font-medium text-gray-600 mb-1">
+              Street Address
+            </div>
+            <div className="text-gray-900 font-medium">{address.address}</div>
+            <div className="text-gray-700">{address.locality}</div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            <div>
+              <div className="text-sm font-medium text-gray-600 mb-1">City</div>
+              <div className="text-gray-900">{address.city}</div>
+            </div>
+            <div>
+              <div className="text-sm font-medium text-gray-600 mb-1">
+                State
+              </div>
+              <div className="text-gray-900">{address.state}</div>
+            </div>
+            <div>
+              <div className="text-sm font-medium text-gray-600 mb-1">
+                Pincode
+              </div>
+              <div className="text-gray-900">{address.pincode}</div>
+            </div>
+          </div>
+
+          {address.landmark && (
+            <div>
+              <div className="text-sm font-medium text-gray-600 mb-1">
+                Landmark
+              </div>
+              <div className="text-gray-700">{address.landmark}</div>
+            </div>
+          )}
+
+          {/* Full formatted address */}
+          <div className="mt-4 pt-3 border-t border-gray-100">
+            <div className="text-sm text-gray-600 mb-1">Complete Address</div>
+            <div className="text-gray-800 text-sm leading-relaxed">
+              {address.formattedAddress}
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
+
+  const OverviewComponent = () => {
+    return (
+      <div className="mt-8">
+        <h3 className="text-lg font-medium text-[#606060] mb-6">
+          Personal Information
+        </h3>
+
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Full Name
+            </label>
+            <input
+              type="text"
+              value={customerDetails?.personalDetails?.name}
+              readOnly
+              className="w-full p-3 border border-[#DDDDDD] rounded-lg text-gray-900"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email address
+              </label>
+              <input
+                type="email"
+                value={customerDetails?.personalDetails?.email}
+                readOnly
+                className="w-full p-3 border border-[#DDDDDD] rounded-lg text-gray-900"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Mobile Number
+              </label>
+              <input
+                type="tel"
+                value={`${customerDetails?.personalDetails?.countryCode} ${customerDetails?.personalDetails?.phoneNumber}`}
+                readOnly
+                className="w-full p-3 border border-[#DDDDDD] rounded-lg text-gray-900"
+              />
+            </div>
+          </div>
+
+          {/* Address Cards Section */}
+          <div
+            className="mt-8"
+            style={{
+              display: customerDetails?.addresses?.length === 0 && "none",
+            }}
+          >
+            <h3 className="text-lg font-medium text-[#606060] mb-6">
+              Addresses
+            </h3>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {customerDetails?.addresses?.map((address) => (
+                <AddressCard key={address._id} address={address} />
+              ))}
+            </div>
+
+            {/* Empty state */}
+            {(!customerDetails?.addresses ||
+              customerDetails.addresses.length === 0) && (
+              <div className="text-center py-12">
+                <MapPin className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                <h4 className="text-lg font-medium text-gray-500 mb-2">
+                  No addresses found
+                </h4>
+                <p className="text-gray-400">Add an address to get started</p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   const ServicesComponent = () => (
     <div className="mt-8">
@@ -144,13 +303,20 @@ const CustomerView = () => {
       />
       <div className="px-3 md:px-0">
         <GlobalPagination
-          currentPage={currentPage}
-          totalPages={Math.ceil(totalItems / rowsPerPage)}
-          onPageChange={(page) => setCurrentPage(page)}
-          rowsPerPage={rowsPerPage}
+          currentPage={servicesPagination.currentPage}
+          totalPages={Math.ceil(
+            servicesPagination.totalItems / servicesPagination.rowsPerPage
+          )}
+          onPageChange={(page) =>
+            setServicesPagination((prev) => ({ ...prev, currentPage: page }))
+          }
+          rowsPerPage={servicesPagination.rowsPerPage}
           onRowsPerPageChange={(value) => {
-            setRowsPerPage(value);
-            setCurrentPage(1);
+            setServicesPagination((prev) => ({
+              ...prev,
+              rowsPerPage: value,
+              currentPage: 1,
+            }));
           }}
         />
       </div>
@@ -162,38 +328,10 @@ const CustomerView = () => {
       <DataTable
         actionColumn={true}
         actionMenu={["View", "Edit", "Delete"]}
-        data={[
-          {
-            date: "2025-06-26",
-            serviceId: "SRV1001",
-            product: "Air Conditioner",
-            partRequested: "Compressor",
-            quantity: 1,
-            status: "Approved",
-            invoiceId: "INV5001",
-          },
-          {
-            date: "2025-06-25",
-            serviceId: "SRV1002",
-            product: "Washing Machine",
-            partRequested: "Drain Pump",
-            quantity: 2,
-            status: "Pending",
-            invoiceId: null,
-          },
-          {
-            date: "2025-06-23",
-            serviceId: "SRV1003",
-            product: "Microwave",
-            partRequested: "Magnetron",
-            quantity: 1,
-            status: "Rejected",
-            invoiceId: null,
-          },
-        ]}
+        data={spareParts}
         headers={[
-          { key: "date", label: "Date" },
-          { key: "serviceId", label: "Service ID" },
+          { key: "requestDate", label: "Date" },
+          { key: "hardwareRequestId", label: "Service ID" },
           { key: "product", label: "Product" },
           { key: "partRequested", label: "Part Requested" },
           { key: "quantity", label: "Quantity" },
@@ -202,46 +340,62 @@ const CustomerView = () => {
         ]}
         searchable={false}
       />
+      <div className="px-3 md:px-0">
+        <GlobalPagination
+          currentPage={sparePartsPagination.currentPage}
+          totalPages={Math.ceil(
+            sparePartsPagination.totalItems / sparePartsPagination.rowsPerPage
+          )}
+          onPageChange={(page) =>
+            setSparePartsPagination((prev) => ({ ...prev, currentPage: page }))
+          }
+          rowsPerPage={sparePartsPagination.rowsPerPage}
+          onRowsPerPageChange={(value) => {
+            setSparePartsPagination((prev) => ({
+              ...prev,
+              rowsPerPage: value,
+              currentPage: 1,
+            }));
+          }}
+        />
+      </div>
     </div>
   );
 
-  const FeedbackComponent = () => (
+  const FeedbackComponent = ({ data, paginationState, setPaginationState }) => (
     <div className="mt-8">
       <DataTable
         actionColumn={true}
         actionMenu={["View", "Edit", "Delete"]}
-        data={[
-          {
-            date: "2025-06-26",
-            serviceType: "AC Repair",
-            technician: "Vikram Sharma",
-            rating: 4,
-            comments: "Good service, arrived on time.",
-          },
-          {
-            date: "2025-06-24",
-            serviceType: "Geyser Installation",
-            technician: "Anjali Verma",
-            rating: 5,
-            comments: "Very professional and quick.",
-          },
-          {
-            date: "2025-06-22",
-            serviceType: "Fridge Maintenance",
-            technician: "Rahul Meena",
-            rating: 3,
-            comments: "Fixed the issue, but was slightly late.",
-          },
-        ]}
+        data={data}
         headers={[
-          { key: "date", label: "Date" },
-          { key: "serviceType", label: "Service Type" },
+          { key: "createdAt", label: "Date" },
+          { key: "targetType", label: "Service Type" },
           { key: "technician", label: "Technician" },
           { key: "rating", label: "Rating" },
-          { key: "comments", label: "Comments" },
+          { key: "comment", label: "Comments" },
         ]}
         searchable={false}
       />
+      <div className="px-3 md:px-0">
+        <GlobalPagination
+          currentPage={paginationState.currentPage}
+          totalPages={Math.ceil(
+            paginationState.totalItems / paginationState.rowsPerPage
+          )}
+          onPageChange={(page) =>
+            setPaginationState((prev) => ({ ...prev, currentPage: page }))
+          }
+          rowsPerPage={paginationState.rowsPerPage}
+          onRowsPerPageChange={(value) => {
+            setPaginationState((prev) => ({
+              ...prev,
+              rowsPerPage: value,
+              currentPage: 1,
+            }));
+          }}
+        />
+      </div>
     </div>
   );
 
@@ -253,8 +407,22 @@ const CustomerView = () => {
         return <ServicesComponent />;
       case "Spare Parts":
         return <SparePartsComponent />;
-      case "Feedback":
-        return <FeedbackComponent />;
+      case "Review Given by Customer":
+        return (
+          <FeedbackComponent
+            data={reviewsByCustomer}
+            paginationState={reviewsByCustomerPagination}
+            setPaginationState={setReviewsByCustomerPagination}
+          />
+        );
+      case "Review Given to Customer":
+        return (
+          <FeedbackComponent
+            data={reviewsToCustomer}
+            paginationState={reviewsToCustomerPagination}
+            setPaginationState={setReviewsToCustomerPagination}
+          />
+        );
       default:
         return <OverviewComponent />;
     }
@@ -265,8 +433,9 @@ const CustomerView = () => {
       setIsLoading(true);
       const response = await getCustomerDetails(id);
       const { status, details } = response;
-      if (status.success && details?.customer) {
-        setCustomerDetails(details?.customer);
+
+      if (status.success && details) {
+        setCustomerDetails(details);
       }
     } catch (error) {
       console.log(error);
@@ -280,13 +449,16 @@ const CustomerView = () => {
       setIsLoading(true);
       const response = await getCustomerServiceRequest(
         id,
-        currentPage,
-        rowsPerPage
+        servicesPagination.currentPage,
+        servicesPagination.rowsPerPage
       );
       const { status, details } = response;
       if (status.success && details?.serviceRequests) {
         setCustomerServices(details?.serviceRequests);
-        setTotalItems(details.pagination?.total || 0);
+        setServicesPagination((prev) => ({
+          ...prev,
+          totalItems: details.pagination?.total || 0,
+        }));
       }
     } catch (error) {
       console.log(error);
@@ -313,10 +485,67 @@ const CustomerView = () => {
   async function fetchCustomerSparePartsRequest(id) {
     try {
       setIsLoading(true);
-      const response = await getCustomerSparePartsRequest(id);
+      const response = await getCustomerSparePartsRequest(
+        id,
+        sparePartsPagination.currentPage,
+        sparePartsPagination.rowsPerPage
+      );
       const { status, details } = response;
-      if (status.success && details?.stats) {
-        // setCustomerServiceStats(details?.stats);
+
+      if (status.success && details?.hardwareRequests) {
+        setSpareParts(details?.hardwareRequests);
+        setSparePartsPagination((prev) => ({
+          ...prev,
+          totalItems: details.pagination?.total || 0,
+        }));
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function fetchReviewsGivenToCustomer(id) {
+    try {
+      setIsLoading(true);
+      const response = await getReviewGivenToCustomer(
+        id,
+        reviewsToCustomerPagination.currentPage,
+        reviewsToCustomerPagination.rowsPerPage
+      );
+      const { status, details } = response;
+
+      if (status.success && details?.reviews) {
+        setReviewsToCustomer(details?.reviews);
+        setReviewsToCustomerPagination((prev) => ({
+          ...prev,
+          totalItems: details.pagination?.total || 0,
+        }));
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  async function fetchReviewsGivenByCustomer(id) {
+    try {
+      setIsLoading(true);
+      const response = await getReviewGivenByCustomer(
+        id,
+        reviewsByCustomerPagination.currentPage,
+        reviewsByCustomerPagination.rowsPerPage
+      );
+      const { status, details } = response;
+
+      if (status.success && details?.reviews) {
+        setReviewsByCustomer(details?.reviews);
+        setReviewsByCustomerPagination((prev) => ({
+          ...prev,
+          totalItems: details.pagination?.total || 0,
+        }));
       }
     } catch (error) {
       console.log(error);
@@ -329,13 +558,42 @@ const CustomerView = () => {
     if (location?.state) {
       fetchCustomerDetails(location?.state);
       fetchCustomerRequestStats(location?.state);
-      fetchCustomerSparePartsRequest(location?.state);
     }
   }, [location]);
 
+  // Separate useEffect for services pagination
   useEffect(() => {
-    if (location?.state) fetchCustomerServices(location?.state);
-  }, [currentPage, rowsPerPage]);
+    if (location?.state) {
+      fetchCustomerServices(location.state);
+    }
+  }, [servicesPagination.currentPage, servicesPagination.rowsPerPage]);
+
+  // Separate useEffect for spare parts pagination
+  useEffect(() => {
+    if (location?.state) {
+      fetchCustomerSparePartsRequest(location.state);
+    }
+  }, [sparePartsPagination.currentPage, sparePartsPagination.rowsPerPage]);
+
+  // Separate useEffect for reviews given to customer pagination
+  useEffect(() => {
+    if (location?.state) {
+      fetchReviewsGivenToCustomer(location.state);
+    }
+  }, [
+    reviewsToCustomerPagination.currentPage,
+    reviewsToCustomerPagination.rowsPerPage,
+  ]);
+
+  // Separate useEffect for reviews given by customer pagination
+  useEffect(() => {
+    if (location?.state) {
+      fetchReviewsGivenByCustomer(location.state);
+    }
+  }, [
+    reviewsByCustomerPagination.currentPage,
+    reviewsByCustomerPagination.rowsPerPage,
+  ]);
 
   return (
     <div className="w-full p-6 bg-white">
@@ -343,6 +601,7 @@ const CustomerView = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {stats.map((stat, index) => (
           <StatsCard
+            key={index}
             src={stat.icon}
             title={stat.title}
             value={stat.value}
@@ -360,7 +619,7 @@ const CustomerView = () => {
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors 
-                w-30 mx-0.5 rounded-t cursor-pointer
+                min-w-30 mx-0.5 rounded-t cursor-pointer
                 duration-200 ${
                   activeTab === tab
                     ? "border-[#267596] text-[#267596] bg-[#2675961A]"
