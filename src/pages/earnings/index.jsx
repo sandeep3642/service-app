@@ -15,7 +15,7 @@ const index = () => {
   const [paymentHistory, setPaymentHistory] = useState([]);
   const [activeTab, setActiveTab] = useState("earnings");
   const [showDropdown, setShowDropdown] = useState(false);
-  const [selectedRange, setSelectedRange] = useState("Last 6 Months");
+  const [selectedRange, setSelectedRange] = useState("Last 30 Days");
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
@@ -53,8 +53,8 @@ const index = () => {
 
   const fetchPaymentHistory = async () => {
     try {
-      const response = await getPaymentHistory(currentPage, rowsPerPage);
-      const { details, status } = response;
+      const response = await getPaymentHistory(currentPage, rowsPerPage, selectedRange && selectedRange.replaceAll(" ", "").toLowerCase());
+      const { details, status } = response; 
       if (status.success && details.payments) {
         setPaymentHistory(details.payments || []);
         setTotalItems(details?.pagination?.total);
@@ -66,7 +66,7 @@ const index = () => {
 
   useEffect(() => {
     fetchPaymentHistory();
-  }, [currentPage, rowsPerPage]);
+  }, [currentPage, rowsPerPage, selectedRange]);
 
   useEffect(() => {
     fetchEarningsStats();
@@ -82,7 +82,7 @@ const index = () => {
   ];
 
   const handleRowAction = (row, mode) => {
- 
+
     navigate("/earnings-detail", {
       state: row?._id,
     });
@@ -105,11 +105,10 @@ const index = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`text-sm font-medium pb-2 border-b-2 transition-all ${
-                  activeTab === tab.id
-                    ? "text-blue-600 border-blue-500"
-                    : "text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300"
-                }`}
+                className={`text-sm font-medium pb-2 border-b-2 transition-all ${activeTab === tab.id
+                  ? "text-blue-600 border-blue-500"
+                  : "text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300"
+                  }`}
               >
                 {tab.label}
               </button>

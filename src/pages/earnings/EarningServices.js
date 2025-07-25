@@ -7,9 +7,11 @@ export const getEarningsStats = async (filter = "last30days") => {
   return res.data;
 };
 
-export const getPaymentHistory = async (page, limit) => {
+export const getPaymentHistory = async (page, limit, filter = "last30days") => {
   const res = await api.get(
-    `/api/v1/user/earnings/paymentHistory?page=${page}&limit=${limit}`
+    `/api/v1/user/earnings/paymentHistory?page=${page}&limit=${limit}`, {
+    params: { filter },
+  }
   );
   return res.data;
 };
