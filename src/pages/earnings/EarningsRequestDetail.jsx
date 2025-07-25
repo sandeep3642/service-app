@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { getEarningDetails, getPaymentHistory } from "./EarningServices";
 import { toast } from "react-toastify";
+import { getMessageName } from "../../utilty/messageConstant";
+import { getStatusBadge } from "../../utilty/globalStatus";
 
 const EarningsRequestDetail = ({ requestData }) => {
   const location = useLocation();
   const [apiData, setApiData] = useState(null);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
   const transformApiData = (apiResponse) => {
     const { paymentInfo, serviceInfo, customerInfo } = apiResponse.details;
@@ -95,40 +98,28 @@ const EarningsRequestDetail = ({ requestData }) => {
   const data = apiData ? transformApiData(apiData) : null;
 
   const StatusBadge = ({ status }) => {
-    const getStatusColor = (status) => {
-      const statusLower = status?.toLowerCase();
-      switch (statusLower) {
-        case "payment_success":
-        case "captured":
-        case "confirmed":
-          return " text-green-900";
-        case "pending":
-          return " text-yellow-900";
-        case "failed":
-        case "cancelled":
-          return " text-red-900";
-        default:
-          return "text-gray-900";
-      }
-    };
 
     const displayStatus = status === "Payment_Success" ? "Success" : status;
 
     return (
       <span
-        className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(status)}`}
+        className={`text-sm font-medium ${getStatusBadge(status)}`}
       >
         {displayStatus}
       </span>
     );
   };
 
-  const DetailRow = ({ label, value, isHighlight = false }) => (
+  const DetailRow = ({ label, value, isHighlight = false, clickhandler }) => (
     <div className={`flex py-3 px-3 rounded-lg ${isHighlight ? "bg-blue-50 border border-blue-200" : "hover:bg-gray-50"}`}>
       <div className="w-1/2 text-sm font-semibold text-gray-700">
         {label}:
       </div>
-      <div className="w-1/2 text-sm text-gray-900 font-medium">
+      <div className="w-1/2 text-sm text-gray-900 font-medium cursor-pointer"
+        onClick={() => {
+          clickhandler && clickhandler()
+        }}
+      >
         {value || "N/A"}
       </div>
     </div>
@@ -186,6 +177,18 @@ const EarningsRequestDetail = ({ requestData }) => {
     );
   }
 
+  const navigatorFunction = (id, type) => {
+    if (type == "service") {
+      navigate("/service-detail", { state: id })
+    }
+    if (type == "customer") {
+      navigate("/customer-view", { state: id });
+    }
+    if (type == "technician") {
+      navigate("/technician-view", { state: id });
+    }
+  }
+
   return (
     <div className="bg-gray-50 min-h-screen p-6">
       {/* Header Card */}
@@ -229,10 +232,10 @@ const EarningsRequestDetail = ({ requestData }) => {
 
           {/* Service Details */}
           <Section title="Service Information">
-            <DetailRow label="Service ID" value={data.service.id} />
+            <DetailRow label="Service ID" value={data.service.id} clickhandler={() => navigatorFunction(data.service.id, "service")} />
             <DetailRow
               label="Service Status"
-              value={<StatusBadge status={data.service.status} />}
+              value={<StatusBadge status={getMessageName(data.service.status)} />}
             />
             <DetailRow label="Address ID" value={data.service.addressId} />
             <DetailRow label="Customer Contact" value={data.service.customerContact} />
@@ -276,14 +279,14 @@ const EarningsRequestDetail = ({ requestData }) => {
 
           {/* Technician Details */}
           <Section title="Technician Information">
-            <DetailRow label="Technician ID" value={data.technician.id} />
+            <DetailRow label="Technician ID" value={data.technician.id} clickhandler={() => navigatorFunction(data.technician.id, "technician")} />
             <DetailRow label="Name" value={data.technician.name} />
             <DetailRow label="Phone" value={data.technician.phone} />
           </Section>
 
           {/* Customer Details */}
           <Section title="Customer Information">
-            <DetailRow label="Customer ID" value={data.customer.id} />
+            <DetailRow label="Customer ID" value={data.customer.id} clickhandler={() => navigatorFunction(data.customer.id, "customer")} />
             <DetailRow label="Name" value={data.customer.name} />
             <DetailRow label="Phone Number" value={data.customer.phoneNumber} />
           </Section>

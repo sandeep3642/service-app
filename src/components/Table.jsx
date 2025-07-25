@@ -98,6 +98,7 @@ const DataTable = ({
         displayValue = value ? "Active" : "Inactive";
       }
 
+
       return (
         <span
           className={`inline-flex px-2 py-1 text-sm font-medium rounded-full ${getStatusBadge(
@@ -115,6 +116,10 @@ const DataTable = ({
 
     if (key == "rating") {
       return <div className="flex">{renderStars(value)}</div>;
+    }
+
+    if (key == 'paidAmount') {
+      return `₹${value}`;
     }
 
     return getMessageName(value) ?? "NA";
