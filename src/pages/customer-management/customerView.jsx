@@ -211,31 +211,19 @@ const CustomerView = () => {
         </h3>
 
         <div className="space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Full Name
-            </label>
-            <input
-              type="text"
-              value={customerDetails?.personalDetails?.name}
-              readOnly
-              className="w-full p-3 border border-[#DDDDDD] rounded-lg text-gray-900"
-            />
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Email address
+                Full Name
               </label>
               <input
-                type="email"
-                value={customerDetails?.personalDetails?.email}
+                type="text"
+                value={customerDetails?.personalDetails?.name}
                 readOnly
+                disabled
                 className="w-full p-3 border border-[#DDDDDD] rounded-lg text-gray-900"
               />
             </div>
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Mobile Number
@@ -244,6 +232,7 @@ const CustomerView = () => {
                 type="tel"
                 value={`${customerDetails?.personalDetails?.countryCode} ${customerDetails?.personalDetails?.phoneNumber}`}
                 readOnly
+                disabled
                 className="w-full p-3 border border-[#DDDDDD] rounded-lg text-gray-900"
               />
             </div>
@@ -269,14 +258,14 @@ const CustomerView = () => {
             {/* Empty state */}
             {(!customerDetails?.addresses ||
               customerDetails.addresses.length === 0) && (
-              <div className="text-center py-12">
-                <MapPin className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-                <h4 className="text-lg font-medium text-gray-500 mb-2">
-                  No addresses found
-                </h4>
-                <p className="text-gray-400">Add an address to get started</p>
-              </div>
-            )}
+                <div className="text-center py-12">
+                  <MapPin className="w-12 h-12 text-gray-300 mx-auto mb-4" />
+                  <h4 className="text-lg font-medium text-gray-500 mb-2">
+                    No addresses found
+                  </h4>
+                  <p className="text-gray-400">Add an address to get started</p>
+                </div>
+              )}
           </div>
         </div>
       </div>
@@ -620,10 +609,9 @@ const CustomerView = () => {
               onClick={() => setActiveTab(tab)}
               className={`py-2 px-1 border-b-2 font-medium text-sm transition-colors 
                 min-w-30 mx-0.5 rounded-t cursor-pointer
-                duration-200 ${
-                  activeTab === tab
-                    ? "border-[#267596] text-[#267596] bg-[#2675961A]"
-                    : "border-transparent text-gray-500 hover:text-gray-700 bg-[#DDDDDD80]"
+                duration-200 ${activeTab === tab
+                  ? "border-[#267596] text-[#267596] bg-[#2675961A]"
+                  : "border-transparent text-gray-500 hover:text-gray-700 bg-[#DDDDDD80]"
                 }`}
             >
               {tab}

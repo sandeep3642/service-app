@@ -11,7 +11,6 @@ import { useNavigate } from "react-router-dom";
 
 const customerHeaders = [
   { key: "name", label: "Name" },
-  { key: "email", label: "Email" },
   { key: "phoneNumber", label: "Mobile No." },
   { key: "createdAt", label: "Joined On" },
   { key: "updatedAt", label: "Last Login" },

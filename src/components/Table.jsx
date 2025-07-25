@@ -244,7 +244,9 @@ const DataTable = ({
                         key={header.key}
                         className="px-6 py-4 whitespace-nowrap text-sm text-[#121212]"
                       >
-                        {renderCell(row[header.key], header.key, row)}
+                        <div className="flex justify-center">
+                          {renderCell(row[header.key], header.key, row)}
+                        </div>
                       </td>
                     ))}
                     {actionColumn && (
