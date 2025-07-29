@@ -353,14 +353,10 @@ const CustomerView = () => {
 
   const FeedbackComponent = ({ data, paginationState, setPaginationState }) => (
     <div className="mt-8">
-      <DataTable
-        actionColumn={true}
-        actionMenu={["View", "Edit", "Delete"]}
+      <DataTable      
         data={data}
         headers={[
           { key: "createdAt", label: "Date" },
-          { key: "targetType", label: "Service Type" },
-          { key: "technician", label: "Technician" },
           { key: "rating", label: "Rating" },
           { key: "comment", label: "Comments" },
         ]}
