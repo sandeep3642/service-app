@@ -1,36 +1,56 @@
+
 import { useState } from 'react';
 import { Upload, X } from 'lucide-react';
+import { addTechnician } from './technician';
 
 export default function AddTechnicianForm() {
     const [formData, setFormData] = useState({
-        profileReview: '',
-        availability: {
-            active: false,
-            inactive: false
-        },
-        fullName: '',
-        emailAddress: '',
+        // Basic Information
+        firstName: '',
+        lastName: '',
+        email: '',
         phoneNumber: '',
-        mobileNumber: '',
-        skills: [],
-        serviceCategory: {
-            it: false,
-            nonIt: false
+        password: '',
+        gender: '',
+        languages: [],
+
+        // Address
+        addresses: {
+            address: '',
+            city: '',
+            state: '',
+            pincode: '',
+            country: 'India'
         },
-        region: '',
-        yearOfExperience: '',
+
+        // Professional Details
+        serviceCategories: [],
+        yearsOfExperience: '',
+        skills: [],
+        workPreference: '',
+        commissionPercentage: '',
+
+        // Availability Status - changed to single value
+        availability: '',
+
+        // Bank Details
+        accountHolderName: '',
+        bankName: '',
         accountNumber: '',
-        accountName: '',
         ifscCode: '',
+        branchName: '',
         accountType: ''
     });
 
     const [uploadedFiles, setUploadedFiles] = useState({
+        profilePhoto: null,
         certifications: null,
         aadharCard: null,
         aadharCardBack: null
     });
+
     const [skillInput, setSkillInput] = useState('');
+    const [languageInput, setLanguageInput] = useState('');
 
     const handleInputChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -51,6 +71,18 @@ export default function AddTechnicianForm() {
             }));
         }
     };
+
+    const handleArrayInputChange = (field, value) => {
+        if (field === 'serviceCategories') {
+            setFormData(prev => ({
+                ...prev,
+                serviceCategories: prev.serviceCategories.includes(value)
+                    ? prev.serviceCategories.filter(item => item !== value)
+                    : [...prev.serviceCategories, value]
+            }));
+        }
+    };
+
     const handleSkillKeyDown = (e) => {
         if (e.key === 'Enter' && skillInput.trim()) {
             e.preventDefault();
@@ -64,6 +96,19 @@ export default function AddTechnicianForm() {
         }
     };
 
+    const handleLanguageKeyDown = (e) => {
+        if (e.key === 'Enter' && languageInput.trim()) {
+            e.preventDefault();
+            if (!formData.languages.includes(languageInput.trim())) {
+                setFormData(prev => ({
+                    ...prev,
+                    languages: [...prev.languages, languageInput.trim()]
+                }));
+                setLanguageInput('');
+            }
+        }
+    };
+
     const handleSkillRemove = (skillToRemove) => {
         setFormData(prev => ({
             ...prev,
@@ -71,6 +116,12 @@ export default function AddTechnicianForm() {
         }));
     };
 
+    const handleLanguageRemove = (languageToRemove) => {
+        setFormData(prev => ({
+            ...prev,
+            languages: prev.languages.filter(lang => lang !== languageToRemove)
+        }));
+    };
 
     const handleFileUpload = (fileType, file) => {
         setUploadedFiles(prev => ({
@@ -79,40 +130,51 @@ export default function AddTechnicianForm() {
         }));
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async() => {
         console.log('Form Data:', formData);
         console.log('Uploaded Files:', uploadedFiles);
+
+        const response = await addTechnician(formData);
         // Handle form submission logic here
     };
 
     const handleReset = () => {
         setFormData({
-            profileReview: '',
-            availability: {
-                active: false,
-                inactive: false
-            },
-            fullName: '',
-            emailAddress: '',
+            firstName: '',
+            lastName: '',
+            email: '',
             phoneNumber: '',
-            mobileNumber: '',
-            skills: [],
-            serviceCategory: {
-                it: false,
-                nonIt: false
+            password: '',
+            gender: '',
+            languages: [],
+            addresses: {
+                address: '',
+                city: '',
+                state: '',
+                pincode: '',
+                country: 'India'
             },
-            region: '',
-            yearOfExperience: '',
+            serviceCategories: [],
+            yearsOfExperience: '',
+            skills: [],
+            workPreference: '',
+            commissionPercentage: '',
+            availability: '',
+            accountHolderName: '',
+            bankName: '',
             accountNumber: '',
-            accountName: '',
             ifscCode: '',
+            branchName: '',
             accountType: ''
         });
         setUploadedFiles({
+            profilePhoto: null,
             certifications: null,
             aadharCard: null,
             aadharCardBack: null
         });
+        setSkillInput('');
+        setLanguageInput('');
     };
 
     const FileUploadBox = ({ title, fileType, acceptedFormats }) => (
@@ -125,7 +187,7 @@ export default function AddTechnicianForm() {
                     type="file"
                     className="hidden"
                     id={fileType}
-                    accept={acceptedFormats.includes('PDF') ? '.pdf' : 'image/*'}
+                    accept={acceptedFormats.includes('PDF') ? '.pdf,image/*' : 'image/*'}
                     onChange={(e) => handleFileUpload(fileType, e.target.files[0])}
                 />
                 <label
@@ -158,69 +220,218 @@ export default function AddTechnicianForm() {
 
                     <div className="space-y-6">
                         {/* Profile Photo and Availability Status - First Row */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                             {/* Profile Photo */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Profile Photo<span className='pl-1 text-red-600 font-bold '>*</span>
                                 </label>
-                                <div className="w-30 h-30 bg-gray-200 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
-                                    <button
-                                        type="button"
-                                        className="text-2xl text-gray-500 hover:text-gray-700"
+                                <div className="w-24 h-24 bg-gray-200 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
+                                    <input
+                                        type="file"
+                                        className="hidden"
+                                        id="profilePhoto"
+                                        accept="image/*"
+                                        onChange={(e) => handleFileUpload('profilePhoto', e.target.files[0])}
+                                    />
+                                    <label
+                                        htmlFor="profilePhoto"
+                                        className="text-2xl text-gray-500 hover:text-gray-700 cursor-pointer"
                                     >
                                         +
-                                    </button>
+                                    </label>
                                 </div>
+                                {uploadedFiles.profilePhoto && (
+                                    <p className="text-xs text-green-600 mt-1">{uploadedFiles.profilePhoto.name}</p>
+                                )}
                             </div>
 
-                            {/* Availability Status */}
+                            {/* Availability Status - Changed to Radio Buttons */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Availability Status<span className='pl-1 text-red-600 font-bold '>*</span>
                                 </label>
-                                <div className="flex items-center space-x-6">
+                                <div className="flex flex-col space-y-2">
                                     <label className="flex items-center">
                                         <input
-                                            type="checkbox"
-                                            name="availability.active"
-                                            checked={formData.availability.active}
+                                            type="radio"
+                                            name="availability"
+                                            value="active"
+                                            checked={formData.availability === "active"}
                                             onChange={handleInputChange}
-                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                            className="border-gray-300 text-blue-600 focus:ring-blue-500"
                                         />
                                         <span className="ml-2 text-sm text-gray-700">Active</span>
                                     </label>
                                     <label className="flex items-center">
                                         <input
-                                            type="checkbox"
-                                            name="availability.inactive"
-                                            checked={formData.availability.inactive}
+                                            type="radio"
+                                            name="availability"
+                                            value="inactive"
+                                            checked={formData.availability === "inactive"}
                                             onChange={handleInputChange}
-                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                            className="border-gray-300 text-blue-600 focus:ring-blue-500"
                                         />
                                         <span className="ml-2 text-sm text-gray-700">Inactive</span>
                                     </label>
                                 </div>
                             </div>
+
+                            {/* Technician Type */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Technician Type<span className='pl-1 text-red-600 font-bold '>*</span>
+                                </label>
+                                <div className="flex flex-col space-y-2">
+                                    <label className="flex items-center">
+                                        <input
+                                            type="radio"
+                                            name="workPreference"
+                                            value="Full Time"
+                                            checked={formData.workPreference === "Full Time"}
+                                            onChange={handleInputChange}
+                                            className="border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        />
+                                        <span className="ml-2 text-sm text-gray-700">Full Time</span>
+                                    </label>
+                                    <label className="flex items-center">
+                                        <input
+                                            type="radio"
+                                            name="workPreference"
+                                            value="Freelancer"
+                                            checked={formData.workPreference === "Freelancer"}
+                                            onChange={handleInputChange}
+                                            className="border-gray-300 text-blue-600 focus:ring-blue-500 "
+                                        />
+                                        <span className="ml-2 text-sm text-gray-700">Freelancer</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            {/* Commission */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Commission (%)<span className='pl-1 text-red-600 font-bold '>*</span>
+                                </label>
+                                <div className="flex items-center">
+                                    <input
+                                        type="number"
+                                        name="commissionPercentage"
+                                        value={formData.commissionPercentage}
+                                        onChange={handleInputChange}
+                                        placeholder="30"
+                                        className="text-gray-700 w-16 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        min="0"
+                                        max="100"
+                                        required
+                                    />
+                                    <span className="ml-2 text-xs text-gray-500">(on every service booking)</span>
+                                </div>
+                            </div>
                         </div>
 
-                        {/* Full Name - Second Row (Full Width) */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Full Name<span className='pl-1 text-red-600 font-bold '>*</span>
-                            </label>
-                            <input
-                                type="text"
-                                name="fullName"
-                                value={formData.fullName}
-                                onChange={handleInputChange}
-                                placeholder="Enter name"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                required
-                            />
+                        {/* Name Fields - Second Row */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* First Name */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    First Name<span className='pl-1 text-red-600 font-bold '>*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    name="firstName"
+                                    value={formData.firstName}
+                                    onChange={handleInputChange}
+                                    placeholder="Enter first name"
+                                    className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
+
+                            {/* Last Name */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Last Name<span className='pl-1 text-red-600 font-bold '>*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    name="lastName"
+                                    value={formData.lastName}
+                                    onChange={handleInputChange}
+                                    placeholder="Enter last name"
+                                    className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
                         </div>
 
-                        {/* Email and Mobile Number - Third Row */}
+                        {/* Gender and Languages - Third Row */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            {/* Gender */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Gender<span className='pl-1 text-red-600 font-bold '>*</span>
+                                </label>
+                                <div className="flex items-center space-x-6">
+                                    <label className="flex items-center">
+                                        <input
+                                            type="radio"
+                                            name="gender"
+                                            value="Male"
+                                            checked={formData.gender === "Male"}
+                                            onChange={handleInputChange}
+                                            className="border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        />
+                                        <span className="ml-2 text-sm text-gray-700">Male</span>
+                                    </label>
+                                    <label className="flex items-center">
+                                        <input
+                                            type="radio"
+                                            name="gender"
+                                            value="Female"
+                                            checked={formData.gender === "Female"}
+                                            onChange={handleInputChange}
+                                            className="border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        />
+                                        <span className="ml-2 text-sm text-gray-700">Female</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            {/* Languages */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Languages <span className="text-sm text-gray-500">(Select one or multiple)</span><span className='pl-1 text-red-600 font-bold '>*</span>
+                                </label>
+                                <div className="flex flex-wrap items-center gap-2 border border-gray-300 rounded-md px-3 py-2 min-h-[42px]">
+                                    {formData.languages.map((language, index) => (
+                                        <span
+                                            key={index}
+                                            className="text-white bg-blue-500 px-2 py-1 rounded-md text-sm flex items-center"
+                                        >
+                                            {language}
+                                            <button
+                                                type="button"
+                                                onClick={() => handleLanguageRemove(language)}
+                                                className="ml-1 text-white hover:text-gray-200"
+                                            >
+                                                <X className="w-3 h-3" />
+                                            </button>
+                                        </span>
+                                    ))}
+                                    <input
+                                        type="text"
+                                        value={languageInput}
+                                        onChange={(e) => setLanguageInput(e.target.value)}
+                                        onKeyDown={handleLanguageKeyDown}
+                                        placeholder="Enter languages and press Enter"
+                                        className="text-gray-700 flex-1 border-none focus:ring-0 outline-none min-w-[120px]"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Email and Mobile Number - Fourth Row */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {/* Email Address */}
                             <div>
@@ -229,11 +440,11 @@ export default function AddTechnicianForm() {
                                 </label>
                                 <input
                                     type="email"
-                                    name="emailAddress"
-                                    value={formData.emailAddress}
+                                    name="email"
+                                    value={formData.email}
                                     onChange={handleInputChange}
                                     placeholder="Enter email address"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     required
                                 />
                             </div>
@@ -245,11 +456,98 @@ export default function AddTechnicianForm() {
                                 </label>
                                 <input
                                     type="tel"
-                                    name="mobileNumber"
-                                    value={formData.mobileNumber}
+                                    name="phoneNumber"
+                                    value={formData.phoneNumber}
                                     onChange={handleInputChange}
                                     placeholder="Enter mobile number"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        {/* Password */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Password<span className='pl-1 text-red-600 font-bold '>*</span>
+                            </label>
+                            <input
+                                type="password"
+                                name="password"
+                                value={formData.password}
+                                onChange={handleInputChange}
+                                placeholder="Enter password"
+                                className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                required
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* Address Information */}
+                <div className="bg-white p-6">
+                    <h2 className="text-lg font-semibold text-gray-800 mb-6">Address Information</h2>
+
+                    <div className="space-y-6">
+                        {/* Street Address */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Street Address<span className='pl-1 text-red-600 font-bold '>*</span>
+                            </label>
+                            <input
+                                type="text"
+                                name="address.street"
+                                value={formData.address.street}
+                                onChange={handleInputChange}
+                                placeholder="Enter street address"
+                                className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                required
+                            />
+                        </div>
+
+                        {/* City, State, Pincode */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    City<span className='pl-1 text-red-600 font-bold '>*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    name="address.city"
+                                    value={formData.address.city}
+                                    onChange={handleInputChange}
+                                    placeholder="Enter city"
+                                    className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    State<span className='pl-1 text-red-600 font-bold '>*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    name="address.state"
+                                    value={formData.address.state}
+                                    onChange={handleInputChange}
+                                    placeholder="Enter state"
+                                    className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    required
+                                />
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    Pincode<span className='pl-1 text-red-600 font-bold '>*</span>
+                                </label>
+                                <input
+                                    type="text"
+                                    name="address.pincode"
+                                    value={formData.address.pincode}
+                                    onChange={handleInputChange}
+                                    placeholder="Enter pincode"
+                                    className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     required
                                 />
                             </div>
@@ -269,7 +567,7 @@ export default function AddTechnicianForm() {
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     Skills<span className='pl-1 text-red-600 font-bold '>*</span>
                                 </label>
-                                <div className="flex flex-wrap items-center gap-2 border border-gray-300 rounded-md px-3 py-2">
+                                <div className="flex flex-wrap items-center gap-2 border border-gray-300 rounded-md px-3 py-2 min-h-[42px]">
                                     {formData.skills.map((skill, index) => (
                                         <span
                                             key={index}
@@ -291,10 +589,9 @@ export default function AddTechnicianForm() {
                                         onChange={(e) => setSkillInput(e.target.value)}
                                         onKeyDown={handleSkillKeyDown}
                                         placeholder="Enter skills and press Enter"
-                                        className="flex-1 border-none focus:ring-0 outline-none min-w-[120px]"
+                                        className="text-gray-700 flex-1 border-none focus:ring-0 outline-none min-w-[120px]"
                                     />
                                 </div>
-
                             </div>
 
                             {/* Service Categories */}
@@ -306,9 +603,8 @@ export default function AddTechnicianForm() {
                                     <label className="flex items-center">
                                         <input
                                             type="checkbox"
-                                            name="serviceCategory.it"
-                                            checked={formData.serviceCategory.it}
-                                            onChange={handleInputChange}
+                                            checked={formData.serviceCategories.includes('IT')}
+                                            onChange={() => handleArrayInputChange('serviceCategories', 'IT')}
                                             className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                         />
                                         <span className="ml-2 text-sm text-gray-700">IT</span>
@@ -316,55 +612,44 @@ export default function AddTechnicianForm() {
                                     <label className="flex items-center">
                                         <input
                                             type="checkbox"
-                                            name="serviceCategory.nonIt"
-                                            checked={formData.serviceCategory.nonIt}
-                                            onChange={handleInputChange}
+                                            checked={formData.serviceCategories.includes('NON_IT')}
+                                            onChange={() => handleArrayInputChange('serviceCategories', 'NON_IT')}
                                             className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                         />
                                         <span className="ml-2 text-sm text-gray-700">Non IT</span>
+                                    </label>
+                                    <label className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            checked={formData.serviceCategories.includes('GENERAL')}
+                                            onChange={() => handleArrayInputChange('serviceCategories', 'GENERAL')}
+                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                        />
+                                        <span className="ml-2 text-sm text-gray-700">General</span>
                                     </label>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Year of Experience and Region - Second Row */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            {/* Year of Experience */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Year of Experience<span className='pl-1 text-red-600 font-bold '>*</span>
-                                </label>
-                                <select
-                                    name="yearOfExperience"
-                                    value={formData.yearOfExperience}
-                                    onChange={handleInputChange}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
-                                    required
-                                >
-                                    <option value="">Enter your experience</option>
-                                    <option value="0-1">0-1 years</option>
-                                    <option value="1-3">1-3 years</option>
-                                    <option value="3-5">3-5 years</option>
-                                    <option value="5-10">5-10 years</option>
-                                    <option value="10+">10+ years</option>
-                                </select>
-                            </div>
-
-                            {/* Region */}
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Region / Pin code<span className='pl-1 text-red-600 font-bold '>*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    name="region"
-                                    value={formData.region}
-                                    onChange={handleInputChange}
-                                    placeholder="Enter Region / Pin code"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    required
-                                />
-                            </div>
+                        {/* Year of Experience */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Year of Experience<span className='pl-1 text-red-600 font-bold '>*</span>
+                            </label>
+                            <select
+                                name="yearsOfExperience"
+                                value={formData.yearsOfExperience}
+                                onChange={handleInputChange}
+                                className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none bg-white"
+                                required
+                            >
+                                <option value="">Enter your experience</option>
+                                <option value="0-1">0-1 years</option>
+                                <option value="1-3">1-3 years</option>
+                                <option value="3-5">3-5 years</option>
+                                <option value="5-10">5-10 years</option>
+                                <option value="10+">10+ years</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -374,6 +659,38 @@ export default function AddTechnicianForm() {
                     <h2 className="text-lg font-semibold text-gray-800 mb-6">Bank Details</h2>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Account Holder Name */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Account Holder Name<span className='pl-1 text-red-600 font-bold '>*</span>
+                            </label>
+                            <input
+                                type="text"
+                                name="accountHolderName"
+                                value={formData.accountHolderName}
+                                onChange={handleInputChange}
+                                placeholder="Enter account holder name"
+                                className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                required
+                            />
+                        </div>
+
+                        {/* Bank Name */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                Bank Name<span className='pl-1 text-red-600 font-bold '>*</span>
+                            </label>
+                            <input
+                                type="text"
+                                name="bankName"
+                                value={formData.bankName}
+                                onChange={handleInputChange}
+                                placeholder="Enter bank name"
+                                className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                required
+                            />
+                        </div>
+
                         {/* Account Number */}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -385,23 +702,7 @@ export default function AddTechnicianForm() {
                                 value={formData.accountNumber}
                                 onChange={handleInputChange}
                                 placeholder="Enter account number"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                required
-                            />
-                        </div>
-
-                        {/* Account Name */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
-                                Account Name<span className='pl-1 text-red-600 font-bold '>*</span>
-                            </label>
-                            <input
-                                type="text"
-                                name="accountName"
-                                value={formData.accountName}
-                                onChange={handleInputChange}
-                                placeholder="Enter account name"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 required
                             />
                         </div>
@@ -431,7 +732,7 @@ export default function AddTechnicianForm() {
                                 name="accountType"
                                 value={formData.accountType}
                                 onChange={handleInputChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                className="text-gray-700 w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 required
                             >
                                 <option value="">Enter account type</option>

@@ -47,3 +47,11 @@ export const fetchServiceRequests = async (payload) => {
   const res = await api.post('/api/v1/user/serviceRequests', payload);
   return res.data;
 };
+
+export const addTechnician = async (payload) => {
+  const res = await api.post(
+    `/api/v1/user/technicians/create`,
+    payload
+  );
+  return res.data;
+};

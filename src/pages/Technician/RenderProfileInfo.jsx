@@ -186,52 +186,56 @@ const RenderProfileInfo = ({ profileData, fetchTechnicianDetailbyId }) => {
         )}
 
         {/* Selfie Section - Responsive */}
-        {profileData?.selfie && (
+        {profileData?.selfies?.length > 0 && (
           <div className="w-full">
-            <DocumentCard
-              title="Selfie Verification"
-              name="Selfie Image"
-              fileUrl={profileData.selfie.fileUrl}
-              uploadedDate={formatDate(profileData.selfie.uploadedAt)}
-              status={profileData.selfie.status?.toLowerCase()}
-              onApprove={() => handleApprove(profileData.selfie._id)}
-              onReject={() => handleReject(profileData.selfie._id)}
-              showReason={() =>
-                showRejectionReasonModal(
-                  profileData?.selfie?.rejectedReason,
-                  profileData?.selfie?.reviewedBy,
-                  profileData?.selfie?.reviewedAt
-                )
-              }
-            />
+            {profileData.selfies.map((selfie) => (
+              <DocumentCard
+                key={selfie._id}
+                title="Selfie Verification"
+                name="Selfie Image"
+                fileUrl={selfie.fileUrl}
+                uploadedDate={formatDate(selfie.uploadedAt)}
+                status={selfie.status?.toLowerCase()}
+                onApprove={() => handleApprove(selfie._id)}
+                onReject={() => handleReject(selfie._id)}
+                showReason={() =>
+                  showRejectionReasonModal(
+                    selfie.rejectedReason,
+                    selfie.reviewedBy,
+                    selfie.reviewedAt
+                  )
+                }
+              />
+            ))}
           </div>
         )}
 
+
         {/* Police Verification Section - Responsive */}
-        {profileData?.policeVerification && (
+        {profileData?.policeVerifications?.length > 0 && (
           <div className="w-full">
-            <DocumentCard
-              title="Police Verification"
-              name="Verification Document"
-              fileUrl={profileData.policeVerification.fileUrl}
-              uploadedDate={formatDate(
-                profileData.policeVerification.uploadedAt
-              )}
-              status={profileData.policeVerification.status?.toLowerCase()}
-              onApprove={() =>
-                handleApprove(profileData.policeVerification._id)
-              }
-              onReject={() => handleReject(profileData.policeVerification._id)}
-              showReason={() =>
-                showRejectionReasonModal(
-                  profileData?.policeVerification?.rejectedReason,
-                  profileData?.policeVerification?.reviewedBy,
-                  profileData?.policeVerification?.reviewedAt
-                )
-              }
-            />
+            {profileData.policeVerifications.map((doc) => (
+              <DocumentCard
+                key={doc._id}
+                title="Police Verification"
+                name="Verification Document"
+                fileUrl={doc.fileUrl}
+                uploadedDate={formatDate(doc.uploadedAt)}
+                status={doc.status?.toLowerCase()}
+                onApprove={() => handleApprove(doc._id)}
+                onReject={() => handleReject(doc._id)}
+                showReason={() =>
+                  showRejectionReasonModal(
+                    doc?.rejectedReason,
+                    doc?.reviewedBy,
+                    doc?.reviewedAt
+                  )
+                }
+              />
+            ))}
           </div>
         )}
+
       </div>
 
       {/* Right Column - Contact Information, Skills & Expertise */}
@@ -292,8 +296,8 @@ const RenderProfileInfo = ({ profileData, fetchTechnicianDetailbyId }) => {
                   {skill}
                 </span>
               )) || (
-                <span className="text-sm text-[#121212]">No skills listed</span>
-              )}
+                  <span className="text-sm text-[#121212]">No skills listed</span>
+                )}
             </div>
           </div>
         </div>
