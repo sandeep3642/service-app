@@ -84,7 +84,7 @@ const Technician = () => {
   return (
     <div>
       <div className="py-3 flex items-center justify-end ">
-        <button
+        {/* <button
           onClick={handleAddNewTechnician}
           className="px-4 py-3 bg-[#0C94D2] text-white rounded-lg hover:bg-blue-500 font-medium
         cursor-pointer
@@ -92,7 +92,7 @@ const Technician = () => {
         >
           <span className="font-bold"> + </span>
           Add Technician
-        </button>
+        </button> */}
       </div>
       <DataTable
         headers={technicianHeaders}
