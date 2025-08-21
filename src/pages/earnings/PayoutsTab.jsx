@@ -4,6 +4,7 @@ import Rupee from "../../assets/rupee.png";
 import rightCheck from "../../assets/rightcheck.png";
 import pendingPayment from "../../assets/pendingPayment.png";
 import companyProfit from "../../assets/companyProfit.png";
+import tech from "../../assets/tech.png";
 import DataTable from "../../components/Table";
 import GlobalPagination from "../../components/GlobalPagination";
 import { useNavigate } from "react-router-dom";
@@ -42,33 +43,77 @@ const PayoutsTab = ({
     }
   };
 
+  // Prepare data for multiple values in stats cards
+  const readyToPayoutData = [
+    { label: "Total Amount", value: `${payoutStats?.readyToPayout?.totalAmount || 0}` },
+    { label: "Total Commissions", value: payoutStats?.readyToPayout?.totalCommissions || 0,key:"name" },
+  ];
+
+  const pendingCommissionsData = [
+    { label: "Total Amount", value: `${payoutStats?.pendingCommissions?.totalAmount || 0}` },
+    { label: "Total Commissions", value: payoutStats?.pendingCommissions?.totalCommissions || 0,key:"name" },
+  ];
+
+  const paymentHistoryData = [
+    { label: "Total Amount", value: `${payoutStats?.paymentHistory?.totalAmount || 0}` },
+    { label: "Total Payouts", value: payoutStats?.paymentHistory?.totalPayouts || 0, key:"name"
+ },
+  ];
+
+  const completedServicesData = [
+    { label: "Total Services", value: payoutStats?.completedServices?.totalServices || 0 ,key:"name"},
+    { label: "Total Amount", value: `${payoutStats?.completedServices?.totalAmount || 0}` },
+  ];
+
+  const topTechnicianData = [
+    { 
+      label: "Name", 
+      value: payoutStats?.topTechnicians?.[0]?.technicianName || "N/A" ,
+      key:"name"
+    },
+    { 
+      label: "Total Payouts", 
+      value: payoutStats?.topTechnicians?.[0]?.totalPayouts || 0 ,      key:"name"
+    },
+    { 
+      label: "Payout Amount", 
+      value: `${payoutStats?.topTechnicians?.[0]?.totalPayoutAmount || 0}` 
+    },
+  ];
+
   return (
     <div>
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
         <StatsCard
           src={Rupee}
-          title="Total Paid"
-          value={payoutStats?.totalPaid || "₹9,87,500"}
+          title="Ready to Payout"
           color="blue"
+          multipleValues={readyToPayoutData}
         />
         <StatsCard
           src={pendingPayment}
-          title="Pending Payouts"
-          value={payoutStats?.pendingPayouts || "₹1,24,600"}
+          title="Pending Commissions"
           color="orange"
+          multipleValues={pendingCommissionsData}
         />
         <StatsCard
           src={rightCheck}
-          title="No. of Technicians Paid"
-          value={payoutStats?.noOfTechniciansPaid || "136"}
+          title="Payment History"
           color="green"
+          multipleValues={paymentHistoryData}
         />
         <StatsCard
           src={companyProfit}
-          title="Last Payment Date"
-          value={payoutStats?.lastPaymentDate || "14 July 2025"}
+          title="Completed Services"
           color="purple"
+          multipleValues={completedServicesData}
+        />
+        <StatsCard
+          src={tech}
+          title="Top Technician"
+          color="indigo"
+          multipleValues={topTechnicianData}
         />
       </div>
 

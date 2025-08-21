@@ -36,7 +36,10 @@ const StatsCard = ({
                 <div key={index} className="flex items-center justify-between">
                   <span className="text-sm text-gray-500">{item.label}</span>
                   <span className="text-lg font-medium text-gray-900">
-                    ₹ {item?.value?.toLocaleString("en-IN")}
+                    {item.key === "name"
+                      ? item?.value
+                      : `₹${item?.value?.toLocaleString("en-IN")}`
+                    }
                   </span>
                 </div>
               ))}

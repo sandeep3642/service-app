@@ -112,10 +112,13 @@ const Index = () => {
 
   const fetchPayoutStats = async () => {
     try {
+      console.log(selectedRange,"selectedRange")
       const response = await getPayoutStats(formatRangeForAPI(selectedRange));
-      const { details, status } = response;
-      if (status.success && details) {
-        setPayoutStats(details);
+      console.log("response",response)
+      const { data, status } = response;
+      console.log("details",data)
+      if (status.success && data) {
+        setPayoutStats(data);
       }
     } catch (error) {
       toast.error("Failed to fetch payout stats");
