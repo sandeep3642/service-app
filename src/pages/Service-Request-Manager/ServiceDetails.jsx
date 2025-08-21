@@ -14,9 +14,7 @@ import DiamondIcon from "../../assets/diamond.png";
 import { CONTROLLABLE_STATUSES } from "../../utilty/static";
 import { toast } from "react-toastify";
 
-
 const ServiceDetails = () => {
-
   const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [servieRequestDto, setServiceRequestDto] = useState(null);
@@ -117,7 +115,7 @@ const ServiceDetails = () => {
 
   useEffect(() => {
     if (location && location.state) {
-      console.log("location.state",location.state)
+      console.log("location.state", location.state);
       if (location.state && location.state.includes("Status")) {
         setActiveTab("status");
       }
@@ -330,6 +328,52 @@ const ServiceDetails = () => {
               <div className="flex flex-col sm:flex-row rounded-md gap-y-1 sm:gap-x-4 sm:items-start">
                 <p className="text-sm sm:text-md font-[500] sm:font-[400] text-[#606060] sm:text-[#121212] sm:w-[200px]">
                   Address
+                </p>
+                <p className="text-sm sm:text-md font-[400] text-[#121212] leading-relaxed">
+                  {servieRequestDto?.customer?.serviceAddress?.address},{" "}
+                  {servieRequestDto?.customer?.serviceAddress?.locality},
+                  {servieRequestDto?.customer?.serviceAddress?.city},
+                  <br />
+                  {servieRequestDto?.customer?.serviceAddress?.state} -{" "}
+                  {servieRequestDto?.customer?.serviceAddress?.pincode}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Technician Activity */}
+          <div className="mt-6 sm:mt-8">
+            <h3 className="text-base font-medium text-[#606060] mb-3 sm:mb-4 border-b border-gray-200 pb-1">
+              Technician Activity{" "}
+            </h3>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-y-3 sm:gap-y-4">
+              <div className="flex flex-col sm:flex-row rounded-md gap-y-1 sm:gap-x-4 sm:items-start">
+                <p className="text-sm sm:text-md font-[500] sm:font-[400] text-[#606060] sm:text-[#121212] sm:w-[200px]">
+                  Job Started
+                </p>
+                <p className="text-sm sm:text-md font-[400] text-[#121212]">
+                  {servieRequestDto?.customer?.contactPersonName}
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row rounded-md gap-y-1 sm:gap-x-4 sm:items-start">
+                <p className="text-sm sm:text-md font-[500] sm:font-[400] text-[#606060] sm:text-[#121212] sm:w-[200px]">
+                  Current Status{" "}
+                </p>
+                <p className="text-sm sm:text-md font-[400] text-[#121212]">
+                  {servieRequestDto?.customer?.contactPersonPhone}
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row rounded-md gap-y-1 sm:gap-x-4 sm:items-start">
+                <p className="text-sm sm:text-md font-[500] sm:font-[400] text-[#606060] sm:text-[#121212] sm:w-[200px]">
+                  Location
+                </p>
+                <p className="text-sm sm:text-md font-[400] text-[#121212]">
+                  {servieRequestDto?.customer?.contactPersonEmail || "-"}
+                </p>
+              </div>
+              <div className="flex flex-col sm:flex-row rounded-md gap-y-1 sm:gap-x-4 sm:items-start">
+                <p className="text-sm sm:text-md font-[500] sm:font-[400] text-[#606060] sm:text-[#121212] sm:w-[200px]">
+                  Technician Selfie{" "}
                 </p>
                 <p className="text-sm sm:text-md font-[400] text-[#121212] leading-relaxed">
                   {servieRequestDto?.customer?.serviceAddress?.address},{" "}

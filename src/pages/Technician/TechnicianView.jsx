@@ -22,6 +22,7 @@ import {
   approveRejectProfile,
   blockUnblock,
   fetchTechnicianDetail,
+  fetchTechnicianEarningDetail,
   technicianStats,
 } from "./technician";
 import Loader from "../../utilty/Loader";
@@ -34,15 +35,19 @@ import RenderPerformanceMetrics from "./RenderPerformanceMetrics";
 import RejectionReasonModal from "../../components/RejectionReasonModal";
 import RejectDocumentModal from "../../components/RejectDocumentModal";
 import { toast } from "react-toastify";
-
+import EarningSummary from "./EarningSummary";
 
 const TechnicianView = () => {
-
   const location = useLocation();
   const [activeTab, setActiveTab] = useState("Profile Info");
   const [isLoading, setIsLoading] = useState(false);
   const [title, setTitle] = useState("Technician Details");
-  const tabs = ["Profile Info", "Service History", "Performance Metrics"];
+  const tabs = [
+    "Profile Info",
+    "Service History",
+    "Performance Metrics",
+    "Earning Summary",
+  ];
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [profileData, setProfileData] = useState(null);
   const [statsData, setStatsData] = useState(null);
@@ -53,6 +58,7 @@ const TechnicianView = () => {
   const [rejectionReason, setRejectionReason] = useState("");
   const [rejectedby, setRejectedby] = useState("");
   const [rejectedAt, setRejectedAt] = useState("");
+  const [technicianEarningSummary, setTechnicianEarningSummary] = useState(null);
 
   const handleDelete = () => {
     setIsModalOpen(true);
@@ -167,10 +173,28 @@ const TechnicianView = () => {
     }
   };
 
+    async function getTechnicianEarnings(id) {
+      try {
+        const response = await fetchTechnicianEarningDetail(
+          "685f9ca00cd9a45b01dc5e4c",
+          "last30Days"
+        );
+  
+        const { data, status } = response;
+  
+        if (status.success && data) {
+          setTechnicianEarningSummary(data);
+        }
+      } catch (error) {
+        toast.error("Failed to fetch technician earnings");
+      }
+    }
+
   useEffect(() => {
     if (location && location.state) {
       fetchTechnicianDetailbyId(location.state);
       fetchTechnicianStats(location.state);
+      getTechnicianEarnings(location.state);
     }
   }, [location]);
 
@@ -197,10 +221,11 @@ const TechnicianView = () => {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm sm:text-base whitespace-nowrap flex-shrink-0 ${activeTab === tab
+                  className={`py-2 px-1 border-b-2 font-medium text-sm sm:text-base whitespace-nowrap flex-shrink-0 ${
+                    activeTab === tab
                       ? "border-blue-500 text-blue-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                    }`}
+                  }`}
                 >
                   {tab}
                 </button>
@@ -298,12 +323,12 @@ const TechnicianView = () => {
             fetchTechnicianDetailbyId={fetchTechnicianDetailbyId}
           />
         )}
-        {activeTab === "Service History" && <RenderServiceHistory
-          statsData={statsData}
-          id={location?.state}
-        />}
+        {activeTab === "Service History" && (
+          <RenderServiceHistory statsData={statsData} id={location?.state} />
+        )}
         {activeTab === "Performance Metrics" && <RenderPerformanceMetrics />}
 
+        {activeTab === "Earning Summary" && <EarningSummary technicianEarningSummary={technicianEarningSummary} />}
       </div>
 
       {/* Rejection Modal - Responsive */}
