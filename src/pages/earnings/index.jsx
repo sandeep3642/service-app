@@ -5,9 +5,12 @@ import {
   getEarningsStats,
   getPaymentHistory,
   getPayoutStats,
-  getTechnicianWisePayouts,
+  getPayouts,
+  getCommissions,
+  getReadyToPayoutCommissions,
 } from "./EarningServices";
 import { toast } from "react-toastify";
+import CommissionsTab from "./CommissionsTab ";
 
 const Index = () => {
   // Common states
@@ -26,9 +29,14 @@ const Index = () => {
   const [payoutStats, setPayoutStats] = useState(null);
   const [payoutsData, setPayoutsData] = useState([]);
 
+  // Commissions states
+  const [commissionsData, setCommissionsData] = useState(null);
+  const [readyToPayoutData, setReadyToPayoutData] = useState(null);
+
   const tabs = [
     { id: "earnings", label: "Earnings Overview" },
     { id: "payouts", label: "Payouts" },
+    { id: "commissions", label: "Commissions" },
   ];
 
   const rangeOptions = [
@@ -43,40 +51,6 @@ const Index = () => {
   const formatRangeForAPI = (range) => {
     return range && range.replaceAll(" ", "").toLowerCase();
   };
-
-  // Mock payout data (replace with actual API data when available)
-  const mockPayoutData = [
-    {
-      date: "2025-07-13",
-      technicianName: "Nagesh S.",
-      totalServices: 24,
-      totalEarnings: "₹19500",
-      paidAmount: "₹14000",
-      pendingAmount: "₹3200",
-      lastPayment: "13 Jul 2025",
-      action: "Paid",
-    },
-    {
-      date: "2025-07-10",
-      technicianName: "Sujit S.",
-      totalServices: 13,
-      totalEarnings: "₹25500",
-      paidAmount: "₹25500",
-      pendingAmount: "₹0",
-      lastPayment: "13 Jul 2025",
-      action: "Paid",
-    },
-    {
-      date: "2025-07-10",
-      technicianName: "Ankit P.",
-      totalServices: 14,
-      totalEarnings: "₹21200",
-      paidAmount: "₹20000",
-      pendingAmount: "₹1200",
-      lastPayment: "11 Jul 2025",
-      action: "Pay Now",
-    },
-  ];
 
   // Fetch functions
   const fetchEarningsStats = async () => {
@@ -112,11 +86,11 @@ const Index = () => {
 
   const fetchPayoutStats = async () => {
     try {
-      console.log(selectedRange,"selectedRange")
+      console.log(selectedRange, "selectedRange");
       const response = await getPayoutStats(formatRangeForAPI(selectedRange));
-      console.log("response",response)
+      console.log("response", response);
       const { data, status } = response;
-      console.log("details",data)
+      console.log("details", data);
       if (status.success && data) {
         setPayoutStats(data);
       }
@@ -135,29 +109,64 @@ const Index = () => {
 
   const fetchPayoutsData = async () => {
     try {
-      const response = await getTechnicianWisePayouts(
-        formatRangeForAPI(selectedRange)
-      );
-      const { details, status } = response;
-      if (status.success && details) {
-        setPayoutsData(details || []);
-        setTotalItems(details?.length || 0);
+      const response = await getPayouts(formatRangeForAPI(selectedRange));
+      const { data, status } = response;
+      console.log("payouts data", data);
+
+      if (status.success && data) {
+        setPayoutsData(data.payouts || []);
+        setTotalItems(data.pagination?.totalItems || 0);
       }
     } catch (error) {
       toast.error("Failed to fetch payouts data");
       console.error("Error fetching payouts data:", error);
-      // Set mock data for demo purposes
-      setPayoutsData(mockPayoutData);
-      setTotalItems(mockPayoutData.length);
+      setPayoutsData([]);
+      setTotalItems(0);
     }
   };
 
-  // Effects
+  const fetchCommissionsData = async () => {
+    try {
+      const response = await getCommissions();
+      const { details, status } = response;
+      console.log("commissions data", response);
+
+      if (status.success && details) {
+        setCommissionsData(details);
+        setTotalItems(details.pagination?.total || 0);
+      }
+    } catch (error) {
+      toast.error("Failed to fetch commissions data");
+      console.error("Error fetching commissions data:", error);
+      setCommissionsData(null);
+    }
+  };
+
+  const fetchReadyToPayoutData = async () => {
+    try {
+      const response = await getReadyToPayoutCommissions();
+      const { data, status } = response;
+      console.log("ready to payout data", response);
+
+      if (status.success && data) {
+        setReadyToPayoutData(data);
+      }
+    } catch (error) {
+      toast.error("Failed to fetch ready-to-payout commissions");
+      console.error("Error fetching ready-to-payout commissions:", error);
+      setReadyToPayoutData(null);
+    }
+  };
+
+  // Effects for data fetching
   useEffect(() => {
     if (activeTab === "earnings") {
       fetchPaymentHistory();
     } else if (activeTab === "payouts") {
       fetchPayoutsData();
+    } else if (activeTab === "commissions") {
+      fetchCommissionsData();
+      fetchReadyToPayoutData();
     }
   }, [currentPage, rowsPerPage, selectedRange, activeTab]);
 
@@ -167,6 +176,7 @@ const Index = () => {
     } else if (activeTab === "payouts") {
       fetchPayoutStats();
     }
+    // Note: Commission stats are included in the main commissions API response
   }, [selectedRange, activeTab]);
 
   // Reset pagination when tab changes
@@ -263,10 +273,20 @@ const Index = () => {
           setRowsPerPage={setRowsPerPage}
           totalItems={totalItems}
         />
-      ) : (
+      ) : activeTab === "payouts" ? (
         <PayoutsTab
           payoutStats={payoutStats}
           payoutsData={payoutsData}
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          rowsPerPage={rowsPerPage}
+          setRowsPerPage={setRowsPerPage}
+          totalItems={totalItems}
+        />
+      ) : (
+        <CommissionsTab
+          commissionsData={commissionsData}
+          readyToPayoutData={readyToPayoutData}
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
           rowsPerPage={rowsPerPage}
