@@ -242,40 +242,103 @@ const EarningSummary = ({ technicianEarningSummary }) => {
 
         {/* Table Header */}
         <div className="px-6 py-3 bg-gray-50 border-t border-b border-gray-200">
-          <div className="grid grid-cols-6 gap-4 text-sm font-medium text-gray-700">
+          <div className="grid grid-cols-10 gap-4 text-sm font-medium text-gray-700">
             <div>Payment Ref No.</div>
             <div>Payment Date</div>
             <div>Paid Amount</div>
             <div>Payment Method</div>
-            <div>View Payment Receipt</div>
-            <div>Action</div>
+            <div>Status</div>
+            <div>Processed At</div>
+            <div>Bank Details</div>
+            <div>Notes</div>
+            <div>Created By</div>
+            <div>View Receipt</div>
           </div>
         </div>
 
         {/* Table Body */}
         <div className="divide-y divide-gray-200">
-          {filteredPayouts.map((payout, index) => (
-            <div key={index} className="px-6 py-4">
-              <div className="grid grid-cols-6 gap-4 items-center text-sm">
-                <div className="text-gray-900">{payout.refNo}</div>
-                <div className="text-gray-600">{payout.date}</div>
-                <div className="text-gray-900">
-                  ₹{payout.amount.toLocaleString()}
-                </div>
-                <div className="text-gray-600">{payout.method}</div>
-                <div>
-                  <button className="text-blue-500 hover:underline">
-                    View
-                  </button>
-                </div>
-                <div>
-                  <button className="text-gray-400 hover:text-gray-600">
-                    •••
-                  </button>
+          {technicianEarningSummary.recentPayouts &&
+            technicianEarningSummary.recentPayouts.length > 0 &&
+            technicianEarningSummary.recentPayouts.map((payout, index) => (
+              <div key={index} className="px-6 py-4">
+                <div className="grid grid-cols-10 gap-4 items-center text-sm">
+                  {/* Payment Ref No */}
+                  <div className="text-gray-900">{payout.transactionId}</div>
+
+                  {/* Payment Date */}
+                  <div className="text-gray-600">
+                    {new Date(payout.paymentDate).toLocaleDateString("en-IN", {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    })}
+                  </div>
+
+                  {/* Paid Amount */}
+                  <div className="text-gray-900">
+                    ₹{payout.totalAmount.toLocaleString()}
+                  </div>
+
+                  {/* Payment Method */}
+                  <div className="text-gray-600">{payout.paymentMethod}</div>
+
+                  {/* Status */}
+                  <div className="text-green-600 font-semibold">
+                    {payout.statusDisplay}
+                  </div>
+
+                  {/* Processed At */}
+                  <div className="text-gray-600">
+                    {new Date(payout.processedAt).toLocaleString("en-IN")}
+                  </div>
+
+                  {/* Bank Details */}
+                  <div className="text-gray-600">
+                    {payout.paymentMethod === "BANK_TRANSFER"
+                      ? `${
+                          payout.bankTransferDetails?.bankName
+                        } - ****${payout.bankTransferDetails?.accountNumber.slice(
+                          -4
+                        )}`
+                      : "-"}
+                  </div>
+
+                  {/* Notes */}
+                  <div className="text-gray-600 relative group max-w-[200px]">
+                    {payout.notes?.length > 10 ? (
+                      <>
+                        {payout.notes.slice(0, 10)}...{" "}
+                        <span className="text-blue-500 cursor-pointer">
+                          see more
+                        </span>
+                        {/* Tooltip */}
+                        <div className="absolute left-0 z-10 hidden w-64 rounded-md bg-black text-white text-xs p-2 group-hover:block">
+                          {payout.notes}
+                        </div>
+                      </>
+                    ) : (
+                      payout.notes
+                    )}
+                  </div>
+
+                  {/* Created By */}
+                  <div className="text-gray-600">{payout.createdBy?.name}</div>
+
+                  {/* Payment Receipt */}
+                  <div>
+                    <a
+                      href={payout.paymentScreenshot}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline"
+                    >
+                      View
+                    </a>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
         </div>
       </div>
 
