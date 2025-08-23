@@ -38,10 +38,12 @@ const CommissionsTab = ({
   // Headers for Ready to Payout technician commissions
   const readyPayoutHeaders = [
     { label: "Service Case", key: "serviceCaseId" },
-    { label: "Description", key: "serviceDescription" },
-    { label: "Service Amount", key: "serviceAmountFormatted" },
+    { label: "Technician", key: "technicianName" },
+    { label: "Base Amount", key: "baseAmountFormatted" },
     { label: "Commission %", key: "commissionPercentage" },
     { label: "Commission Amount", key: "commissionAmountFormatted" },
+    { label: "Service Status", key: "serviceStatusDisplay" },
+    { label: "Commission Status", key: "statusDisplay" },
     { label: "Date", key: "dateFormatted" },
   ];
 
@@ -52,7 +54,7 @@ const CommissionsTab = ({
   // Format data for All Commissions table
   const formatCommissionsData = (commissions) => {
     if (!commissions) return [];
-    
+
     return commissions.map((commission) => ({
       ...commission,
       baseAmountFormatted: `₹${commission.baseAmount.toLocaleString()}`,
@@ -67,7 +69,7 @@ const CommissionsTab = ({
   // Format data for Ready to Payout
   const formatReadyToPayoutData = (commissions) => {
     if (!commissions) return [];
-    
+
     return commissions.map((commission) => ({
       ...commission,
       serviceAmountFormatted: `₹${commission.serviceAmount.toLocaleString()}`,
@@ -80,56 +82,42 @@ const CommissionsTab = ({
   // Prepare stats data for All Commissions
   const totalCommissionsData = [
     { label: "Total Count", value: commissionsData?.stats?.totalCommissions || 0, key: "name" },
-    { label: "Total Amount", value: `₹${(commissionsData?.stats?.totalAmount || 0).toLocaleString()}` },
+    { label: "Total Amount", value: `${(commissionsData?.stats?.totalAmount || 0).toLocaleString()}` },
   ];
 
   const pendingAmountData = [
-    { label: "Pending Amount", value: `₹${(commissionsData?.stats?.pendingAmount || 0).toLocaleString()}` },
+    { label: "Pending Amount", value: `${(commissionsData?.stats?.pendingAmount || 0).toLocaleString()}` },
     { label: "Count", value: commissionsData?.stats?.totalCommissions || 0, key: "name" },
   ];
 
   const readyForPayoutAmountData = [
-    { label: "Ready Amount", value: `₹${(commissionsData?.stats?.readyForPayoutAmount || 0).toLocaleString()}` },
+    { label: "Ready Amount", value: `${(commissionsData?.stats?.readyForPayoutAmount || 0).toLocaleString()}` },
     { label: "Count", value: commissionsData?.stats?.totalCommissions || 0, key: "name" },
   ];
 
   const paidAmountData = [
-    { label: "Paid Amount", value: `₹${(commissionsData?.stats?.paidAmount || 0).toLocaleString()}` },
+    { label: "Paid Amount", value: `${(commissionsData?.stats?.paidAmount || 0).toLocaleString()}` },
     { label: "Count", value: 0, key: "name" },
   ];
 
   // Prepare stats data for Ready to Payout
   const readyTotalAmountData = [
-    { label: "Total Amount", value: `₹${(readyToPayoutData?.summary?.totalAmount || 0).toLocaleString()}` },
+    { label: "Total Amount", value: `${(readyToPayoutData?.summary?.totalAmount || 0).toLocaleString()}` },
     { label: "Technicians", value: readyToPayoutData?.technicians?.length || 0, key: "name" },
   ];
 
   const readyTotalCommissionsData = [
     { label: "Total Commissions", value: readyToPayoutData?.summary?.totalCommissions || 0, key: "name" },
-    { label: "Avg Amount", value: `₹${(readyToPayoutData?.summary?.averageCommissionAmount || 0).toLocaleString()}` },
+    { label: "Avg Amount", value: `${(readyToPayoutData?.summary?.averageCommissionAmount || 0).toLocaleString()}` },
   ];
 
   return (
     <div>
       {/* Sub Tabs */}
-      <div className="flex space-x-6 mb-6">
-        {subTabs.map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveSubTab(tab.id)}
-            className={`text-sm font-medium pb-2 border-b-2 transition-all ${
-              activeSubTab === tab.id
-                ? "text-blue-600 border-blue-500"
-                : "text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
+
 
       {/* Stats Cards based on active tab */}
-      {activeSubTab === "all" && commissionsData?.stats && (
+      {commissionsData?.stats && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatsCard
             src={companyProfit}
@@ -158,24 +146,21 @@ const CommissionsTab = ({
         </div>
       )}
 
-      {activeSubTab === "ready" && readyToPayoutData?.summary && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <StatsCard
-            src={Rupee}
-            title="Total Amount"
-            color="blue"
-            multipleValues={readyTotalAmountData}
-          />
-          <StatsCard
-            src={companyProfit}
-            title="Commission Details"
-            color="green"
-            multipleValues={readyTotalCommissionsData}
-          />
-        </div>
-      )}
-
       {/* Content based on active sub tab */}
+      <div className="flex space-x-6">
+        {subTabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveSubTab(tab.id)}
+            className={`text-sm font-medium pb-2 border-b-2 transition-all ${activeSubTab === tab.id
+              ? "text-blue-600 border-blue-500"
+              : "text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300"
+              }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
       {activeSubTab === "all" ? (
         <div>
           {/* All Commissions Table */}
@@ -210,52 +195,16 @@ const CommissionsTab = ({
         </div>
       ) : (
         <div>
-          {/* Ready to Payout - Technician wise breakdown */}
-          {readyToPayoutData?.technicians?.length ? (
-            <div className="space-y-6">
-              {readyToPayoutData.technicians.map((technician) => (
-                <div key={technician.technicianId} className="bg-white shadow overflow-hidden sm:rounded-lg">
-                  {/* Technician Header */}
-                  <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h3 className="text-lg font-medium text-gray-900">
-                          {technician.technicianName}
-                        </h3>
-                        <p className="text-sm text-gray-500">
-                          {technician.technicianEmail} | {technician.technicianPhone}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-lg font-semibold text-gray-900">
-                          ₹{technician.totalAmount.toLocaleString()}
-                        </p>
-                        <p className="text-sm text-gray-500">
-                          {technician.totalCommissions} commission(s)
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Technician Commissions Table */}
-                  <div className="p-4">
-                    <DataTable
-                      headers={readyPayoutHeaders}
-                      data={formatReadyToPayoutData(technician.commissions)}
-                      searchable={false}
-                      name={`${technician.technicianName} Commissions`}
-                      emptyMessage="No commissions found for this technician"
-                      onRowAction={handleRowAction}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              No ready-to-payout commissions found
-            </div>
-          )}
+          <div className="p-4">
+            <DataTable
+              headers={readyPayoutHeaders}
+              data={readyToPayoutData?.technicians}
+              searchable={true}
+              name={`Ready to Payout`}
+              emptyMessage="No commissions found for  technicians"
+              onRowAction={handleRowAction}
+            />
+          </div>
         </div>
       )}
 

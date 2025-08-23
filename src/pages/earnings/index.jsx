@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import EarningsTab from "./EarningsTab";
-import PayoutsTab from "./PayoutsTab";
 import {
   getEarningsStats,
   getPaymentHistory,
@@ -10,7 +9,9 @@ import {
   getReadyToPayoutCommissions,
 } from "./EarningServices";
 import { toast } from "react-toastify";
+import CreatePayoutModal from "./CreatePayoutModal";
 import CommissionsTab from "./CommissionsTab ";
+import PayoutsTab from "./PayoutsTab";
 
 const Index = () => {
   // Common states
@@ -32,6 +33,9 @@ const Index = () => {
   // Commissions states
   const [commissionsData, setCommissionsData] = useState(null);
   const [readyToPayoutData, setReadyToPayoutData] = useState(null);
+
+  // Modal state - ये add करें
+  const [showCreatePayoutModal, setShowCreatePayoutModal] = useState(false);
 
   const tabs = [
     { id: "earnings", label: "Earnings Overview" },
@@ -99,8 +103,8 @@ const Index = () => {
       console.error("Error fetching payout stats:", error);
       // Set mock data for demo purposes
       setPayoutStats({
-        totalPaid: "₹9,87,500",
-        pendingPayouts: "₹1,24,600",
+        totalPaid: "â‚¹9,87,500",
+        pendingPayouts: "â‚¹1,24,600",
         noOfTechniciansPaid: "136",
         lastPaymentDate: "14 July 2025",
       });
@@ -179,6 +183,23 @@ const Index = () => {
     // Note: Commission stats are included in the main commissions API response
   }, [selectedRange, activeTab]);
 
+  // Modal functions - ये add करें
+  const openCreatePayoutModal = () => {
+    setShowCreatePayoutModal(true);
+  };
+
+  const closeCreatePayoutModal = () => {
+    setShowCreatePayoutModal(false);
+    // Data refresh करें modal close होने के बाद
+    if (activeTab === "payouts") {
+      fetchPayoutStats();
+      fetchPayoutsData();
+    } else if (activeTab === "commissions") {
+      fetchCommissionsData();
+      fetchReadyToPayoutData();
+    }
+  };
+
   // Reset pagination when tab changes
   useEffect(() => {
     setCurrentPage(1);
@@ -207,7 +228,15 @@ const Index = () => {
         </div>
 
         {/* Dropdown */}
-        <div className="relative">
+        <div className="relative flex">
+          {/* Create Payout Button - यहाँ function call करें */}
+          <button
+            onClick={openCreatePayoutModal}
+            className="mr-2 cursor-pointer text-white bg-[#267596] font-medium px-5 py-2 rounded-lg hover:bg-[#1e5a73] transition-colors duration-200"
+          >
+            Create Payout
+          </button>
+
           <button
             onClick={() => setShowDropdown(!showDropdown)}
             className="flex items-center text-sm text-gray-700 border border-gray-300 rounded-md px-3 py-1 bg-white hover:shadow-sm"
@@ -294,6 +323,12 @@ const Index = () => {
           totalItems={totalItems}
         />
       )}
+
+      {/* Create Payout Modal - ये add करें */}
+      <CreatePayoutModal 
+        isOpen={showCreatePayoutModal}
+        onClose={closeCreatePayoutModal}
+      />
     </div>
   );
 };
