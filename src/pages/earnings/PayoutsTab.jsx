@@ -20,14 +20,18 @@ const PayoutsTab = ({
 }) => {
   const navigate = useNavigate();
 
+  // Updated headers based on API response structure
   const payoutHeaders = [
-    { label: "Date", key: "date" },
-    { label: "Technician", key: "technicianName" },
-    { label: "Total Services", key: "totalServices" },
-    { label: "Total Earnings", key: "totalEarnings" },
-    { label: "Paid Amt", key: "paidAmount" },
-    { label: "Pending Amt", key: "pendingAmount" },
-    { label: "Last Payment", key: "lastPayment" },
+    { label: "Technician Name", key: "technicianName" },
+    { label: "Total Amount", key: "totalAmount" },
+    { label: "Payment Method", key: "paymentMethod" },
+    { label: "Transaction ID", key: "transactionId" },
+    { label: "Bank Name", key: "bankTransferDetails.bankName" },
+    { label: "Account Number", key: "bankTransferDetails.accountNumber" },
+    { label: "Payment Date", key: "paymentDate" },
+    { label: "Commission Count", key: "commissionCount" },
+    { label: "Created By", key: "createdBy" },
+    { label: "Status", key: "statusDisplay" },
     { label: "Action", key: "action" },
   ];
 
@@ -46,34 +50,34 @@ const PayoutsTab = ({
   // Prepare data for multiple values in stats cards
   const readyToPayoutData = [
     { label: "Total Amount", value: `${payoutStats?.readyToPayout?.totalAmount || 0}` },
-    { label: "Total Commissions", value: payoutStats?.readyToPayout?.totalCommissions || 0,key:"name" },
+    { label: "Total Commissions", value: payoutStats?.readyToPayout?.totalCommissions || 0, key:"name" },
   ];
 
   const pendingCommissionsData = [
     { label: "Total Amount", value: `${payoutStats?.pendingCommissions?.totalAmount || 0}` },
-    { label: "Total Commissions", value: payoutStats?.pendingCommissions?.totalCommissions || 0,key:"name" },
+    { label: "Total Commissions", value: payoutStats?.pendingCommissions?.totalCommissions || 0, key:"name" },
   ];
 
   const paymentHistoryData = [
     { label: "Total Amount", value: `${payoutStats?.paymentHistory?.totalAmount || 0}` },
-    { label: "Total Payouts", value: payoutStats?.paymentHistory?.totalPayouts || 0, key:"name"
- },
+    { label: "Total Payouts", value: payoutStats?.paymentHistory?.totalPayouts || 0, key:"name" },
   ];
 
   const completedServicesData = [
-    { label: "Total Services", value: payoutStats?.completedServices?.totalServices || 0 ,key:"name"},
+    { label: "Total Services", value: payoutStats?.completedServices?.totalServices || 0, key:"name"},
     { label: "Total Amount", value: `${payoutStats?.completedServices?.totalAmount || 0}` },
   ];
 
   const topTechnicianData = [
     { 
       label: "Name", 
-      value: payoutStats?.topTechnicians?.[0]?.technicianName || "N/A" ,
+      value: payoutStats?.topTechnicians?.[0]?.technicianName || "N/A",
       key:"name"
     },
     { 
       label: "Total Payouts", 
-      value: payoutStats?.topTechnicians?.[0]?.totalPayouts || 0 ,      key:"name"
+      value: payoutStats?.topTechnicians?.[0]?.totalPayouts || 0, 
+      key:"name"
     },
     { 
       label: "Payout Amount", 
@@ -121,11 +125,11 @@ const PayoutsTab = ({
       <div className="text-gray-500 text-center py-8">
         <DataTable
           headers={payoutHeaders}
-          data={payoutsData}
+          data={payoutsData.payouts || payoutsData}
           searchable={true}
-          name="Technician Payouts List"
+          name="Payouts List"
           emptyMessage={
-            payoutsData && payoutsData.length === 0
+            payoutsData && (payoutsData.payouts?.length === 0 || payoutsData.length === 0)
               ? "No payouts found"
               : "No data available"
           }

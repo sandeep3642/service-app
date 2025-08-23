@@ -80,7 +80,8 @@ const DataTable = ({
         name === "Customer List" ||
         name === "Sub-Admin List") &&
         key === "name") ||
-      key === "razorpayOrderId"
+      key === "razorpayOrderId"||
+      key === "Technician name"
     ) {
       return (
         <span
