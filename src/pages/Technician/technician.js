@@ -59,6 +59,6 @@ export const addTechnician = async (payload) => {
 
 
 export const fetchTechnicianEarningDetail = async (id="685f9ca00cd9a45b01dc5e4c",filter="last30Days") => {
-  const res = await api.get(`/api/v1/user/payouts/technician/${id}?filter=${filter}`);
+  const res = await api.get(`/api/v1/user/payouts/technician/${id}`);
   return res.data;
 };

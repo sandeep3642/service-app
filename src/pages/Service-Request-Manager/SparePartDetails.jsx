@@ -138,6 +138,12 @@ const SparePartDetails = () => {
         >
           {estimateCreated ? "Modify Estimation" : "Create Estimation"}
         </button>
+        {/* <button
+          onClick={() => setOpenEstimationModal(true)}
+          className="px-4 sm:px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium cursor-pointer text-sm sm:text-base w-full sm:w-auto"
+        >
+          Update Costing
+        </button> */}
       </div>
 
       <div className="border-b border-gray-200 mb-4">

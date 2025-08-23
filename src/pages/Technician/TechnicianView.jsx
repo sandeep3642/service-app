@@ -58,7 +58,8 @@ const TechnicianView = () => {
   const [rejectionReason, setRejectionReason] = useState("");
   const [rejectedby, setRejectedby] = useState("");
   const [rejectedAt, setRejectedAt] = useState("");
-  const [technicianEarningSummary, setTechnicianEarningSummary] = useState(null);
+  const [technicianEarningSummary, setTechnicianEarningSummary] =
+    useState(null);
 
   const handleDelete = () => {
     setIsModalOpen(true);
@@ -173,22 +174,22 @@ const TechnicianView = () => {
     }
   };
 
-    async function getTechnicianEarnings(id) {
-      try {
-        const response = await fetchTechnicianEarningDetail(
-          "685f9ca00cd9a45b01dc5e4c",
-          "last30Days"
-        );
-  
-        const { data, status } = response;
-  
-        if (status.success && data) {
-          setTechnicianEarningSummary(data);
-        }
-      } catch (error) {
-        toast.error("Failed to fetch technician earnings");
+  async function getTechnicianEarnings(id) {
+    try {
+      const response = await fetchTechnicianEarningDetail(
+        "685f9ca00cd9a45b01dc5e4c",
+        "last30Days"
+      );
+
+      const { data, status } = response;
+
+      if (status.success && data) {
+        setTechnicianEarningSummary(data);
       }
+    } catch (error) {
+      toast.error("Failed to fetch technician earnings");
     }
+  }
 
   useEffect(() => {
     if (location && location.state) {
@@ -328,7 +329,9 @@ const TechnicianView = () => {
         )}
         {activeTab === "Performance Metrics" && <RenderPerformanceMetrics />}
 
-        {activeTab === "Earning Summary" && <EarningSummary technicianEarningSummary={technicianEarningSummary} />}
+        {activeTab === "Earning Summary" && (
+          <EarningSummary technicianEarningSummary={technicianEarningSummary} />
+        )}
       </div>
 
       {/* Rejection Modal - Responsive */}
