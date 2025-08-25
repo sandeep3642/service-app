@@ -88,7 +88,7 @@ const PayoutsTab = ({
   return (
     <div>
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatsCard
           src={Rupee}
           title="Ready to Payout"
@@ -112,12 +112,6 @@ const PayoutsTab = ({
           title="Completed Services"
           color="purple"
           multipleValues={completedServicesData}
-        />
-        <StatsCard
-          src={tech}
-          title="Top Technician"
-          color="indigo"
-          multipleValues={topTechnicianData}
         />
       </div>
 

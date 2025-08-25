@@ -61,7 +61,39 @@ export const getReadyToPayoutCommissions = async () => {
   return res.data;
 };
 
+// New function for technician commissions with pagination and filters
+export const getTechnicianCommissions = async (technicianId, options = {}) => {
+  const {
+    page = 1,
+    limit = 10,
+    status = 'READY_FOR_PAYOUT',
+    startDate,
+    endDate,
+    sortBy = 'calculatedAt',
+    sortOrder = 'desc'
+  } = options;
+
+  const params = {
+    page,
+    limit,
+    status,
+    sortBy,
+    sortOrder
+  };
+
+  // // Only add date filters if provided
+  // if (startDate) params.startDate = startDate;
+  // if (endDate) params.endDate = endDate;
+
+  const res = await api.get(`/api/v1/user/commissions/technician/${technicianId}`, {
+    params
+  });
+  return res.data;
+};
+
+// Updated create payout function to match the new API structure
 export const createPayout = async (payoutData) => {
   const res = await api.post(`/api/v1/user/payout/create`, payoutData);
   return res.data;
 };
+
