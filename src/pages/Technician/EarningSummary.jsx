@@ -80,7 +80,7 @@ const EarningSummary = ({ technicianEarningSummary }) => {
                 Total Services :
               </span>
               <span className="text-gray-900 font-semibold">
-                {technicianEarningSummary.completedServices.totalServices.toLocaleString()}
+                {technicianEarningSummary?.completedServices?.totalServices.toLocaleString()}
               </span>
             </div>
 
@@ -90,7 +90,7 @@ const EarningSummary = ({ technicianEarningSummary }) => {
               </span>
               <span className="text-gray-900 font-semibold">
                 ₹
-                {technicianEarningSummary.completedServices.totalAmount.toLocaleString()}
+                {technicianEarningSummary?.completedServices?.totalAmount.toLocaleString()}
               </span>
             </div>
           </div>
@@ -117,7 +117,7 @@ const EarningSummary = ({ technicianEarningSummary }) => {
                 Total Payouts:
               </span>
               <span className="text-gray-900 font-semibold">
-                {technicianEarningSummary.paymentHistory.totalPayouts.toLocaleString()}
+                {technicianEarningSummary?.paymentHistory?.totalPayouts.toLocaleString()}
               </span>
             </div>
 
@@ -127,7 +127,7 @@ const EarningSummary = ({ technicianEarningSummary }) => {
               </span>
               <span className="text-gray-900 font-semibold">
                 ₹
-                {technicianEarningSummary.paymentHistory.totalAmount.toLocaleString()}
+                {technicianEarningSummary?.paymentHistory?.totalAmount.toLocaleString()}
               </span>
             </div>
           </div>
@@ -149,7 +149,7 @@ const EarningSummary = ({ technicianEarningSummary }) => {
                 Total Commission:
               </span>
               <span className="text-gray-900 font-semibold">
-                {technicianEarningSummary.pendingCommissions.totalCommissions.toLocaleString()}
+                {technicianEarningSummary?.pendingCommissions?.totalCommissions.toLocaleString()}
               </span>
             </div>
             <div className="flex items-center">
@@ -158,7 +158,7 @@ const EarningSummary = ({ technicianEarningSummary }) => {
               </span>
               <span className="text-gray-900 font-semibold">
                 ₹
-                {technicianEarningSummary.pendingCommissions.totalAmount.toLocaleString()}
+                {technicianEarningSummary?.pendingCommissions?.totalAmount.toLocaleString()}
               </span>
             </div>
           </div>
@@ -180,7 +180,7 @@ const EarningSummary = ({ technicianEarningSummary }) => {
                 Total Commission:
               </span>
               <span className="text-gray-900 font-semibold">
-                {technicianEarningSummary.readyToPayout.totalCommissions.toLocaleString()}
+                {technicianEarningSummary?.readyToPayout.totalCommissions.toLocaleString()}
               </span>
             </div>
             <div className="flex items-center">
@@ -189,7 +189,7 @@ const EarningSummary = ({ technicianEarningSummary }) => {
               </span>
               <span className="text-gray-900 font-semibold">
                 ₹
-                {technicianEarningSummary.readyToPayout.totalAmount.toLocaleString()}
+                {technicianEarningSummary?.readyToPayout.totalAmount.toLocaleString()}
               </span>
             </div>
           </div>
@@ -258,7 +258,7 @@ const EarningSummary = ({ technicianEarningSummary }) => {
 
         {/* Table Body */}
         <div className="divide-y divide-gray-200">
-          {technicianEarningSummary.recentPayouts &&
+          {technicianEarningSummary?.recentPayouts &&
             technicianEarningSummary.recentPayouts.length > 0 &&
             technicianEarningSummary.recentPayouts.map((payout, index) => (
               <div key={index} className="px-6 py-4">

@@ -396,7 +396,7 @@ export default function AddSubAdmin({ onClose }) {
           </button>
           <button
             onClick={handleSubmit}
-            className="bg-cyan-500 text-white px-6 py-2 rounded-lg cursor-pointer font-medium hover:bg-cyan-600 transition-colors"
+            className="bg-[#0C94D2] text-white px-6 py-2 rounded-lg cursor-pointer font-medium hover:bg-cyan-600 transition-colors"
           >
             Create Sub Admin
           </button>

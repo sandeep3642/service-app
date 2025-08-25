@@ -113,22 +113,23 @@ const Sidebar = ({
                 : "text-gray-600 hover:bg-gray-50"
             }`}
           >
-            <img
-              src={item.icon}
-              alt={item.label}
-              className={`w-4 h-4 lg:w-5 lg:h-5 flex-shrink-0 ${
-                activeItem === item.id
-                  ? "filter brightness-0 saturate-100"
-                  : "opacity-90"
+           
+            <div
+              className={`w-6 h-6 lg:w-6 lg:h-6 flex-shrink-0 ${
+                activeItem === item.id ? "bg-[#0C94D2]" : "bg-gray-400"
               }`}
               style={{
-                filter:
-                  activeItem === item.id
-                    ? "brightness(0) saturate(100%) invert(28%) sepia(69%) saturate(4108%) hue-rotate(258deg) brightness(95%) contrast(95%)"
-                    : "opacity(0.6)",
+                maskImage: `url(${item.icon})`,
+                maskSize: "contain",
+                maskRepeat: "no-repeat",
+                maskPosition: "center",
+                WebkitMaskImage: `url(${item.icon})`,
+                WebkitMaskSize: "contain",
+                WebkitMaskRepeat: "no-repeat",
+                WebkitMaskPosition: "center",
               }}
             />
-            <span className="text-sm lg:text-md font-sm truncate">
+            <span className="text-sm lg:text-md font-md truncate">
               {item.label}
             </span>
           </button>

@@ -150,7 +150,7 @@ export default function AdminAccountSettings() {
         <h2 className="text-sm font-medium text-gray-700 mb-1">Team Management</h2>
         <p className="text-xs text-gray-500 mb-3">Manage team roles and permissions.</p>
 
-        <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded text-sm font-medium transition-colors duration-200">
+        <button className="bg-[#0C94D2] text-white px-4 py-2 rounded text-sm font-medium transition-colors duration-200">
           Manage Team
         </button>
       </div>

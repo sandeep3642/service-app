@@ -44,7 +44,7 @@ const TechnicianPerformance = ({ data }) => {
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
-                  className="h-2 bg-gradient-to-r from-[#1D0EC7] to-[#1D0EC7] rounded-full transition-all duration-300"
+                  className="h-2 bg-gradient-to-r from-[#0C94D2] to-[#c4ebf6] rounded-full transition-all duration-300"
                   style={{ width: `${(tech.jobs / maxJobs) * 100}%` }}
                 />
               </div>

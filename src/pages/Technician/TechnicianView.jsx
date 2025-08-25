@@ -209,7 +209,8 @@ const TechnicianView = () => {
           <h1 className="text-lg sm:text-xl font-semibold text-[#121212] break-words">
             {activeTab === "Profile Info" && "Technician Details"}
             {activeTab === "Service History" && "Service History"}
-            {activeTab === "Performance Metrics" && "Technician Details"}
+            {activeTab === "Performance Metrics" && "Performance Metrics"}
+            {activeTab === "Earning Summary" && "Earning Summary"}
           </h1>
         </div>
 
@@ -217,12 +218,12 @@ const TechnicianView = () => {
         <div className="border-b border-gray-200 mb-4 sm:mb-6">
           <nav className="flex flex-col sm:flex-row sm:justify-between w-full space-y-3 sm:space-y-0">
             {/* Tab Navigation - Horizontal scroll on mobile */}
-            <div className="flex space-x-4 sm:space-x-14 overflow-x-auto scrollbar-hide">
+            <div className="flex gap-1 overflow-x-auto scrollbar-hide pb-1">
               {tabs.map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`py-2 px-1 border-b-2 font-medium text-sm sm:text-base whitespace-nowrap flex-shrink-0 ${
+                  className={`bg-[#DDDDDD80] min-w-[150px] cursor-pointer rounded py-2 px-1 border-b-2 font-medium text-sm sm:text-base whitespace-nowrap flex-shrink-0 ${
                     activeTab === tab
                       ? "border-blue-500 text-blue-600"
                       : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"

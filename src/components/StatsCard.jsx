@@ -19,7 +19,11 @@ const StatsCard = ({
         <img
           src={src}
           alt={title}
-          className="w-10 h-10 sm:w-12 sm:h-12 lg:w-13 lg:h-13"
+          className={
+            window.location.pathname === "/technician-view"
+              ? "w-6 h-6"
+              : "w-12 h-12"
+          }
         />
       </div>
 
@@ -38,8 +42,7 @@ const StatsCard = ({
                   <span className="text-lg font-medium text-gray-900">
                     {item.key === "name"
                       ? item?.value
-                      : `₹${item?.value?.toLocaleString("en-IN")}`
-                    }
+                      : `₹${item?.value?.toLocaleString("en-IN")}`}
                   </span>
                 </div>
               ))}
