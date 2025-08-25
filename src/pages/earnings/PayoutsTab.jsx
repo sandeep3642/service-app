@@ -4,10 +4,11 @@ import Rupee from "../../assets/rupee.png";
 import rightCheck from "../../assets/rightcheck.png";
 import pendingPayment from "../../assets/pendingPayment.png";
 import companyProfit from "../../assets/companyProfit.png";
-import tech from "../../assets/tech.png";
 import DataTable from "../../components/Table";
 import GlobalPagination from "../../components/GlobalPagination";
 import { useNavigate } from "react-router-dom";
+
+const actionMenu = ["Download"];
 
 const PayoutsTab = ({
   payoutStats,
@@ -20,68 +21,83 @@ const PayoutsTab = ({
 }) => {
   const navigate = useNavigate();
 
-  // Updated headers based on API response structure
+  // Updated headers to use flattened keys
   const payoutHeaders = [
     { label: "Technician Name", key: "technicianName" },
     { label: "Total Amount", key: "totalAmount" },
     { label: "Payment Method", key: "paymentMethod" },
     { label: "Transaction ID", key: "transactionId" },
-    { label: "Bank Name", key: "bankTransferDetails.bankName" },
-    { label: "Account Number", key: "bankTransferDetails.accountNumber" },
+    { label: "Bank Name", key: "bankName" }, // Updated key
+    { label: "Account Number", key: "accountNumber" }, // Updated key
     { label: "Payment Date", key: "paymentDate" },
     { label: "Commission Count", key: "commissionCount" },
     { label: "Created By", key: "createdBy" },
     { label: "Status", key: "statusDisplay" },
-    { label: "Action", key: "action" },
   ];
 
+  // Transform payoutsData to flatten bankTransferDetails
+  const transformedPayoutsData = Array.isArray(payoutsData?.payouts || payoutsData)
+    ? (payoutsData.payouts || payoutsData).map((item) => ({
+        ...item,
+        bankName: item.bankTransferDetails?.bankName || "N/A", // Fallback if undefined
+        accountNumber: item.bankTransferDetails?.accountNumber || "N/A", // Fallback if undefined
+      }))
+    : [];
+
   const handleRowAction = (row, mode) => {
-    if (mode === "Pay Now") {
-      // Handle Pay Now action
-      console.log("Pay Now clicked for:", row);
-      // You can navigate to a payment page or open a modal
+    if (mode === "Download") {
+      if (row.paymentScreenshot) {
+        console.log("Downloading file:", row.paymentScreenshot);
+        const link = document.createElement("a");
+        link.href = row.paymentScreenshot;
+        link.download = row.paymentScreenshot.split("/").pop() || "payment_screenshot";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        console.log("No payment screenshot available for download");
+        alert("No payment screenshot available for download.");
+      }
     } else if (mode === "Paid") {
-      // Handle view payment details
       console.log("View payment details for:", row);
-      // You can navigate to payment details page
     }
   };
 
-  // Prepare data for multiple values in stats cards
+  // Stats card data
   const readyToPayoutData = [
     { label: "Total Amount", value: `${payoutStats?.readyToPayout?.totalAmount || 0}` },
-    { label: "Total Commissions", value: payoutStats?.readyToPayout?.totalCommissions || 0, key:"name" },
+    { label: "Total Commissions", value: payoutStats?.readyToPayout?.totalCommissions || 0, key: "name" },
   ];
 
   const pendingCommissionsData = [
     { label: "Total Amount", value: `${payoutStats?.pendingCommissions?.totalAmount || 0}` },
-    { label: "Total Commissions", value: payoutStats?.pendingCommissions?.totalCommissions || 0, key:"name" },
+    { label: "Total Commissions", value: payoutStats?.pendingCommissions?.totalCommissions || 0, key: "name" },
   ];
 
   const paymentHistoryData = [
     { label: "Total Amount", value: `${payoutStats?.paymentHistory?.totalAmount || 0}` },
-    { label: "Total Payouts", value: payoutStats?.paymentHistory?.totalPayouts || 0, key:"name" },
+    { label: "Total Payouts", value: payoutStats?.paymentHistory?.totalPayouts || 0, key: "name" },
   ];
 
   const completedServicesData = [
-    { label: "Total Services", value: payoutStats?.completedServices?.totalServices || 0, key:"name"},
+    { label: "Total Services", value: payoutStats?.completedServices?.totalServices || 0, key: "name" },
     { label: "Total Amount", value: `${payoutStats?.completedServices?.totalAmount || 0}` },
   ];
 
   const topTechnicianData = [
-    { 
-      label: "Name", 
+    {
+      label: "Name",
       value: payoutStats?.topTechnicians?.[0]?.technicianName || "N/A",
-      key:"name"
+      key: "name",
     },
-    { 
-      label: "Total Payouts", 
-      value: payoutStats?.topTechnicians?.[0]?.totalPayouts || 0, 
-      key:"name"
+    {
+      label: "Total Payouts",
+      value: payoutStats?.topTechnicians?.[0]?.totalPayouts || 0,
+      key: "name",
     },
-    { 
-      label: "Payout Amount", 
-      value: `${payoutStats?.topTechnicians?.[0]?.totalPayoutAmount || 0}` 
+    {
+      label: "Payout Amount",
+      value: `${payoutStats?.topTechnicians?.[0]?.totalPayoutAmount || 0}`,
     },
   ];
 
@@ -119,14 +135,16 @@ const PayoutsTab = ({
       <div className="text-gray-500 text-center py-8">
         <DataTable
           headers={payoutHeaders}
-          data={payoutsData.payouts || payoutsData}
+          data={transformedPayoutsData} // Use transformed data
           searchable={true}
           name="Payouts List"
           emptyMessage={
-            payoutsData && (payoutsData.payouts?.length === 0 || payoutsData.length === 0)
+            transformedPayoutsData.length === 0
               ? "No payouts found"
               : "No data available"
           }
+          actionColumn={true}
+          actionMenu={actionMenu}
           onRowAction={handleRowAction}
         />
       </div>

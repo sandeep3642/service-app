@@ -211,12 +211,12 @@ const RenderServiceHistory = ({ statsData, id }) => {
               ))}
             </div>
             <div>
-              <button
+              {/* <button
                 onClick={handleEarningSummary}
                 className="text-sm text-blue-600 underline hover:text-blue-800"
               >
                 Earnings Summary
-              </button>
+              </button> */}
             </div>
           </div>
 

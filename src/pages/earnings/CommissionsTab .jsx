@@ -36,14 +36,15 @@ const CommissionsTab = ({
   ];
 
   // Headers for Ready to Payout technician commissions
+  // Headers for Ready to Payout commissions
   const readyPayoutHeaders = [
     { label: "Service Case", key: "serviceCaseId" },
     { label: "Technician", key: "technicianName" },
-    { label: "Base Amount", key: "baseAmountFormatted" },
+    { label: "Service Amount", key: "serviceAmountFormatted" },
     { label: "Commission %", key: "commissionPercentage" },
     { label: "Commission Amount", key: "commissionAmountFormatted" },
-    { label: "Service Status", key: "serviceStatusDisplay" },
-    { label: "Commission Status", key: "statusDisplay" },
+    // { label: "Service Status", key: "serviceStatusDisplay" },
+    // { label: "Commission Status", key: "statusDisplay" },
     { label: "Date", key: "dateFormatted" },
   ];
 
@@ -67,16 +68,25 @@ const CommissionsTab = ({
   };
 
   // Format data for Ready to Payout
-  const formatReadyToPayoutData = (commissions) => {
-    if (!commissions) return [];
+  // Format data for Ready to Payout commissions
+  const formatReadyToPayoutData = (technicians) => {
+    if (!technicians || !Array.isArray(technicians)) return [];
 
-    return commissions.map((commission) => ({
-      ...commission,
-      serviceAmountFormatted: `₹${commission.serviceAmount.toLocaleString()}`,
-      commissionAmountFormatted: `₹${commission.commissionAmount.toLocaleString()}`,
-      commissionPercentage: `${commission.commissionPercentage}%`,
-      dateFormatted: new Date(commission.calculatedAt).toLocaleDateString(),
-    }));
+    // Flatten the commissions array from all technicians
+    return technicians.flatMap((technician) =>
+      technician.commissions.map((commission) => ({
+        ...commission,
+        technicianName: technician.technicianName, // Add technicianName to each commission
+        serviceAmountFormatted: `₹${commission.serviceAmount?.toLocaleString() || 0}`,
+        commissionAmountFormatted: `₹${commission.commissionAmount?.toLocaleString() || 0}`,
+        commissionPercentage: `${commission.commissionPercentage}%`,
+        dateFormatted: commission.calculatedAt
+          ? new Date(commission.calculatedAt).toLocaleDateString()
+          : "N/A",
+        serviceStatusDisplay: commission.serviceStatus?.replace(/_/g, " ") || "N/A",
+        statusDisplay: commission.status?.replace(/_/g, " ") || "N/A",
+      }))
+    );
   };
 
   // Prepare stats data for All Commissions
@@ -198,10 +208,14 @@ const CommissionsTab = ({
           <div className="p-4">
             <DataTable
               headers={readyPayoutHeaders}
-              data={readyToPayoutData?.technicians}
+              data={formatReadyToPayoutData(readyToPayoutData?.technicians)}
               searchable={true}
-              name={`Ready to Payout`}
-              emptyMessage="No commissions found for  technicians"
+              name="Ready to Payout"
+              emptyMessage={
+                readyToPayoutData?.technicians?.length === 0
+                  ? "No commissions found for technicians"
+                  : "No data available"
+              }
               onRowAction={handleRowAction}
             />
           </div>

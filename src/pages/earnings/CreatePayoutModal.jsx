@@ -18,6 +18,7 @@ const CreatePayoutModal = ({ isOpen, onClose, onPayoutCreated }) => {
       ifscCode: '',
       accountHolderName: ''
     },
+    upiId: '',
     paymentScreenshot: null,
     notes: ''
   });
@@ -44,7 +45,6 @@ const CreatePayoutModal = ({ isOpen, onClose, onPayoutCreated }) => {
   useEffect(() => {
     if (isOpen) {
       fetchTechnicians();
-      // Set today's date as default
       setFormData(prev => ({
         ...prev,
         paymentDate: new Date().toISOString().split('T')[0]
@@ -74,6 +74,7 @@ const CreatePayoutModal = ({ isOpen, onClose, onPayoutCreated }) => {
 
   const fetchTechnicianCommissions = async () => {
     if (!selectedTechnician) return;
+    console.log("here")
     
     setCommissionsLoading(true);
     try {
@@ -81,14 +82,15 @@ const CreatePayoutModal = ({ isOpen, onClose, onPayoutCreated }) => {
         page: 1,
         limit: 50,
         status: 'READY_FOR_PAYOUT',
-        startDate: '2024-01-01',
-        endDate: new Date().toISOString().split('T')[0],
+        // startDate: '2024-01-01',
+        // endDate: new Date().toISOString().split('T')[0],
         sortBy: 'calculatedAt',
         sortOrder: 'desc'
       });
       
-      if (response?.status?.success && response?.data?.commissions) {
-        setTechnicianCommissions(response.data.commissions);
+      if (response?.status?.success && response?.details?.commissions) {
+        setTechnicianCommissions(response.details.commissions);
+       console.log("technicianCommissions",technicianCommissions) 
       } else {
         setTechnicianCommissions([]);
       }
@@ -130,7 +132,8 @@ const CreatePayoutModal = ({ isOpen, onClose, onPayoutCreated }) => {
       bankTransferDetails: {
         ...prev.bankTransferDetails,
         accountHolderName: technician.name || technician.fullName || ''
-      }
+      },
+      upiId: ''
     }));
     setSearchTerm(technician.name || technician.fullName || '');
     setShowTechnicianDropdown(false);
@@ -159,7 +162,7 @@ const CreatePayoutModal = ({ isOpen, onClose, onPayoutCreated }) => {
     setFormData(prev => ({
       ...prev,
       selectedCommissions: updatedCommissions,
-      totalAmount: totalAmount.toString()
+      totalAmount: totalAmount.toFixed(2)
     }));
   };
 
@@ -243,6 +246,11 @@ const CreatePayoutModal = ({ isOpen, onClose, onPayoutCreated }) => {
       }
     }
 
+    if (formData.paymentMethod === 'UPI' && !formData.upiId.trim()) {
+      toast.error('Please enter a UPI ID');
+      return;
+    }
+
     if (!formData.paymentScreenshot) {
       toast.error('Please upload a payment screenshot');
       return;
@@ -261,9 +269,12 @@ const CreatePayoutModal = ({ isOpen, onClose, onPayoutCreated }) => {
         notes: formData.notes
       };
 
-      // Add bank transfer details if payment method is bank transfer
       if (formData.paymentMethod === 'BANK_TRANSFER') {
         payoutData.bankTransferDetails = formData.bankTransferDetails;
+      }
+
+      if (formData.paymentMethod === 'UPI') {
+        payoutData.upiId = formData.upiId;
       }
 
       const response = await createPayout(payoutData);
@@ -298,6 +309,7 @@ const CreatePayoutModal = ({ isOpen, onClose, onPayoutCreated }) => {
         ifscCode: '',
         accountHolderName: ''
       },
+      upiId: '',
       paymentScreenshot: null,
       notes: ''
     });
@@ -341,7 +353,7 @@ const CreatePayoutModal = ({ isOpen, onClose, onPayoutCreated }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0  backdrop-blur-xs flex items-center justify-center z-50">
       <div className="bg-white rounded-lg w-full max-w-6xl max-h-[90vh] overflow-y-auto">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
@@ -436,10 +448,10 @@ const CreatePayoutModal = ({ isOpen, onClose, onPayoutCreated }) => {
                               <div className="flex justify-between items-start">
                                 <div>
                                   <div className="font-medium text-gray-700">
-                                    {formatCurrency(commission.commissionAmount)}
+                                    {commission.serviceDescription}
                                   </div>
                                   <div className="text-sm text-gray-500">
-                                    Service Case: {commission.serviceCaseId}
+                                    Service Case: {commission.serviceNumber} | Amount: {formatCurrency(commission.commissionAmount)}
                                   </div>
                                   <div className="text-xs text-gray-400">
                                     Base: {formatCurrency(commission.baseAmount)} | 
@@ -581,6 +593,25 @@ const CreatePayoutModal = ({ isOpen, onClose, onPayoutCreated }) => {
                 </div>
               )}
 
+              {/* UPI Details */}
+              {formData.paymentMethod === 'UPI' && (
+                <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                  <h4 className="font-medium text-gray-700 mb-3">UPI Details</h4>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      UPI ID *
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.upiId}
+                      onChange={(e) => setFormData(prev => ({ ...prev, upiId: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-700"
+                      placeholder="e.g., example@upi"
+                    />
+                  </div>
+                </div>
+              )}
+
               {/* Transaction ID */}
               <div className="mb-6">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -693,7 +724,6 @@ const CreatePayoutModal = ({ isOpen, onClose, onPayoutCreated }) => {
               </div>
             </form>
           </div>
-
         </div>
       </div>
     </div>

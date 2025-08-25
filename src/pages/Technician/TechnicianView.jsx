@@ -45,7 +45,7 @@ const TechnicianView = () => {
   const tabs = [
     "Profile Info",
     "Service History",
-    "Performance Metrics",
+    // "Performance Metrics",
     "Earning Summary",
   ];
   const [isModalOpen, setIsModalOpen] = useState(false);
